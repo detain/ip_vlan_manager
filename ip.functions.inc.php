@@ -908,6 +908,8 @@ if (!function_exists('ipcalc')) {
 				$table = new TFTable;
 				$table->set_title('Delete VLan');
 				$table->add_hidden('ipblock', $ipblock);
+				if (isset($_SERVER['HTTP_REFERER']))
+					$table->add_hidden('httpreferer', $_SERVER['HTTP_REFERER']);
 				$table->set_colspan(2);
 				$table->add_field(nl2br(wordwrap('<b>WARNING: THIS WILL NOT REMOVE IPS FROM ROUTER. DO NOT USE THIS FEATURE UNLESS YOU HAVE ALREADY REMOVED THE IPS FROM ROUTER.</b>')));
 				$table->add_row();
@@ -936,7 +938,10 @@ if (!function_exists('ipcalc')) {
 				$query = "update ips2 set ips_vlan=0 where ips_vlan='$id'";
 				$db->query($query, __LINE__, __FILE__);
 				`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
-				$GLOBALS['tf']->redirect('javascript: history.go(-3)');
+				if (isset($_REQUEST['httpreferer']))
+					$GLOBALS['tf']->redirect($_REQUEST['httpreferer']);
+				else
+					$GLOBALS['tf']->redirect($table->make_link('index.php', 'choice=none.vlan_manager'));
 			}
 		}
 	}
