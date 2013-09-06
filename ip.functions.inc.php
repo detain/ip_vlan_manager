@@ -741,11 +741,11 @@ if (!function_exists('ipcalc')) {
 		$minparts = explode('.', $minip);
 		$maxparts = explode('.', $maxip);
 		$ips = array();
-		for ($a = $minparts[0]; check_ip_part(1, array($a, $b, $c, $d), $maxparts, $include_unusable); $a++)
+		for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++)
 		{
-			for ($b = $minparts[1]; check_ip_part(2, array($a, $b, $c, $d), $maxparts, $include_unusable); $b++)
+			for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++)
 			{
-				for ($c = $minparts[2]; check_ip_part(3, array($a, $b, $c, $d), $maxparts, $include_unusable); $c++)
+				for ($c = $minparts[2]; check_ip_part(3, array($a, $b, $c), $maxparts, $include_unusable); $c++)
 				{
 					for ($d = $minparts[3]; check_ip_part(4, array($a, $b, $c, $d), $maxparts, $include_unusable); $d++)
 					{
