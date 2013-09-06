@@ -936,7 +936,7 @@ if (!function_exists('ipcalc')) {
 				$query = "update ips2 set ips_vlan=0 where ips_vlan='$id'";
 				$db->query($query, __LINE__, __FILE__);
 				`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
-				$GLOBALS['tf']->redirect('javascript: history.go(-2)');
+				$GLOBALS['tf']->redirect('javascript: history.go(-3)');
 			}
 		}
 	}
