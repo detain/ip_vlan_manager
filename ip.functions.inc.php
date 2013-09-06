@@ -213,7 +213,7 @@
 			{
 				if (! $num_ips)
 				{
-					add_output('<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('i.php') . '">');
+					add_output('<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('index.php') . '">');
 					add_output("<input type=hidden name=choice value=$choice>");
 					add_output("<input type=hidden name=server value=$server>");
 					add_output("How many IPs do you want to add to the server?: ");
@@ -336,7 +336,7 @@
 		{
 			// FIXME
 			$db->query("delete from history_log where history_new_value='$ip' and history_type='doubleboundip' and history_section='servers'",__LINE__,__FILE__);
-			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.view_doublebound_ips'));
+			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.view_doublebound_ips'));
 		}
 	}
 
@@ -428,7 +428,7 @@
 
 	function ip_manager()
 	{
-		$GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.vlan_manager'));
+		$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 /*		global $groupinfo;
 		$db  = $GLOBALS['admin_dbh'];
 		$db2 = $GLOBALS['admin_dbh'];
@@ -933,7 +933,7 @@ if (!function_exists('ipcalc')) {
 				$query = "update ips2 set ips_vlan=0 where ips_vlan='$id'";
 				$db->query($query, __LINE__, __FILE__);
 				`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
-				$GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.vlan_manager'));
+				$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 			}
 		}
 	}
@@ -1128,7 +1128,7 @@ if (!function_exists('ipcalc')) {
 						}
 						add_output('VLAN Created');
 						`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
-						$GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.vlan_manager'));
+						$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 					}
 					else
 					{
@@ -1234,7 +1234,7 @@ if (!function_exists('ipcalc')) {
 			$query = "update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'";
 			$db2->query($query,__LINE__,__FILE__);
 			`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
-			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.vlan_manager'));
+			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 		}
 		$table->add_row();
 		add_output($table->get_table());
@@ -1563,7 +1563,7 @@ if (!function_exists('ipcalc')) {
 					$comment = $GLOBALS['tf']->variables->request['comment'];
 					$db->query("update vlans set vlans_comment='$comment' where vlans_id='$id'",__LINE__,__FILE__);
 					`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
-					$GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.vlan_manager'));
+					$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 				}
 			}
 		}
@@ -1678,7 +1678,7 @@ if (!function_exists('ipcalc')) {
 					$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 					$db2->query("update vlans set vlans_ports='$ports' where vlans_networks like '%:$ipblock:%' and vlans_id='$vlan_id'",__LINE__,__FILE__);
 					`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
-					$GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.ipblock_viewer&amp;ipblock=' . $ipblock));
+					$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock=' . $ipblock));
 				}
 			}
 		}
@@ -1837,7 +1837,7 @@ if (!function_exists('ipcalc')) {
 						$db->query("update ips2 set ips_group='$group', ips_serverid='$server_info[servers_serverid]' where ips_ip='$ips[$x]'",__LINE__,__FILE__);
 					}
 					add_output("IP(s) Successfully Assigned To $server<br>");
-					add_output($GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.ipblock_viewer&amp;ipblock=' . $ipblock), 1));
+					add_output($GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock=' . $ipblock), 1));
 				}
 				else
 				{
@@ -1866,7 +1866,7 @@ if (!function_exists('ipcalc')) {
 			add_output('<TABLE>'
 			. '<TR bgcolor="' . $color3 . '" align=center><TD colspan=2>IP Address Addition Menu</TD></TR>'
 			. '<TR bgcolor="' . $color1 . '" align=center><TD colspan=2>Adding A Single Class C</TD></TR>'
-			. '<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('i.php') . '">'
+			. '<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('index.php') . '">'
 			. "<input type=hidden name=choice value=$choice>"
 			. '<TR><TD bgcolor="' . $color2 . '">'
 			. 'Enter First 3 Set Of IPs In The Class C (ie 216.74.109):'
@@ -1879,7 +1879,7 @@ if (!function_exists('ipcalc')) {
 			. '</FORM>'
 			. '<TR><TD colspan=2>&nbsp;</TD></TR>'
 			. '<TR bgcolor="' . $color1 . '" align=center><TD colspan=2>I Want To Add Less Than A Class C</TD></TR>'
-			. '<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('i.php') . '">'
+			. '<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('index.php') . '">'
 			. "<input type=hidden name=choice value=$choice>"
 			. '<TR><TD bgcolor="' . $color2 . '">'
 			. 'Enter First 3 Set Of IPs In The Class C (ie 216.74.109):'
