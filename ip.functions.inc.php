@@ -908,6 +908,9 @@ if (!function_exists('ipcalc')) {
 				$table = new TFTable;
 				$table->set_title('Delete VLan');
 				$table->add_hidden('ipblock', $ipblock);
+				$table->set_colspan(2);
+				$table->add_field(nl2br(wordwrap('<b>WARNING: THIS WILL NOT REMOVE IPS FROM ROUTER. DO NOT USE THIS FEATURE UNLESS YOU HAVE ALREADY REMOVED THE IPS FROM ROUTER.</b>')));
+				$table->add_row();
 				$table->add_field('Vlan');
 				$table->add_field($ipblock);
 				$table->add_row();
