@@ -30,7 +30,7 @@
 
 	function get_switch_name($index, $short = FALSE)
 	{
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db->query("select * from switchmanager where id='$index'");
 		$db->next_record();
 		$switch = $db->Record['name'];
@@ -46,7 +46,7 @@
 
 	function get_select_ports($ports = FALSE, $size = 5)
 	{
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		if ($ports === FALSE)
 		{
 			$ports = array();
@@ -73,10 +73,10 @@
 	function switch_manager()
 	{
 		global $groupinfo;
-		$db  = $GLOBALS['tf']->db;
-		$db2 = $GLOBALS['tf']->db;
+		$db  = $GLOBALS['admin_dbh'];
+		$db2 = $GLOBALS['admin_dbh'];
 		$ima = $GLOBALS['tf']->ima;
-		if ($ima == 'colo')
+		if ($ima == 'admin')
 		{
 			if ($groupinfo['account_id'] == ADMIN_GROUP)
 			{
@@ -124,7 +124,7 @@
 
 	function list_revips()
 	{
-		$db     = $GLOBALS['tf']->db;
+		$db     = $GLOBALS['admin_dbh'];
 		if (!isset($GLOBALS['tf']->variables->request['server']))
 		{
 			select_server();
@@ -157,7 +157,7 @@
 
 	function list_ips()
 	{
-		$db     = $GLOBALS['tf']->db;
+		$db     = $GLOBALS['admin_dbh'];
 		if (!isset($GLOBALS['tf']->variables->request['server']))
 		{
 			select_server();
@@ -194,8 +194,8 @@
 
 	function delegate_ips()
 	{
-		$db      = $GLOBALS['tf']->db;
-		$db2     = $GLOBALS['tf']->db;
+		$db      = $GLOBALS['admin_dbh'];
+		$db2     = $GLOBALS['admin_dbh'];
 		$ima     = $GLOBALS['tf']->ima;
 		$choice  = $GLOBALS['tf']->variables->request['choice'];
 		$num_ips = $GLOBALS['tf']->variables->request['num_ips'];
@@ -258,10 +258,10 @@
 	function view_doublebound_ips()
 	{
 		global $groupinfo;
-		$db  = $GLOBALS['tf']->db;
-		$db2 = $GLOBALS['tf']->db;
+		$db  = $GLOBALS['admin_dbh'];
+		$db2 = $GLOBALS['admin_dbh'];
 		$ima = $GLOBALS['tf']->ima;
-		if ($ima == 'colo')
+		if ($ima == 'admin')
 		{
 			if ($groupinfo['account_id'] == ADMIN_GROUP)
 			{
@@ -324,8 +324,8 @@
 	function close_doublebound()
 	{
 		global $groupinfo;
-		$db  = $GLOBALS['tf']->db;
-		$db2 = $GLOBALS['tf']->db;
+		$db  = $GLOBALS['admin_dbh'];
+		$db2 = $GLOBALS['admin_dbh'];
 		$ima = $GLOBALS['tf']->ima;
 		$ip = $GLOBALS['tf']->variables->request['ip'];
 		if ($GLOBALS['tf']->accounts->data['demo'] == 1)
@@ -344,9 +344,9 @@
 	{
 		global $groupinfo;
 		$ima = $GLOBALS['tf']->ima;
-		$db  = $GLOBALS['tf']->db;
-		$db2 = $GLOBALS['tf']->db;
-		if ($ima == 'colo')
+		$db  = $GLOBALS['admin_dbh'];
+		$db2 = $GLOBALS['admin_dbh'];
+		if ($ima == 'admin')
 		{
 			if ($groupinfo['account_id'] == ADMIN_GROUP)
 			{
@@ -430,8 +430,8 @@
 	{
 		$GLOBALS['tf']->redirect($GLOBALS['tf']->link('i.php', 'choice=ip.vlan_manager'));
 /*		global $groupinfo;
-		$db  = $GLOBALS['tf']->db;
-		$db2 = $GLOBALS['tf']->db;
+		$db  = $GLOBALS['admin_dbh'];
+		$db2 = $GLOBALS['admin_dbh'];
 		$ima = $GLOBALS['tf']->ima;
 
 		// get free ip count
@@ -565,6 +565,7 @@
 		return $network_info;
 	}
 
+if (!function_exists('ipcalc')) {
 	function ipcalc($network)
 	{
 		if (preg_match('/^(.*)\/32$/', $network, $matches))
@@ -622,6 +623,7 @@
 		//_debug_array($ipinfo);
 		return $ipinfo;
 	}
+}
 
 	function get_networks($text, $vlan = 0, $comment = '', $ports = '')
 	{
@@ -794,7 +796,7 @@
 	{
 		// array of available blocks
 		$available = array();
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		// first we gotta get how many ips are in the blocksize they requested
 		$ipcount = get_ipcount_from_netmask($blocksize) + 2;
 
@@ -897,9 +899,9 @@
 	{
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
-		if (($ima == 'colo') && ($groupinfo['account_id'] == ADMIN_GROUP))
+		if ($ima == 'admin')
 		{
 			if ($GLOBALS['tf']->variables->request['sure'] != 'yes')
 			{
@@ -941,9 +943,9 @@
 		//_debug_array(get_ips2('68.168.208.0/20',TRUE));
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if (($ima == 'colo') && ($groupinfo['account_id'] == ADMIN_GROUP))
+		if ($ima == 'admin')
 		{
 			if (!isset($GLOBALS['tf']->variables->request['blocksize']))
 			{
@@ -1139,7 +1141,7 @@
 
 	function portless_vlans()
 	{
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);
 		$table = new TFTable;
 		$table->set_title('Port-less VLAN List' . pdf_link('choice=ip.portless_vlans'));
@@ -1175,7 +1177,7 @@
 
 	function vlan_edit_port()
 	{
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		$table = new TFTable;
 		$table->set_title('VLAN Edit Port Assignments');
@@ -1248,9 +1250,9 @@
 		$ima = $GLOBALS['tf']->ima;
 		$choice = $GLOBALS['tf']->variables->request['choice'];
 		global $groupinfo;
-		$db = $GLOBALS['tf']->dbs;
+		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if (($ima == 'colo') && ($groupinfo['account_id'] == ADMIN_GROUP))
+		if ($ima == 'admin')
 		{
 			if (isset($GLOBALS['tf']->variables->request['order']) && $GLOBALS['tf']->variables->request['order'] == 'id')
 				$order = 'vlans_id';
@@ -1504,7 +1506,7 @@
 			$table->add_field('Free IPs ' . ($total_ips - $used_ips) . ' (' . number_format(((($total_ips - $used_ips) / $total_ips) * 100), 2) . '%)', 'l');
 			$table->add_row();
 			$table->set_colspan(4);
-			$table->add_field($table->make_link('choice=ip.add_vlan', lang('Add New VLAN')) . '   ' .
+			$table->add_field($table->make_link('choice=ip.add_vlan', 'Add New VLAN') . '   ' .
 			$table->make_link('choice=ip.portless_vlans', 'List Of VLAN Without Port Assignments ') . '   ' .
 			$table->make_link('choice=ip.vlan_port_server_manager', 'VLAN Port <-> Server Mapper'));
 			$table->add_row();
@@ -1526,9 +1528,9 @@
 	{
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if (($ima == 'colo') && ($groupinfo['account_id'] == ADMIN_GROUP))
+		if ($ima == 'admin')
 		{
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			// get ip block(s)
@@ -1571,9 +1573,9 @@
 	{
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if (($ima == 'colo') && ($groupinfo['account_id'] == ADMIN_GROUP))
+		if ($ima == 'admin')
 		{
 			$db->query("select * from vlans order by vlans_ports, vlans_networks", __LINE__, __FILE__);
 			$table = new TFTable;
@@ -1639,9 +1641,9 @@
 	{
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if (($ima == 'colo') && ($groupinfo['account_id'] == ADMIN_GROUP))
+		if ($ima == 'admin')
 		{
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'",__LINE__,__FILE__);
@@ -1686,9 +1688,9 @@
 	{
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if (($ima == 'colo') && ($groupinfo['account_id'] == ADMIN_GROUP))
+		if ($ima == 'admin')
 		{
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'",__LINE__,__FILE__);
@@ -1788,9 +1790,9 @@
 	{
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['tf']->db;
+		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if (($ima == 'colo') && ($groupinfo['account_id'] == ADMIN_GROUP))
+		if ($ima == 'admin')
 		{
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			if (!isset($GLOBALS['tf']->variables->request['ips']))
@@ -1853,7 +1855,7 @@
 	function add_ips()
 	{
 		global $groupinfo;
-		$db      = $GLOBALS['tf']->db;
+		$db      = $GLOBALS['admin_dbh'];
 		$ima     = $GLOBALS['tf']->ima;
 		$color1 = COLOR1;
 		$color3 = COLOR2;
