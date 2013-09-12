@@ -565,9 +565,52 @@
 		return $network_info;
 	}
 
+if (!function_exists('valid_ip')) {
+	/**
+	 * valid_ip()
+	 * returns wether or not the given IP is valid
+	 *
+	 * @param string $ip the ip address to validate
+	 * @param bool $display_errors wether or not errors are displayed. defauls to true
+	 * @return bool wether or not its a valid ip
+	 */
+	function valid_ip($ip, $display_errors = true)
+	{
+		if (!preg_match("/^[0-9\.]{7,15}$/", $ip))
+		{
+			// dont display errors cuz this gets called w/ a blank entry when people didnt even submit anything yet
+			//add_output('<font class="error">IP ' . $ip . ' Too short/long</font>');
+			return false;
+		}
+		$quads = explode('.', $ip);
+		$numquads = count($quads);
+		if ($numquads != 4)
+		{
+			if ($display_errors)
+				add_output('<font class="error">IP ' . $ip . ' Too many quads</font>');
+			return false;
+		}
+		for ($i = 0; $i < 4; $i++)
+		{
+			if ($quads[$i] > 255)
+			{
+				if ($display_errors)
+					add_output('<font class="error">IP ' . $ip . ' number ' . $quads[$i] . ' too high</font>');
+				return false;
+			}
+		}
+		return true;
+	}
+}
+
 if (!function_exists('ipcalc')) {
 	function ipcalc($network)
 	{
+		if (trim($network) == '')
+			return false;
+		list($block, $bitmask) = explode('/', $network);
+		if (!valid_ip($block, false) || !is_numeric($bitmask))
+			return false;
 		if (preg_match('/^(.*)\/32$/', $network, $matches))
 		{
 			return array(
