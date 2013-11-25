@@ -842,24 +842,52 @@ if (!function_exists('ipcalc')) {
 		$db = $GLOBALS['admin_dbh'];
 		// first we gotta get how many ips are in the blocksize they requested
 		$ipcount = get_ipcount_from_netmask($blocksize) + 2;
-
 		// get the ips in use
 		$usedips = array();
+	$reserved = array();
 /*  added by joe 08/24/11 to temporarily hide  173.214.160.0/23 lax1 ips */
     $reserved = array(2916524033, 2916524542);
     for ($x = $reserved[0]; $x < $reserved[1]; $x++)
     {
         $ip = long2ip($x);
         $usedips[$ip] = $ip;
-	}
-
-    $reserved = array(3460874240, 3460874751);
+    }
+	// 206.72.192.0  LA
+	$reserved = array(3460874240, 3460874751);
+    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+    {
+        $ip = long2ip($x);
+        $usedips[$ip] = $ip;
+    }
+	// 162.220.160.0/24   LA
+	$reserved = array(2732093440, 2732093695);
     for ($x = $reserved[0]; $x < $reserved[1]; $x++)
     {
         $ip = long2ip($x);
         $usedips[$ip] = $ip;
     }
 
+	// 162.220.161.0/24 NY4
+	$reserved = array(2732368128, 2732368383);
+    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+    {
+        $ip = long2ip($x);
+        $usedips[$ip] = $ip;
+    }
+	/* 199.231.191.0/24 reserved */
+	$reserved = array(3353853696, 3353853951);
+    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+    {
+        $ip = long2ip($x);
+        $usedips[$ip] = $ip;
+    }
+	/* 66.23.225.0/24 reserved cogent/currenx */
+	$reserved = array(1108861184, 1108861439);
+    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+    {
+        $ip = long2ip($x);
+        $usedips[$ip] = $ip;
+    }
 
 		$db->query("select ips_ip from ips2 where ips_vlan > 0",__LINE__,__FILE__);
 		if ($db->num_rows())
