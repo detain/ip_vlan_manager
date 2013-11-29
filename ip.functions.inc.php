@@ -851,14 +851,14 @@ if (!function_exists('ipcalc')) {
 			$db->query("select * from ipblocks",__LINE__,__FILE__);
 			while ($db->next_record())
 			{
-				$mainblocks[] = $db->Record['ipblocks_network'];
+				$mainblocks[] = array($db->Record['ipblocks_id'], $db->Record['ipblocks_network']);
 			}
 		}
 		if ($location == 2)
 		{
-			$mainblocks[] = '173.214.160.0/23';
-			$mainblocks[] = '206.72.192.0/24';
-			$mainblocks[] = '162.220.160.0/24';
+			$mainblocks[] = array(7,'173.214.160.0/23');
+			$mainblocks[] = array(8,'206.72.192.0/24');
+			$mainblocks[] = array(12,'162.220.160.0/24');
 
 		}
 		else
@@ -887,7 +887,7 @@ if (!function_exists('ipcalc')) {
 		}
 		if ($location == 3)
 		{
-			$mainblocks[] = '162.220.161.0/24';
+			$mainblocks[] = array(12,'162.220.161.0/24');
 		}
 		else
 		{
@@ -923,8 +923,10 @@ if (!function_exists('ipcalc')) {
 				$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
 			}
 		}
-		foreach ($mainblocks as $mainblock)
+		foreach ($mainblocks as $maindata)
 		{
+			$ipblock_id = $maindata[0];
+			$mainblock = $maindata[1];
 			// get ips from the main block
 			$ips = get_ips2($mainblock, TRUE);
 			// next loop through all available ips
@@ -978,7 +980,7 @@ if (!function_exists('ipcalc')) {
 						$found_count++;
 						if ($found_count == $ipcount)
 						{
-							$available[] = array($found, $db->Record['ipblocks_id']);
+							$available[] = array($found, $ipblock_id);
 							$found = FALSE;
 							$found_count = 0;
 						}
