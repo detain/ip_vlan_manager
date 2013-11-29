@@ -835,7 +835,7 @@ if (!function_exists('ipcalc')) {
 		return $ips;
 	}
 
-	function available_ipblocks($blocksize)
+	function available_ipblocks($blocksize, $location = 1)
 	{
 		// array of available blocks
 		$available = array();
@@ -844,50 +844,76 @@ if (!function_exists('ipcalc')) {
 		$ipcount = get_ipcount_from_netmask($blocksize) + 2;
 		// get the ips in use
 		$usedips = array();
-	$reserved = array();
-/*  added by joe 08/24/11 to temporarily hide  173.214.160.0/23 lax1 ips */
-    $reserved = array(2916524033, 2916524542);
-    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-    {
-        $ip = long2ip($x);
-        $usedips[$ip] = $ip;
-    }
-	// 206.72.192.0  LA
-	$reserved = array(3460874240, 3460874751);
-    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-    {
-        $ip = long2ip($x);
-        $usedips[$ip] = $ip;
-    }
-	// 162.220.160.0/24   LA
-	$reserved = array(2732093440, 2732093695);
-    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-    {
-        $ip = long2ip($x);
-        $usedips[$ip] = $ip;
-    }
+		$mainblocks = array();
+		if ($location == 1)
+		{
+			// get the main ipblocks we have routed
+			$db->query("select * from ipblocks",__LINE__,__FILE__);
+			while ($db->next_record())
+			{
+				$mainblocks[] = $db->Record['ipblocks_network'];
+			}
+		}
+		if ($location == 2)
+		{
+			$mainblocks[] = '173.214.160.0/23';
+			$mainblocks[] = '206.72.192.0/24';
+			$mainblocks[] = '162.220.160.0/24';
 
-	// 162.220.161.0/24 NY4
-	$reserved = array(2732368128, 2732368383);
-    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-    {
-        $ip = long2ip($x);
-        $usedips[$ip] = $ip;
-    }
-	/* 199.231.191.0/24 reserved */
-	$reserved = array(3353853696, 3353853951);
-    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-    {
-        $ip = long2ip($x);
-        $usedips[$ip] = $ip;
-    }
-	/* 66.23.225.0/24 reserved cogent/currenx */
-	$reserved = array(1108861184, 1108861439);
-    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-    {
-        $ip = long2ip($x);
-        $usedips[$ip] = $ip;
-    }
+		}
+		else
+		{
+			/*  added by joe 08/24/11 to temporarily hide  173.214.160.0/23 lax1 ips */
+		    $reserved = array(2916524033, 2916524542);
+		    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+		    {
+		        $ip = long2ip($x);
+		        $usedips[$ip] = $ip;
+		    }
+			// 206.72.192.0  LA
+			$reserved = array(3460874240, 3460874751);
+		    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+		    {
+		        $ip = long2ip($x);
+		        $usedips[$ip] = $ip;
+		    }
+			// 162.220.160.0/24   LA
+			$reserved = array(2732093440, 2732093695);
+		    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+		    {
+		        $ip = long2ip($x);
+		        $usedips[$ip] = $ip;
+		    }
+		}
+		if ($location == 3)
+		{
+			$mainblocks[] = '162.220.161.0/24';
+		}
+		else
+		{
+			// 162.220.161.0/24 NY4
+			$reserved = array(2732368128, 2732368383);
+		    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+		    {
+		        $ip = long2ip($x);
+		        $usedips[$ip] = $ip;
+		    }
+		}
+
+		/* 199.231.191.0/24 reserved */
+		$reserved = array(3353853696, 3353853951);
+	    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+	    {
+	        $ip = long2ip($x);
+	        $usedips[$ip] = $ip;
+	    }
+		/* 66.23.225.0/24 reserved cogent/currenx */
+		$reserved = array(1108861184, 1108861439);
+	    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+	    {
+	        $ip = long2ip($x);
+	        $usedips[$ip] = $ip;
+	    }
 
 		$db->query("select ips_ip from ips2 where ips_vlan > 0",__LINE__,__FILE__);
 		if ($db->num_rows())
@@ -897,11 +923,8 @@ if (!function_exists('ipcalc')) {
 				$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
 			}
 		}
-		// get the main ipblocks we have routed
-		$db->query("select * from ipblocks",__LINE__,__FILE__);
-		while ($db->next_record())
+		foreach ($mainblocks as $mainblock)
 		{
-			$mainblock = $db->Record['ipblocks_network'];
 			// get ips from the main block
 			$ips = get_ips2($mainblock, TRUE);
 			// next loop through all available ips
