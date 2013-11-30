@@ -877,7 +877,15 @@ if (!function_exists('ipcalc')) {
 		        $ip = long2ip($x);
 		        $usedips[$ip] = $ip;
 		    }
-			// 162.220.160.0/24   LA
+			// 162.220.160.0/24 LA
+			$reserved = array(2732367872, 2732368127);
+		    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+		    {
+		        $ip = long2ip($x);
+		        $usedips[$ip] = $ip;
+		    }
+
+			// 162.216.112.0/24   LA
 			$reserved = array(2732093440, 2732093695);
 		    for ($x = $reserved[0]; $x < $reserved[1]; $x++)
 		    {
