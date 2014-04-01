@@ -780,6 +780,15 @@ if (!function_exists('ipcalc')) {
 		$all_blocks = get_all_ipblocks();
 		$all_ips = array();
 		foreach ($all_blocks as $ipblock)
+			$all_ips = array_merge($all_ips, get_ips($ipblock, $include_unusable));
+		return $all_ips;
+	}
+
+	function get_all_ips2_from_ipblocks($include_unusable = FALSE)
+	{
+		$all_blocks = get_all_ipblocks();
+		$all_ips = array();
+		foreach ($all_blocks as $ipblock)
 			$all_ips = array_merge($all_ips, get_ips2($ipblock, $include_unusable));
 		return $all_ips;
 	}
