@@ -530,7 +530,7 @@
 	function get_ipcount_from_netmask($netmask)
 	{
 		$ipinfo = array();
-								error_log("Calling ipcalc here");
+								//error_log("Calling ipcalc here");
 		$result = trim(`LANG=C /usr/local/bin/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
 		return $result;
 	}
@@ -540,7 +540,7 @@
 		$cmd = "function a() {\n";
 		for ($x = 0; $x < sizeof($networks); $x++)
 		{
-								error_log("Calling ipcalc here");
+								//error_log("Calling ipcalc here");
 			$cmd .= 'LANG=C /usr/local/bin/ipcalc -nb ' . $networks[$x]['network'] . ';echo :-----;';
 		}
 		$cmd .= "}\n";
@@ -651,7 +651,7 @@ if (!function_exists('ipcalc')) {
 		7	Hosts/Net:4094
 		*/
 		$ipinfo = array();
-								error_log("Calling ipcalc here");
+								//error_log("Calling ipcalc here");
 		$result = trim(`LANG=C /usr/local/bin/ipcalc -nb $network | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1`);
 		$lines = explode("\n", $result);
 		$netparts = explode('/', $lines[3]);
@@ -992,7 +992,7 @@ if (!function_exists('ipcalc')) {
 						{
 							if ($ips[$x][4] == 0)
 							{
-								error_log("Calling ipcalc here");
+								//error_log("Calling ipcalc here");
 								$cmd = 'LANG=C /usr/local/bin/ipcalc -n -b ' . $ips[$x][0] . '/' . $blocksize
 								. ' | grep Network: | cut -d: -f2';
 								if (trim(`$cmd`) == $ips[$x][0]."/".$blocksize)
