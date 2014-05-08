@@ -775,6 +775,29 @@ if (!function_exists('ipcalc')) {
 		return $all_blocks;
 	}
 	
+	function get_client_ipblocks()
+	{
+		$ipblocks = array(
+			'67.217.48.0/20', 
+			'69.164.240.0/20', 
+			'74.50.64.0/19', 
+			'202.53.73.0/24', 
+			'205.209.96.0/19', 
+			'216.219.80.0/20'
+		);
+		return $ipblocks;
+	}
+	
+	function get_client_ips($include_unusable = false)
+	{
+		$ipblocks = get_client_ipblocks();
+		$client_ips = array();
+		foreach ($ipblocks as $ipblock)
+		{
+			$client_ips = array_merge($client_ips, get_ips($ipblock, $include_unusable));
+		}
+	}
+
 	function get_all_ips_from_ipblocks($include_unusable = FALSE)
 	{
 		$all_blocks = get_all_ipblocks();
