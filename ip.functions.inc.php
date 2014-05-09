@@ -796,6 +796,7 @@ if (!function_exists('ipcalc')) {
 		{
 			$client_ips = array_merge($client_ips, get_ips($ipblock, $include_unusable));
 		}
+		return $client_ips;
 	}
 
 	function get_all_ips_from_ipblocks($include_unusable = FALSE)
