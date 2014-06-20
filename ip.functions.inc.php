@@ -911,10 +911,18 @@ if (!function_exists('ipcalc')) {
 			$mainblocks[] = array(7,'173.214.160.0/23');
 			$mainblocks[] = array(8,'206.72.192.0/24');
 			$mainblocks[] = array(12,'162.220.160.0/24');
+			$mainblocks[] = array(15,'104.37.184.0/24');
 
 		}
 		else
 		{
+			//  104.37.184.0/24 LA reserved
+			$reserved = array(1747302400, 1747302655);
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			/*  added by joe 08/24/11 to temporarily hide  173.214.160.0/23 lax1 ips */
 			$reserved = array(2916524033, 2916524542);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
