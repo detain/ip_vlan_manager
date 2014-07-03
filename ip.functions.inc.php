@@ -532,7 +532,7 @@
 		$ipinfo = array();
 								//error_log("Calling ipcalc here");
 		$result = trim(`LANG=C /usr/local/bin/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
-		return $result;
+		return intval($result);
 	}
 
 	function ipcalc_array($networks)
