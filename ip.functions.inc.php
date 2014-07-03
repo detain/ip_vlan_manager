@@ -311,7 +311,7 @@
 				add_output($table->get_table());
 				if ($GLOBALS['tf']->variables->request['pdf'] == 1)
 				{
-					echo $table->get_pdf();
+					$table->get_pdf();
 				}
 			}
 		}
@@ -1342,7 +1342,7 @@ if (!function_exists('ipcalc')) {
 		}
 		if ($GLOBALS['tf']->variables->request['pdf'] == 1)
 		{
-			echo $table->get_pdf();
+			$table->get_pdf();
 		}
 		add_output($table->get_table());
 	}
@@ -1687,7 +1687,7 @@ if (!function_exists('ipcalc')) {
 			add_output($table->get_table());
 			if (isset($GLOBALS['tf']->variables->request['pdf']) && $GLOBALS['tf']->variables->request['pdf'] == 1)
 			{
-				echo $table->get_pdf();
+				$table->get_pdf();
 			}
 		}
 		else
