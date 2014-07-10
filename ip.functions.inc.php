@@ -991,115 +991,115 @@ if (!function_exists('ipcalc')) {
 			// 66.45.241.16/28 reserved
 			$reserved = array(1110307088, 1110307103);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.38.128/25 reserved
 			$reserved = array(1158293120, 1158293247);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.60.192/26 reserved
 			$reserved = array(1158298816, 1158298879);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.56.0/25 reserved
 			$reserved = array(1158297600, 1158297727);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 68.168.216.0/22 reserved
 			$reserved = array(1151916032, 1151917055);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.57.0/24 reserved
 			$reserved = array(1158297856, 1158298111);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.52.72/29 reserved
 			$reserved = array(1158296648, 1158296655);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.52.112/29 reserved
 			$reserved = array(1158296688, 1158296695);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.61.64/26 reserved
 			$reserved = array(1158298944, 1158299007);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 68.168.212.0/24 reserved
 			$reserved = array(1151915008, 1151915263);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.60.0/26 reserved
 			$reserved = array(1158298624, 1158298687);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 68.168.222.0/24 reserved
 			$reserved = array(1151917568, 1151917823);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 68.168.214.0/23 reserved
 			$reserved = array(1151915520, 1151916031);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 69.10.53.0/24 reserved
 			$reserved = array(1158296832, 1158297087);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 209.159.159.0/24 reserved
 			$reserved = array(3516899072, 3516899327);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 			// 66.23.224.0/24 reserved
 			$reserved = array(1108860928, 1108861183);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-            {
-                $ip = long2ip($x);
-                $usedips[$ip] = $ip;
-            }
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
 		}
 		/* 199.231.191.0/24 reserved */
 		$reserved = array(3353853696, 3353853951);
@@ -2338,65 +2338,66 @@ if (!function_exists('ipcalc')) {
 
 	function ips_hostname($hostname)
 	{
-	        $db = $GLOBALS['admin_dbh'];
-	        $db2 = clone $db;
-	        $comment = mysql_escape_string($GLOBALS['tf']->variables->request['vlan_comment']);
-	        $query = "select * from vlans where vlans_comment='$comment'";
-	        $db->query($query);
+			$db = clone $GLOBALS['admin_dbh'];
+			$db2 = clone $db;
+			$comment = $db->real_escape($hostname);
+			$query = "select * from vlans where vlans_comment='$comment'";
+			$db->query($query);
 		$out = '';
-	        if ($db->num_rows() == 0)
-	        {
-	                $query = "select * from vlans where vlans_comment like '%$comment%'";
-	                $db->query($query);
-	        }
-	        if ($db->num_rows() > 0)
-	        {
-	                while ($db->next_record(MYSQL_ASSOC))
-	                {
-	                        $parts = explode(':', $db->Record['vlans_ports']);
-	                        for ($x = 0; $x < sizeof($parts); $x++)
-	                        {
-	                                if (strpos($parts[$x], '/'))
-	                                {
-	                                        list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
-	                                        $parts[$x] = get_switch_name($switch, TRUE) . '/' . $port;
-	                                }
-	                        }
-	                        $vlan = $db->Record['vlans_id'];
-	                        $query = "select graph_id from switchports where switch='$switch' and port='$port'";
-	                        //echo $query;
-	                        $db2->query($query);
-	                        if ($db2->num_rows() > 0)
-	                        {
-	                                $db2->next_record();
-	                                //print_r($db2->Record);
-	                                $graph_id = $db2->Record['graph_id'];
-	                        }
-	                        else
-	                        {
-	                                $query = "select graph_id from switchports where switch='$switch' and (port='$port' || justport='$justport')";
-	                                //echo $query;
-	                                $db2->query($query);
-	                                if ($db2->num_rows() > 0)
-	                                {
-	                                        $db2->next_record();
-	                                        //print_r($db2->Record);
-	                                        $graph_id = $db2->Record['graph_id'];
-	                                }
-	                                else
-	                                {
-	                                        $graph_id = 0;
-	                                }
-                        }
-	                        $db->Record['vlans_ports'] = implode(':', $parts);
-	                        $out .= $db->Record['vlans_comment'] . "\n" . $db->Record['vlans_networks'] . "\n" . $db->Record['vlans_ports'] . "\n" . $graph_id . "\n";;
-	                }
-	        }
-	        else
-	        {
-	       	         $out .= "No vlans found\n";
-	        }
-		return $out;
+			if ($db->num_rows() == 0)
+			{
+					$query = "select * from vlans where vlans_comment like '%$comment%'";
+					$db->query($query);
+			}
+			if ($db->num_rows() > 0)
+			{
+					while ($db->next_record(MYSQL_ASSOC))
+					{
+//		$db->Record['vlans_id'];
+							$parts = explode(':', $db->Record['vlans_ports']);
+							for ($x = 0; $x < sizeof($parts); $x++)
+							{
+									if (strpos($parts[$x], '/'))
+									{
+											list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
+											$parts[$x] = get_switch_name($switch, TRUE) . '/' . $port;
+									}
+							}
+							$vlan = $db->Record['vlans_id'];
+							$query = "select graph_id from switchports where switch='$switch' and port='$port'";
+							//echo $query;
+							$db2->query($query);
+							if ($db2->num_rows() > 0)
+							{
+									$db2->next_record();
+									//print_r($db2->Record);
+									$graph_id = $db2->Record['graph_id'];
+							}
+							else
+							{
+									$query = "select graph_id from switchports where switch='$switch' and (port='$port' || justport='$justport')";
+									//echo $query;
+									$db2->query($query);
+									if ($db2->num_rows() > 0)
+									{
+											$db2->next_record();
+											//print_r($db2->Record);
+											$graph_id = $db2->Record['graph_id'];
+									}
+									else
+									{
+											$graph_id = 0;
+									}
+						}
+							$db->Record['vlans_ports'] = implode(':', $parts);
+							$out .= $db->Record['vlans_comment'] . "\n" . $db->Record['vlans_networks'] . "\n" . $db->Record['vlans_ports'] . "\n" . $graph_id . "\n";;
+					}
+			}
+			else
+			{
+					 $out .= "No vlans found\n";
+			}
+		return trim($out);
 
 	}
 
