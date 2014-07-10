@@ -2335,4 +2335,69 @@ if (!function_exists('ipcalc')) {
 		}
 	}
 
+
+	function ips_hostname($hostname)
+	{
+	        $db = $GLOBALS['admin_dbh'];
+	        $db2 = clone $db;
+	        $comment = mysql_escape_string($GLOBALS['tf']->variables->request['vlan_comment']);
+	        $query = "select * from vlans where vlans_comment='$comment'";
+	        $db->query($query);
+		$out = '';
+	        if ($db->num_rows() == 0)
+	        {
+	                $query = "select * from vlans where vlans_comment like '%$comment%'";
+	                $db->query($query);
+	        }
+	        if ($db->num_rows() > 0)
+	        {
+	                while ($db->next_record(MYSQL_ASSOC))
+	                {
+	                        $parts = explode(':', $db->Record['vlans_ports']);
+	                        for ($x = 0; $x < sizeof($parts); $x++)
+	                        {
+	                                if (strpos($parts[$x], '/'))
+	                                {
+	                                        list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
+	                                        $parts[$x] = get_switch_name($switch, TRUE) . '/' . $port;
+	                                }
+	                        }
+	                        $vlan = $db->Record['vlans_id'];
+	                        $query = "select graph_id from switchports where switch='$switch' and port='$port'";
+	                        //echo $query;
+	                        $db2->query($query);
+	                        if ($db2->num_rows() > 0)
+	                        {
+	                                $db2->next_record();
+	                                //print_r($db2->Record);
+	                                $graph_id = $db2->Record['graph_id'];
+	                        }
+	                        else
+	                        {
+	                                $query = "select graph_id from switchports where switch='$switch' and (port='$port' || justport='$justport')";
+	                                //echo $query;
+	                                $db2->query($query);
+	                                if ($db2->num_rows() > 0)
+	                                {
+	                                        $db2->next_record();
+	                                        //print_r($db2->Record);
+	                                        $graph_id = $db2->Record['graph_id'];
+	                                }
+	                                else
+	                                {
+	                                        $graph_id = 0;
+	                                }
+                        }
+	                        $db->Record['vlans_ports'] = implode(':', $parts);
+	                        $out .= $db->Record['vlans_comment'] . "\n" . $db->Record['vlans_networks'] . "\n" . $db->Record['vlans_ports'] . "\n" . $graph_id . "\n";;
+	                }
+	        }
+	        else
+	        {
+	       	         $out .= "No vlans found\n";
+	        }
+		return $out;
+
+	}
+
 ?>
