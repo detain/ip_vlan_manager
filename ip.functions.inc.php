@@ -9,6 +9,10 @@
 	* Description: IP functions                                                          *
 	\************************************************************************************/
 
+	/**
+	 * @param $data
+	 * @return array
+	 */
 	function parse_vlan_ports($data)
 	{
 		$parts2 = explode('/', $data);
