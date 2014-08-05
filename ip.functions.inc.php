@@ -31,6 +31,11 @@
 			$justport);
 	}
 
+	/**
+	 * @param      $index
+	 * @param bool $short
+	 * @return string
+	 */
 	function get_switch_name($index, $short = FALSE)
 	{
 		$db = $GLOBALS['admin_dbh'];
@@ -47,6 +52,11 @@
 		}
 	}
 
+	/**
+	 * @param bool $ports
+	 * @param int  $size
+	 * @return string
+	 */
 	function get_select_ports($ports = FALSE, $size = 5)
 	{
 		$db = $GLOBALS['admin_dbh'];
@@ -530,6 +540,10 @@
 		*/
 	}
 
+	/**
+	 * @param $netmask
+	 * @return int
+	 */
 	function get_ipcount_from_netmask($netmask)
 	{
 		$ipinfo = array();
@@ -538,6 +552,10 @@
 		return intval($result);
 	}
 
+	/**
+	 * @param $networks
+	 * @return mixed
+	 */
 	function ipcalc_array($networks)
 	{
 		$cmd = "function a() {\n";
@@ -609,6 +627,10 @@
 
 	if (!function_exists('ipcalc'))
 	{
+		/**
+		 * @param $network
+		 * @return array
+		 */
 		function ipcalc($network)
 		{
 			if (trim($network) == '')
@@ -643,6 +665,10 @@
 			return $ipinfo;
 		}
 
+		/**
+		 * @param $network
+		 * @return array
+		 */
 		function ipcalc_old($network)
 		{
 			/* Sample Output from ipcalc
@@ -673,6 +699,13 @@
 		}
 	}
 
+	/**
+	 * @param        $text
+	 * @param int    $vlan
+	 * @param string $comment
+	 * @param string $ports
+	 * @return array
+	 */
 	function get_networks($text, $vlan = 0, $comment = '', $ports = '')
 	{
 		$networks = array();
@@ -691,6 +724,13 @@
 		return $networks;
 	}
 
+	/**
+	 * @param      $part
+	 * @param      $ipparts
+	 * @param      $maxparts
+	 * @param bool $include_unusable
+	 * @return bool
+	 */
 	function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE)
 	{
 		if ($include_unusable)
@@ -774,6 +814,9 @@
 		}
 	}
 
+	/**
+	 * @return array
+	 */
 	function get_all_ipblocks()
 	{
 		$db = get_module_db('admin');
@@ -784,6 +827,9 @@
 		return $all_blocks;
 	}
 
+	/**
+	 * @return array
+	 */
 	function get_client_ipblocks()
 	{
 		$ipblocks = array(
@@ -796,6 +842,10 @@
 		return $ipblocks;
 	}
 
+	/**
+	 * @param bool $include_unusable
+	 * @return array
+	 */
 	function get_client_ips($include_unusable = false)
 	{
 		$ipblocks = get_client_ipblocks();
@@ -807,6 +857,10 @@
 		return $client_ips;
 	}
 
+	/**
+	 * @param bool $include_unusable
+	 * @return array
+	 */
 	function get_all_ips_from_ipblocks($include_unusable = FALSE)
 	{
 		$all_blocks = get_all_ipblocks();
@@ -816,6 +870,10 @@
 		return $all_ips;
 	}
 
+	/**
+	 * @param bool $include_unusable
+	 * @return array
+	 */
 	function get_all_ips2_from_ipblocks($include_unusable = FALSE)
 	{
 		$all_blocks = get_all_ipblocks();
@@ -825,6 +883,11 @@
 		return $all_ips;
 	}
 
+	/**
+	 * @param      $network
+	 * @param bool $include_unusable
+	 * @return array
+	 */
 	function get_ips($network, $include_unusable = FALSE)
 	{
 		//echo "$network|$include_unusable|<br>";
@@ -867,6 +930,11 @@
 		return $ips;
 	}
 
+	/**
+	 * @param      $network
+	 * @param bool $include_unusable
+	 * @return array
+	 */
 	function get_ips2($network, $include_unusable = FALSE)
 	{
 		//echo "$network|$include_unusable|<br>";
@@ -914,6 +982,11 @@
 		return $ips;
 	}
 
+	/**
+	 * @param     $blocksize
+	 * @param int $location
+	 * @return array
+	 */
 	function available_ipblocks($blocksize, $location = 1)
 	{
 		// array of available blocks
@@ -2339,6 +2412,10 @@
 		}
 	}
 
+	/**
+	 * @param $hostname
+	 * @return string
+	 */
 	function ips_hostname($hostname)
 	{
 		$db = clone $GLOBALS['admin_dbh'];
