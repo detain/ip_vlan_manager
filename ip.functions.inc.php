@@ -1941,9 +1941,7 @@
 	function edit_vlan_comment()
 	{
 		$ima = $GLOBALS['tf']->ima;
-		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
-		$db2 = $db;
 		if ($ima == 'admin')
 		{
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
@@ -1986,7 +1984,6 @@
 	function vlan_port_server_manager()
 	{
 		$ima = $GLOBALS['tf']->ima;
-		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		if ($ima == 'admin')
@@ -2054,7 +2051,6 @@
 	function vlan_port_manager()
 	{
 		$ima = $GLOBALS['tf']->ima;
-		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		if ($ima == 'admin')
@@ -2101,7 +2097,6 @@
 	function ipblock_viewer()
 	{
 		$ima = $GLOBALS['tf']->ima;
-		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		if ($ima == 'admin')
@@ -2112,7 +2107,6 @@
 			{
 				$ipinfo = ipcalc($ipblock);
 				$ips = get_ips($ipblock);
-				$vlan = $db->Record['vlans_id'];
 				$table = new TFTable;
 				$table->set_title('IP Block Viewer');
 				$table->set_colspan(2);
@@ -2203,7 +2197,6 @@
 	function add_ips_to_server()
 	{
 		$ima = $GLOBALS['tf']->ima;
-		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		if ($ima == 'admin')
@@ -2270,7 +2263,6 @@
 	{
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
-		$ima = $GLOBALS['tf']->ima;
 		$color1 = COLOR1;
 		$color3 = COLOR2;
 		$color2 = COLOR3;
@@ -2345,8 +2337,6 @@
 
 	function unblock_ip_do()
 	{
-		$ima = $GLOBALS['tf']->ima;
-		$choice = $GLOBALS['tf']->variables->request['choice'];
 		if (!$GLOBALS['tf']->variables->request['server'])
 		{
 			select_server();
