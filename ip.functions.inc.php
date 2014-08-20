@@ -639,25 +639,34 @@
 		{
 			if (trim($network) == '')
 				return false;
-			list($block, $bitmask) = explode('/', $network);
+			$parts = explode('/', $network);
+			if (sizeof($parts) > 1)
+			{
+				list($block, $bitmask) = $parts;
+			}
+			else
+			{
+				$block = $parts[0];
+				$bitmask = '32';
+				$network = $block . '/' . $bitmask;
+			}
 			if (!valid_ip($block, false) || !is_numeric($bitmask))
 				return false;
 			if (preg_match('/^(.*)\/32$/', $network, $matches))
-			{
 				return array(
 					'network' => $matches[1],
 					'network_ip' => $matches[1],
 					'netmask' => '255.255.255.255',
 					'broadcast' => '',
-					'hostmin' => '',
-					'hostmax' => '',
-					'hosts' => '',
-					);
-			}
+					'hostmin' => $matches[1],
+					'hostmax' => $matches[1],
+					'hosts' => 1,
+				);
 			require_once ('Net/IPv4.php');
-			$netobj = new Net_IPv4();
-			$net = $netobj->parseAddress($network);
-			$ipinfo = array(
+			$network_object = new Net_IPv4();
+			$net = $network_object->parseAddress($network);
+			//billingd_log("|$network|");
+			$ip_info = array(
 				'network' => $net->network . '/' . $net->bitmask,
 				'network_ip' => $net->network,
 				'netmask' => $net->netmask,
@@ -666,7 +675,7 @@
 				'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
 				'hosts' => $net->ip2double($net->broadcast) - $net->ip2double($net->network) - 1,
 				);
-			return $ipinfo;
+			return $ip_info;
 		}
 
 		/**
