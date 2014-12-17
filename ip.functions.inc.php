@@ -1069,19 +1069,11 @@
 		if ($location == 3)
 		{
 			$mainblocks[] = array(12, '162.220.161.0/24');
-			$mainblocks[] = array(3, '69.10.50.0/24');
 		}
 		else
 		{
 			// 162.220.161.0/24 NY4
 			$reserved = array(2732368128, 2732368383);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
-				$ip = long2ip($x);
-				$usedips[$ip] = $ip;
-			}
-			// 69.10.50.0/24
-			$reserved = array(1158296064, 1158296319);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
 			{
 				$ip = long2ip($x);
@@ -1238,6 +1230,20 @@
 			}
 			/* 43.243.84.0/22 */
 			$reserved = array(737367040, 737367040);
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
+		}
+		if ($location == 6)
+		{
+			$mainblocks[] = array(3, '69.10.50.0/24');
+		}
+		else
+		{
+			// 69.10.50.0/24
+			$reserved = array(1158296064, 1158296319);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
 			{
 				$ip = long2ip($x);
