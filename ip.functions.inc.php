@@ -1236,14 +1236,23 @@
 				$usedips[$ip] = $ip;
 			}
 		}
+		// la 3
 		if ($location == 6)
 		{
 			$mainblocks[] = array(3, '69.10.50.0/24');
+			$mainblocks[] = array(18, '208.73.200.0/24');
 		}
 		else
 		{
 			// 69.10.50.0/24
 			$reserved = array(1158296064, 1158296319);
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
+			// 208.73.200.0/24
+			$reserved = array(3494496256, 3494496511);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
 			{
 				$ip = long2ip($x);
