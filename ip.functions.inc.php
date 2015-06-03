@@ -1219,6 +1219,7 @@
 			$mainblocks[] = array(16, '103.237.44.0/22');
 			$mainblocks[] = array(17, '43.243.84.0/22');
 			$mainblocks[] = array(16, '103.48.176.0/22');
+			$mainblocks[] = array(17, '43.113.224.0/22');
 		}
 		else
 		{
@@ -1238,6 +1239,13 @@
 			}
 			/* 103.48.176.0/22 */
 			$reserved = array(1731244032, 1731245055);
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
+			{
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
+			/* 43.113.224.0/22 */
+			$reserved = array(728883200, 728884223);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
 			{
 				$ip = long2ip($x);
