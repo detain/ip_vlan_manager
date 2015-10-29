@@ -42,7 +42,7 @@
 	 */
 	function get_switch_name($index, $short = FALSE)
 	{
-		$db = $GLOBALS['admin_dbh'];
+		$db = clone $GLOBALS['admin_dbh'];
 		$db->query("select * from switchmanager where id='$index'");
 		$db->next_record();
 		$switch = $db->Record['name'];
