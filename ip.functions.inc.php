@@ -2003,8 +2003,8 @@
 
 			//			$smarty->assign('table_rows',$rows);
 			//			$table->set_colspan(5);
-			//			$table->add_field($smarty->fetch('tablesorter_nopager.tpl'));
-			//			$table->add_field($smarty->fetch('tablesorter_nopager.tpl'));
+			//			$table->add_field($smarty->fetch('tablesorter/tablesorter_nopager.tpl'));
+			//			$table->add_field($smarty->fetch('tablesorter/tablesorter_nopager.tpl'));
 			//			$table->add_row();
 
 			$table->set_colspan(4);
@@ -2021,7 +2021,7 @@
 				('choice=ip.vlan_port_server_manager', 'VLAN Port <-> Server Mapper'));
 			$table->add_row();
 
-			//			add_output($smarty->fetch('tablesorter.tpl'));
+			//			add_output($smarty->fetch('tablesorter/tablesorter.tpl'));
 			add_output($table->get_table());
 			if (isset($GLOBALS['tf']->variables->request['pdf']) && $GLOBALS['tf']->variables->request['pdf'] == 1)
 			{
