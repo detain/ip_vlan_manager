@@ -665,7 +665,7 @@
 			require_once ('Net/IPv4.php');
 			$network_object = new Net_IPv4();
 			$net = $network_object->parseAddress($network);
-			//billingd_log("|$network|");
+			//billingd_log("|$network|", __LINE__, __FILE__);
 			$ip_info = array(
 				'network' => $net->network . '/' . $net->bitmask,
 				'network_ip' => $net->network,
