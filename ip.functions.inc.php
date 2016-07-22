@@ -2568,7 +2568,7 @@
 					}
 				}
 				$db->Record['vlans_ports'] = implode(':', $parts);
-				$out .= $db->Record['vlans_comment'] . "\n" . $db->Record['vlans_networks'] . "\n" . $db->Record['vlans_ports'] . "\n" . $graph_id . "\n";
+				$out .= $db->Record['vlans_comment'] . "\n{$db->Record['vlans_networks']}\n{$db->Record['vlans_ports']}\n" . $graph_id . "\n";
 				;
 			}
 		}
