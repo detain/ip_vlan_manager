@@ -13,18 +13,14 @@
 	 * @param $data
 	 * @return array
 	 */
-	function parse_vlan_ports($data)
-	{
+	function parse_vlan_ports($data) {
 		$parts2 = explode('/', $data);
 		$switch = $parts2[0];
 		$port = substr($data, strlen($switch) + 1);
-		if (strpos($port, '/') > 0)
-		{
+		if (strpos($port, '/') > 0) {
 			$blade = substr($port, 0, strrpos($port, '/'));
 			$justport = substr($port, strlen($blade) + 1);
-		}
-		else
-		{
+		} else {
 			$blade = '';
 			$justport = $port;
 		}
@@ -40,18 +36,14 @@
 	 * @param bool $short
 	 * @return string
 	 */
-	function get_switch_name($index, $short = FALSE)
-	{
+	function get_switch_name($index, $short = FALSE) {
 		$db = clone $GLOBALS['admin_dbh'];
 		$db->query("select * from switchmanager where id='$index'");
 		$db->next_record();
 		$switch = $db->Record['name'];
-		if ($short == FALSE)
-		{
+		if ($short == FALSE) {
 			return 'Switch ' . $switch;
-		}
-		else
-		{
+		} else {
 			return $switch;
 		}
 	}
@@ -61,25 +53,19 @@
 	 * @param int  $size
 	 * @return string
 	 */
-	function get_select_ports($ports = FALSE, $size = 5)
-	{
+	function get_select_ports($ports = FALSE, $size = 5) {
 		$db = $GLOBALS['admin_dbh'];
-		if ($ports === FALSE)
-		{
+		if ($ports === FALSE) {
 			$ports = array();
 		}
 		$select = '<select multiple size=' . $size . ' name="ports[]">';
 		$db->query("select * from switchmanager as sm, switchports as sp where switch=id order by id, port");
-		while ($db->next_record())
-		{
+		while ($db->next_record()) {
 			$switch = $db->Record['id'];
 			$port = $db->Record['port'];
-			if (in_array($switch . '/' . $port, $ports))
-			{
+			if (in_array($switch . '/' . $port, $ports)) {
 				$select .= '<option selected value="' . $switch . '/' . $port . '">Switch ' . $db->Record['name'] . ' Port ' . $port . '</option>';
-			}
-			else
-			{
+			} else {
 				$select .= '<option value="' . $switch . '/' . $port . '">Switch ' . $db->Record['name'] . ' Port ' . $port . '</option>';
 			}
 		}
@@ -87,18 +73,14 @@
 		return $select;
 	}
 
-	function switch_manager()
-	{
+	function switch_manager() {
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $GLOBALS['admin_dbh'];
 		$ima = $GLOBALS['tf']->ima;
-		if ($ima == 'admin')
-		{
-			if ($groupinfo['account_id'] == ADMIN_GROUP)
-			{
-				if (isset($GLOBALS['tf']->variables->request['name']) && isset($GLOBALS['tf']->variables->request['ports']))
-				{
+		if ($ima == 'admin') {
+			if ($groupinfo['account_id'] == ADMIN_GROUP) {
+				if (isset($GLOBALS['tf']->variables->request['name']) && isset($GLOBALS['tf']->variables->request['ports'])) {
 					$name = $GLOBALS['tf']->variables->request['name'];
 					$ports = $GLOBALS['tf']->variables->request['ports'];
 					$db->query("insert into switchmanager values (NULL, '$name', '$ports')");
@@ -113,10 +95,8 @@
 				$nextid = 14;
 				$db->query("select * from switchmanager order by id");
 				$table->alternate_rows();
-				while ($db->next_record())
-				{
-					if ($nextid <= intval($db->Record['name']))
-					{
+				while ($db->next_record()) {
+					if ($nextid <= intval($db->Record['name'])) {
 						$nextid = $db->Record['name'] + 1;
 					}
 					$table->add_field($db->Record['id']);
@@ -131,23 +111,17 @@
 				$table->add_field($table->make_submit('Add Switch'));
 				$table->add_row();
 				add_output($table->get_table());
-			}
-			else
-			{
+			} else {
 				add_output('This functionality is reserved for admins');
 			}
 		}
 	}
 
-	function list_revips()
-	{
+	function list_revips() {
 		$db = $GLOBALS['admin_dbh'];
-		if (!isset($GLOBALS['tf']->variables->request['server']))
-		{
+		if (!isset($GLOBALS['tf']->variables->request['server'])) {
 			select_server();
-		}
-		else
-		{
+		} else {
 			$server = $GLOBALS['tf']->variables->request['server'];
 
 			$db->query("select servers_serverid from servers where servers_hostname='$server'", __LINE__, __FILE__);
@@ -155,35 +129,26 @@
 			$serverid = $db->Record;
 
 			$db->query("select ips_ip from ips where ips_serverid='$serverid'", __LINE__, __FILE__);
-			while ($db->next_record())
-			{
+			while ($db->next_record()) {
 				$row = $db->Record;
 
 				$ipadres = `nslookup -sil $row[0] | grep arpa`;
-				if (preg_match("/can/i", $ipadres))
-				{
+				if (preg_match("/can/i", $ipadres)) {
 					add_output("$row[0] (ADD REVERSE DNS)<br>");
-				}
-				else
-				{
+				} else {
 					add_output("$row[0] <b>-></b> $ipadres<br>");
 				}
 			}
 		}
 	}
 
-	function list_ips()
-	{
+	function list_ips() {
 		$db = $GLOBALS['admin_dbh'];
-		if (!isset($GLOBALS['tf']->variables->request['server']))
-		{
+		if (!isset($GLOBALS['tf']->variables->request['server'])) {
 			select_server();
-		}
-		else
-		{
+		} else {
 			$server = $GLOBALS['tf']->variables->request['server'];
-			if (valid_server($server))
-			{
+			if (valid_server($server)) {
 				$db->query("select servers_serverid from servers where servers_hostname='$server'", __LINE__, __FILE__);
 				$db->next_record();
 				$serverid = $db->f(0);
@@ -197,8 +162,7 @@
 				$table->add_row();
 				$table->alternate_rows();
 				$db->query("select ips_ip from ips where ips_serverid='$serverid'", __LINE__, __FILE__);
-				while ($db->next_record())
-				{
+				while ($db->next_record()) {
 					$table->set_colspan(2);
 					$table->add_field($db->f('ips_ip') . '<br>');
 					$table->add_row();
@@ -209,8 +173,7 @@
 		}
 	}
 
-	function delegate_ips()
-	{
+	function delegate_ips() {
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $GLOBALS['admin_dbh'];
 		$ima = $GLOBALS['tf']->ima;
@@ -218,18 +181,13 @@
 		$num_ips = $GLOBALS['tf']->variables->request['num_ips'];
 		$result = $GLOBALS['tf']->variables->request['result'];
 
-		if (!isset($GLOBALS['tf']->variables->request['server']))
-		{
+		if (!isset($GLOBALS['tf']->variables->request['server'])) {
 			select_server();
-		}
-		else
-		{
+		} else {
 			$server = $GLOBALS['tf']->variables->request['server'];
 			$GLOBALS['tf']->session->appsession('server', $server);
-			if (valid_server($server))
-			{
-				if (!$num_ips)
-				{
+			if (valid_server($server)) {
+				if (!$num_ips) {
 					add_output('<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('index.php') . '">');
 					add_output("<input type=hidden name=choice value=$choice>");
 					add_output("<input type=hidden name=server value=$server>");
@@ -237,23 +195,17 @@
 					add_output("<input type=text name=num_ips><br>");
 					add_output('<input type=submit value="Add IPs To Server"><br>');
 					add_output('</form>');
-				}
-				else
-				{
+				} else {
 					add_output('Adding IPs...');
 					$db->query("select servers_serverid from servers where servers_hostname='$server'", __LINE__, __FILE__);
 					$db->next_record();
 					$serverid = $db->Record;
-					if ($GLOBALS['tf']->accounts->data['demo'] == 1)
-					{
+					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
 						add_output("No Updates In Demo Mode");
-					}
-					else
-					{
+					} else {
 
 						$db->query("select * from ips where ips_serverid='0' limit $num_ips", __LINE__, __FILE__);
-						while ($db->next_record())
-						{
+						while ($db->next_record()) {
 							$row = $db->Record;
 							$result2 = `echo "echo $row[0] >> /etc/ips" | /usr/bin/ssh -x -o BatchMode=yes -1 root@$server 2>/dev/null`;
 							add_output("($row[0])");
@@ -272,29 +224,21 @@
 		}
 	}
 
-	function view_doublebound_ips()
-	{
+	function view_doublebound_ips() {
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $GLOBALS['admin_dbh'];
 		$ima = $GLOBALS['tf']->ima;
-		if ($ima == 'admin')
-		{
-			if ($groupinfo['account_id'] == ADMIN_GROUP)
-			{
+		if ($ima == 'admin') {
+			if ($groupinfo['account_id'] == ADMIN_GROUP) {
 				$db->query("select distinct * from history_log, ips where ips_ip=history_new_value and history_type='doubleboundip' and history_section='servers' group by history_new_value", __LINE__, __FILE__);
-			}
-			else
-			{
+			} else {
 				$db->query("select distinct history_log.*, ips.* from history_log, ips, servers where (ips_group='$groupinfo[account_id]' or servers_group like '%:$groupinfo[account_id]:%') and servers_serverid=history_old_value and ips_ip=history_new_value and history_type='doubleboundip' and history_section='servers' group by history_new_value",
 					__LINE__, __FILE__);
 			}
-			if ($db->num_rows() == 0)
-			{
+			if ($db->num_rows() == 0) {
 				add_output('There are currently NO double-bound IPs (Good Job)<BR>');
-			}
-			else
-			{
+			} else {
 				$table = new TFTable;
 				$table->set_title('Viewing Double-Bound IPs (' . $db->num_rows() . ' IPs)' . pdf_link('choice=ip.view_doublebound_ips'));
 				$table->add_field('IP');
@@ -307,16 +251,13 @@
 				$table->add_row();
 				$table->alternate_rows();
 				$servers = array();
-				while ($db->next_record())
-				{
+				while ($db->next_record()) {
 					$table->add_field($db->Record['history_new_value']);
-					if (!isset($servers[$db->Record['ips_serverid']]))
-					{
+					if (!isset($servers[$db->Record['ips_serverid']])) {
 						$server = $GLOBALS['tf']->get_server($db->Record['ips_serverid']);
 						$servers[$db->Record['ips_serverid']] = $server['servers_hostname'];
 					}
-					if (!isset($servers[$db->Record['history_old_value']]))
-					{
+					if (!isset($servers[$db->Record['history_old_value']])) {
 						$server = $GLOBALS['tf']->get_server($db->Record['history_old_value']);
 						$servers[$db->Record['history_old_value']] = $server['servers_hostname'];
 					}
@@ -327,60 +268,47 @@
 					$table->add_row();
 				}
 				add_output($table->get_table());
-				if ($GLOBALS['tf']->variables->request['pdf'] == 1)
-				{
+				if ($GLOBALS['tf']->variables->request['pdf'] == 1) {
 					$table->get_pdf();
 				}
 			}
-		}
-		else
-		{
+		} else {
 			add_output('Only admins have access to this list right now.  If you feel one or more of your servers is currently using someone elses IP address(s) OR someone else might be using one of your ip address(s) than please contact us at support@trouble-free.net or fill out a ticket');
 		}
 	}
 
-	function close_doublebound()
-	{
+	function close_doublebound() {
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $GLOBALS['admin_dbh'];
 		$ima = $GLOBALS['tf']->ima;
 		$ip = $GLOBALS['tf']->variables->request['ip'];
-		if ($GLOBALS['tf']->accounts->data['demo'] == 1)
-		{
+		if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
 			add_output("No Updates In Demo Mode");
-		}
-		else
-		{
+		} else {
 			// FIXME
 			$db->query("delete from history_log where history_new_value='$ip' and history_type='doubleboundip' and history_section='servers'", __LINE__, __FILE__);
 			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.view_doublebound_ips'));
 		}
 	}
 
-	function alt_ip_manager()
-	{
+	function alt_ip_manager() {
 		global $groupinfo;
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $GLOBALS['admin_dbh'];
-		if ($ima == 'admin')
-		{
-			if ($groupinfo['account_id'] == ADMIN_GROUP)
-			{
-				if (isset($GLOBALS['tf']->variables->request['ipblock']))
-				{
+		if ($ima == 'admin') {
+			if ($groupinfo['account_id'] == ADMIN_GROUP) {
+				if (isset($GLOBALS['tf']->variables->request['ipblock'])) {
 					$db->query("select servers_serverid, servers_hostname from servers", __LINE__, __FILE__);
 					$serverids = array();
 					$serverids[0] = 'None';
-					while ($db->next_record())
-					{
+					while ($db->next_record()) {
 						$serverids[$db->Record['servers_serverid']] = $db->Record['servers_hostname'];
 						$servernames[$db->Record['servers_hostname']] = $db->Record['servers_serverid'];
 					}
 					$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
-					if (isset($GLOBALS['tf']->variables->request['server']) && isset($GLOBALS['tf']->variables->request['ip']))
-					{
+					if (isset($GLOBALS['tf']->variables->request['server']) && isset($GLOBALS['tf']->variables->request['ip'])) {
 						$sid = $servernames[$GLOBALS['tf']->variables->request['server']];
 						$ip = $GLOBALS['tf']->variables->request['ip'];
 						$query = "update ips set ips_serverid='$sid' where ips_ip='$ip'";
@@ -397,38 +325,30 @@
 					$table->set_colspan(2);
 					$table->add_field('Server');
 					$table->add_row();
-					while ($db->next_record())
-					{
+					while ($db->next_record()) {
 						$table->add_field($db->Record['ips_ip']);
-						if ($GLOBALS['tf']->variables->request['ip'] == $db->Record['ips_ip'])
-						{
+						if ($GLOBALS['tf']->variables->request['ip'] == $db->Record['ips_ip']) {
 							$table->add_hidden('ip', $db->Record['ips_ip']);
 							$table->add_hidden('ipblock', $ipblock);
 							$table->add_field(select_server($db->Record['ips_serverid'], 'server', 1));
 							$table->add_field($table->make_submit('Update Server'));
-						}
-						else
-						{
+						} else {
 							$table->set_colspan(2);
 							$table->add_field($table->make_link('choice=ip.alt_ip_manager&ipblock=' . $ipblock . '&ip=' . $db->Record['ips_ip'], $serverids[$db->Record['ips_serverid']]));
 						}
 						$table->add_row();
 					}
 					add_output($table->get_table());
-				}
-				else
-				{
+				} else {
 					$table = new TFTable;
 					$table->set_title('IP Block Selection');
 					$table->add_field('Select IP Block');
 					$db->query("select * from ips order by ips_ip", __LINE__, __FILE__);
 					$lastip = '';
 					$sel = '<select name=ipblock>';
-					while ($db->next_record())
-					{
+					while ($db->next_record()) {
 						ereg('^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\.[0-9]{1,3}$', $db->Record['ips_ip'], $ipblock);
-						if ($lastip != $ipblock[1])
-						{
+						if ($lastip != $ipblock[1]) {
 							$sel .= '<option value="' . $ipblock[1] . '">' . $ipblock[1] . '</option>';
 							$lastip = $ipblock[1];
 						}
@@ -444,8 +364,7 @@
 		}
 	}
 
-	function ip_manager()
-	{
+	function ip_manager() {
 		$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 		/*		global $groupinfo;
 		$db  = $GLOBALS['admin_dbh'];
@@ -453,36 +372,27 @@
 		$ima = $GLOBALS['tf']->ima;
 
 		// get free ip count
-		if ($groupinfo['account_id'] == ADMIN_GROUP)
-		{
+		if ($groupinfo['account_id'] == ADMIN_GROUP) {
 		$db->query("select count(*) from ips where ips_serverid='0'",__LINE__,__FILE__);
-		}
-		else
-		{
+		} else {
 		$db->query("select count(*) from ips where ips_serverid='0' and ips_group='$groupinfo[account_id]'",__LINE__,__FILE__);
 		}
 		$db->next_record();
 		$freeips = $db->f(0);
 
 		// get total ips
-		if ($groupinfo['account_id'] == ADMIN_GROUP)
-		{
+		if ($groupinfo['account_id'] == ADMIN_GROUP) {
 		$db->query("select count(*) from ips",__LINE__,__FILE__);
-		}
-		else
-		{
+		} else {
 		$db->query("select count(*) from ips where ips_group='$groupinfo[account_id]'",__LINE__,__FILE__);
 		}
 		$db->next_record();
 		$totips = $db->f(0);
 
 		// get used ips
-		if ($groupinfo['account_id'] == ADMIN_GROUP)
-		{
+		if ($groupinfo['account_id'] == ADMIN_GROUP) {
 		$db->query("select count(*) from ips where ips_serverid!='0'",__LINE__,__FILE__);
-		}
-		else
-		{
+		} else {
 		$db->query("select count(*) from ips where ips_serverid!='0' and ips_group='$groupinfo[account_id]'",__LINE__,__FILE__);
 		}
 		$db->next_record();
@@ -516,17 +426,13 @@
 		$table->set_bgcolor(2);
 		$table->add_field('');
 		$table->add_row();
-		if ($groupinfo['account_id'] == ADMIN_GROUP)
-		{
+		if ($groupinfo['account_id'] == ADMIN_GROUP) {
 		$db->query("select * from servers order by servers_hostname",__LINE__,__FILE__);
-		}
-		else
-		{
+		} else {
 		$db->query("select * from servers where servers_group like '%:$groupinfo[account_id]:%' order by servers_hostname",__LINE__,__FILE__);
 		}
 		$table->alternate_rows();
-		while ($db->next_record())
-		{
+		while ($db->next_record()) {
 		$serverinfo = $db->Record;
 		$table->add_field($serverinfo['servers_hostname']);
 		$db2->query("select count(*) from ips where ips_serverid='$serverinfo[0]'",__LINE__,__FILE__);
@@ -548,8 +454,7 @@
 	 * @param $netmask
 	 * @return int
 	 */
-	function get_ipcount_from_netmask($netmask)
-	{
+	function get_ipcount_from_netmask($netmask) {
 		$ipinfo = array();
 		//error_log("Calling ipcalc here");
 		$result = trim(`LANG=C /usr/local/bin/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
@@ -560,11 +465,9 @@
 	 * @param $networks
 	 * @return mixed
 	 */
-	function ipcalc_array($networks)
-	{
+	function ipcalc_array($networks) {
 		$cmd = "function a() {\n";
-		for ($x = 0; $x < sizeof($networks); $x++)
-		{
+		for ($x = 0; $x < sizeof($networks); $x++) {
 			//error_log("Calling ipcalc here");
 			$cmd .= 'LANG=C /usr/local/bin/ipcalc -nb ' . $networks[$x]['network'] . ';echo :-----;';
 		}
@@ -572,8 +475,7 @@
 		$cmd .= 'a | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1;';
 		$result = trim(`$cmd`);
 		$results = explode('-----', $result);
-		for ($x = 0; $x < sizeof($networks); $x++)
-		{
+		for ($x = 0; $x < sizeof($networks); $x++) {
 			$ipinfo = array();
 			$lines = explode("\n", trim($results[$x]));
 			$netparts = explode('/', $lines[3]);
@@ -590,8 +492,7 @@
 		return $network_info;
 	}
 
-	if (!function_exists('valid_ip'))
-	{
+	if (!function_exists('valid_ip')) {
 		/**
 		 * valid_ip()
 		 * returns wether or not the given IP is valid
@@ -600,26 +501,21 @@
 		 * @param bool $display_errors wether or not errors are displayed. defauls to true
 		 * @return bool wether or not its a valid ip
 		 */
-		function valid_ip($ip, $display_errors = true)
-		{
-			if (!preg_match("/^[0-9\.]{7,15}$/", $ip))
-			{
+		function valid_ip($ip, $display_errors = true) {
+			if (!preg_match("/^[0-9\.]{7,15}$/", $ip)) {
 				// dont display errors cuz this gets called w/ a blank entry when people didnt even submit anything yet
 				//add_output('<font class="error">IP ' . $ip . ' Too short/long</font>');
 				return false;
 			}
 			$quads = explode('.', $ip);
 			$numquads = count($quads);
-			if ($numquads != 4)
-			{
+			if ($numquads != 4) {
 				if ($display_errors)
 					add_output('<font class="error">IP ' . $ip . ' Too many quads</font>');
 				return false;
 			}
-			for ($i = 0; $i < 4; $i++)
-			{
-				if ($quads[$i] > 255)
-				{
+			for ($i = 0; $i < 4; $i++) {
+				if ($quads[$i] > 255) {
 					if ($display_errors)
 						add_output('<font class="error">IP ' . $ip . ' number ' . $quads[$i] . ' too high</font>');
 					return false;
@@ -629,23 +525,18 @@
 		}
 	}
 
-	if (!function_exists('ipcalc'))
-	{
+	if (!function_exists('ipcalc')) {
 		/**
 		 * @param $network
 		 * @return array
 		 */
-		function ipcalc($network)
-		{
+		function ipcalc($network) {
 			if (trim($network) == '')
 				return false;
 			$parts = explode('/', $network);
-			if (sizeof($parts) > 1)
-			{
+			if (sizeof($parts) > 1) {
 				list($block, $bitmask) = $parts;
-			}
-			else
-			{
+			} else {
 				$block = $parts[0];
 				$bitmask = '32';
 				$network = $block . '/' . $bitmask;
@@ -682,8 +573,7 @@
 		 * @param $network
 		 * @return array
 		 */
-		function ipcalc_old($network)
-		{
+		function ipcalc_old($network) {
 			/* Sample Output from ipcalc
 			0	Address:66.45.224.0
 			1	Netmask:255.255.240.0
@@ -719,14 +609,11 @@
 	 * @param string $ports
 	 * @return array
 	 */
-	function get_networks($text, $vlan = 0, $comment = '', $ports = '')
-	{
+	function get_networks($text, $vlan = 0, $comment = '', $ports = '') {
 		$networks = array();
 		$parts = explode(':', $text);
-		for ($x = 0; $x < sizeof($parts); $x++)
-		{
-			if ($parts[$x] != '')
-			{
+		for ($x = 0; $x < sizeof($parts); $x++) {
+			if ($parts[$x] != '') {
 				$networks[] = array(
 					'network' => $parts[$x],
 					'vlan' => $vlan,
@@ -744,83 +631,54 @@
 	 * @param bool $include_unusable
 	 * @return bool
 	 */
-	function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE)
-	{
-		if ($include_unusable)
-		{
+	function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE) {
+		if ($include_unusable) {
 			$maxip = 256;
-		}
-		else
-		{
+		} else {
 			$maxip = 255;
 		}
-		switch ($part)
-		{
+		switch ($part) {
 			case 1:
-				if ($ipparts[0] < $maxip)
-				{
-					if (($ipparts[0] <= $maxparts[0]))
-					{
+				if ($ipparts[0] < $maxip) {
+					if (($ipparts[0] <= $maxparts[0])) {
 						return TRUE;
-					}
-					else
-					{
+					} else {
 						return FALSE;
 					}
-				}
-				else
-				{
+				} else {
 					return FALSE;
 				}
 				break;
 			case 2:
-				if ($ipparts[1] < $maxip)
-				{
-					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]))
-					{
+				if ($ipparts[1] < $maxip) {
+					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1])) {
 						return TRUE;
-					}
-					else
-					{
+					} else {
 						return FALSE;
 					}
-				}
-				else
-				{
+				} else {
 					return FALSE;
 				}
 				break;
 			case 3:
-				if ($ipparts[2] < $maxip)
-				{
-					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2]))
-					{
+				if ($ipparts[2] < $maxip) {
+					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2])) {
 						return TRUE;
-					}
-					else
-					{
+					} else {
 						return FALSE;
 					}
-				}
-				else
-				{
+				} else {
 					return FALSE;
 				}
 				break;
 			case 4:
-				if ($ipparts[3] < $maxip)
-				{
-					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2]) && ($ipparts[3] <= $maxparts[3]))
-					{
+				if ($ipparts[3] < $maxip) {
+					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2]) && ($ipparts[3] <= $maxparts[3])) {
 						return TRUE;
-					}
-					else
-					{
+					} else {
 						return FALSE;
 					}
-				}
-				else
-				{
+				} else {
 					return FALSE;
 				}
 				break;
@@ -830,8 +688,7 @@
 	/**
 	 * @return array
 	 */
-	function get_all_ipblocks()
-	{
+	function get_all_ipblocks() {
 		$db = get_module_db('admin');
 		$db->query("select ipblocks_network from ipblocks");
 		$all_blocks = array();
@@ -843,8 +700,7 @@
 	/**
 	 * @return array
 	 */
-	function get_client_ipblocks()
-	{
+	function get_client_ipblocks() {
 		$ipblocks = array(
 			'67.217.48.0/20',
 			'69.164.240.0/20',
@@ -859,12 +715,10 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_client_ips($include_unusable = false)
-	{
+	function get_client_ips($include_unusable = false) {
 		$ipblocks = get_client_ipblocks();
 		$client_ips = array();
-		foreach ($ipblocks as $ipblock)
-		{
+		foreach ($ipblocks as $ipblock) {
 			$client_ips = array_merge($client_ips, get_ips($ipblock, $include_unusable));
 		}
 		return $client_ips;
@@ -874,8 +728,7 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_all_ips_from_ipblocks($include_unusable = FALSE)
-	{
+	function get_all_ips_from_ipblocks($include_unusable = FALSE) {
 		$all_blocks = get_all_ipblocks();
 		$all_ips = array();
 		foreach ($all_blocks as $ipblock)
@@ -887,8 +740,7 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_all_ips2_from_ipblocks($include_unusable = FALSE)
-	{
+	function get_all_ips2_from_ipblocks($include_unusable = FALSE) {
 		$all_blocks = get_all_ipblocks();
 		$all_ips = array();
 		foreach ($all_blocks as $ipblock)
@@ -901,40 +753,32 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_ips($network, $include_unusable = FALSE)
-	{
+	function get_ips($network, $include_unusable = FALSE) {
 		//echo "$network|$include_unusable|<br>";
 		$ips = array();
 		$network_info = ipcalc($network);
 		//_debug_array($network_info);
-		if ($include_unusable)
-		{
+		if ($include_unusable) {
 			$minip = $network_info['network_ip'];
 			$maxip = $network_info['broadcast'];
-		}
-		else
-		{
+		} else {
 			$minip = $network_info['hostmin'];
 			$maxip = $network_info['hostmax'];
 		}
 		$minparts = explode('.', $minip);
 		$maxparts = explode('.', $maxip);
 		$ips = array();
-		for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++)
-		{
-			for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++)
-			{
+		for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++) {
+			for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++) {
 				for ($c = $minparts[2]; check_ip_part(3, array(
 					$a,
 					$b,
-					$c), $maxparts, $include_unusable); $c++)
-				{
+					$c), $maxparts, $include_unusable); $c++) {
 					for ($d = $minparts[3]; check_ip_part(4, array(
 						$a,
 						$b,
 						$c,
-						$d), $maxparts, $include_unusable); $d++)
-					{
+						$d), $maxparts, $include_unusable); $d++) {
 						$ips[] = $a . '.' . $b . '.' . $c . '.' . $d;
 					}
 				}
@@ -948,40 +792,32 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_ips2($network, $include_unusable = FALSE)
-	{
+	function get_ips2($network, $include_unusable = FALSE) {
 		//echo "$network|$include_unusable|<br>";
 		$ips = array();
 		$network_info = ipcalc($network);
 		//_debug_array($network_info);
-		if ($include_unusable)
-		{
+		if ($include_unusable) {
 			$minip = $network_info['network_ip'];
 			$maxip = $network_info['broadcast'];
-		}
-		else
-		{
+		} else {
 			$minip = $network_info['hostmin'];
 			$maxip = $network_info['hostmax'];
 		}
 		$minparts = explode('.', $minip);
 		$maxparts = explode('.', $maxip);
 		$ips = array();
-		for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++)
-		{
-			for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++)
-			{
+		for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++) {
+			for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++) {
 				for ($c = $minparts[2]; check_ip_part(3, array(
 					$a,
 					$b,
-					$c), $maxparts, $include_unusable); $c++)
-				{
+					$c), $maxparts, $include_unusable); $c++) {
 					for ($d = $minparts[3]; check_ip_part(4, array(
 						$a,
 						$b,
 						$c,
-						$d), $maxparts, $include_unusable); $d++)
-					{
+						$d), $maxparts, $include_unusable); $d++) {
 						$ips[] = array(
 							$a . '.' . $b . '.' . $c . '.' . $d,
 							$a,
@@ -1000,8 +836,7 @@
 	 * @param int $location
 	 * @return array
 	 */
-	function available_ipblocks($blocksize, $location = 1)
-	{
+	function available_ipblocks($blocksize, $location = 1) {
 		// array of available blocks
 		$available = array();
 		$db = $GLOBALS['admin_dbh'];
@@ -1010,78 +845,63 @@
 		// get the ips in use
 		$usedips = array();
 		$mainblocks = array();
-		if ($location == 1)
-		{
+		if ($location == 1) {
 			// get the main ipblocks we have routed
 			$db->query("select * from ipblocks", __LINE__, __FILE__);
-			while ($db->next_record())
-			{
+			while ($db->next_record()) {
 				$mainblocks[] = array($db->Record['ipblocks_id'], $db->Record['ipblocks_network']);
 			}
 		}
-		if ($location == 2)
-		{
+		if ($location == 2) {
 			$mainblocks[] = array(7, '173.214.160.0/23');
 			$mainblocks[] = array(8, '206.72.192.0/24');
 			$mainblocks[] = array(12, '162.220.160.0/24');
 			$mainblocks[] = array(15, '104.37.184.0/24');
 
-		}
-		else
-		{
+		} else {
 			//  104.37.184.0/24 LA reserved
 			$reserved = array(1747302400, 1747302655);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			/*  added by joe 08/24/11 to temporarily hide  173.214.160.0/23 lax1 ips */
 			$reserved = array(2916524033, 2916524542);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 206.72.192.0  LA
 			$reserved = array(3460874240, 3460874751);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 162.220.160.0/24 LA
 			$reserved = array(2732367872, 2732368127);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 
 			// 162.216.112.0/24   LA
 			$reserved = array(2732093440, 2732093695);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 		}
-		if ($location == 3)
-		{
+		if ($location == 3) {
 			$mainblocks[] = array(12, '162.220.161.0/24');
-		}
-		else
-		{
+		} else {
 			// 162.220.161.0/24 NY4
 			$reserved = array(2732368128, 2732368383);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 		}
-		if ($location == 4)
-		{
+		if ($location == 4) {
 			$mainblocks[] = array(179, "66.45.241.16/28");
 			$mainblocks[] = array(1281, "69.10.38.128/25");
 			$mainblocks[] = array(2047, "69.10.60.192/26");
@@ -1098,256 +918,215 @@
 			$mainblocks[] = array(2342, "69.10.53.0/24");
 			$mainblocks[] = array(2592, "209.159.159.0/24");
 			$mainblocks[] = array(3124, "66.23.224.0/24");
-		}
-		else
-		{
+		} else {
 			// 66.45.241.16/28 reserved
 			$reserved = array(1110307088, 1110307103);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.38.128/25 reserved
 			$reserved = array(1158293120, 1158293247);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.60.192/26 reserved
 			$reserved = array(1158298816, 1158298879);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.56.0/25 reserved
 			$reserved = array(1158297600, 1158297727);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 68.168.216.0/22 reserved
 			$reserved = array(1151916032, 1151917055);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.57.0/24 reserved
 			$reserved = array(1158297856, 1158298111);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.52.72/29 reserved
 			$reserved = array(1158296648, 1158296655);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.52.112/29 reserved
 			$reserved = array(1158296688, 1158296695);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.61.64/26 reserved
 			$reserved = array(1158298944, 1158299007);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 68.168.212.0/24 reserved
 			$reserved = array(1151915008, 1151915263);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.60.0/26 reserved
 			$reserved = array(1158298624, 1158298687);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 68.168.222.0/24 reserved
 			$reserved = array(1151917568, 1151917823);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 68.168.214.0/23 reserved
 			$reserved = array(1151915520, 1151916031);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 69.10.53.0/24 reserved
 			$reserved = array(1158296832, 1158297087);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 209.159.159.0/24 reserved
 			$reserved = array(3516899072, 3516899327);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 66.23.224.0/24 reserved
 			$reserved = array(1108860928, 1108861183);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 		}
-		if ($location == 5)
-		{
+		if ($location == 5) {
 			$mainblocks[] = array(16, '103.237.44.0/22');
 			$mainblocks[] = array(17, '43.243.84.0/22');
 			$mainblocks[] = array(16, '103.48.176.0/22');
 			$mainblocks[] = array(17, '45.113.224.0/22');
 			$mainblocks[] = array(17, '45.126.36.0/22');
 			$mainblocks[] = array(16, '103.197.16.0/22');
-		}
-		else
-		{
+		} else {
 			/* 103.237.44.0/22 */
 			$reserved = array(1743596544, 1743597567);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			/* 43.243.84.0/22 */
 			$reserved = array(737367040, 737367040);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			/* 103.48.176.0/22 */
 			$reserved = array(1731244032, 1731245055);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			/* 45.113.224.0/22 */
 			$reserved = array(762437632, 762438400);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			/* 45.126.36.0/22 */			
 			$reserved = array(763241472, 763242495);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			/* 103.197.16.0/22 */
 			$reserved = array(1740967936, 1740968959);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 		}
 		// la 3
-		if ($location == 6)
-		{
+		if ($location == 6) {
 			$mainblocks[] = array(3, '69.10.50.0/24');
 			$mainblocks[] = array(18, '208.73.200.0/24');
 			$mainblocks[] = array(18,'208.73.201.0/24');
 			$mainblocks[] = array(20, '216.158.224.0/23');
 			$mainblocks[] = array(20,'67.211.208.0/24');
-		}
-		else
-		{
+		} else {
 			// 69.10.50.0/24
 			$reserved = array(1158296064, 1158296319);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 208.73.200.0/24
 			$reserved = array(3494496256, 3494496511);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 208.73.201.0/24
 			$reserved = array(3494496512, 3494496767);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 216.158.224.0/23
 			$reserved = array(3634290688,3634291199);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 			// 67.211.208.0/24
 			$reserved = array(1137954816,1137955071);
-			for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-			{
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
 		}
 		/* 45.126.36.0/22 */
 /*		$reserved = array(763241472, 763242495);
-		for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-		{
+		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ip = long2ip($x);
 			$usedips[$ip] = $ip;
 		}
 */
 		/* 199.231.191.0/24 reserved */
 		$reserved = array(3353853696, 3353853951);
-		for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-		{
+		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ip = long2ip($x);
 			$usedips[$ip] = $ip;
 		}
 		/* 66.23.225.0/24 reserved cogent/currenx */
 		$reserved = array(1108861184, 1108861439);
-		for ($x = $reserved[0]; $x < $reserved[1]; $x++)
-		{
+		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ip = long2ip($x);
 			$usedips[$ip] = $ip;
 		}
 
 		$db->query("select ips_ip from ips2 where ips_vlan > 0", __LINE__, __FILE__);
-		if ($db->num_rows())
-		{
-			while ($db->next_record())
-			{
+		if ($db->num_rows()) {
+			while ($db->next_record()) {
 				$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
 			}
 		}
-		foreach ($mainblocks as $maindata)
-		{
+		foreach ($mainblocks as $maindata) {
 			$ipblock_id = $maindata[0];
 			$mainblock = $maindata[1];
 			// get ips from the main block
@@ -1357,51 +1136,37 @@
 			$found = FALSE;
 			$found_count = 0;
 			$found_c = '';
-			for ($x = 0; $x < $ipsize; $x++)
-			{
+			for ($x = 0; $x < $ipsize; $x++) {
 				// check if the ips in use already
-				if (isset($usedips[$ips[$x][0]]))
-				{
+				if (isset($usedips[$ips[$x][0]])) {
 					$found = FALSE;
 					$found_count = 0;
-				}
-				else
-				{
+				} else {
 					$c = $ips[$x][3];
-					if (($found) && ($blocksize >= 24) && ($found_c != $c))
-					{
+					if (($found) && ($blocksize >= 24) && ($found_c != $c)) {
 						$found = FALSE;
 						$found_count = 0;
 					}
-					if (!$found)
-					{
-						if ($blocksize <= 24)
-						{
-							if ($ips[$x][4] == 0)
-							{
+					if (!$found) {
+						if ($blocksize <= 24) {
+							if ($ips[$x][4] == 0) {
 								//error_log("Calling ipcalc here");
 								$cmd = 'LANG=C /usr/local/bin/ipcalc -n -b ' . $ips[$x][0] . '/' . $blocksize . ' | grep Network: | cut -d: -f2';
-								if (trim(`$cmd`) == $ips[$x][0] . "/" . $blocksize)
-								{
+								if (trim(`$cmd`) == $ips[$x][0] . "/" . $blocksize) {
 									$found = $ips[$x][0];
 									$found_c = $c;
 								}
 							}
-						}
-						else
-						{
-							if ($ips[$x][4] % $ipcount == 0)
-							{
+						} else {
+							if ($ips[$x][4] % $ipcount == 0) {
 								$found = $ips[$x][0];
 								$found_c = $c;
 							}
 						}
 					}
-					if ($found)
-					{
+					if ($found) {
 						$found_count++;
-						if ($found_count == $ipcount)
-						{
+						if ($found_count == $ipcount) {
 							$available[] = array($found, $ipblock_id);
 							$found = FALSE;
 							$found_count = 0;
@@ -1413,16 +1178,13 @@
 		return $available;
 	}
 
-	function delete_vlan()
-	{
+	function delete_vlan() {
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
-		if ($ima == 'admin')
-		{
-			if ($GLOBALS['tf']->variables->request['sure'] != 'yes')
-			{
+		if ($ima == 'admin') {
+			if ($GLOBALS['tf']->variables->request['sure'] != 'yes') {
 				$table = new TFTable;
 				$table->set_title('Delete VLan');
 				$table->add_hidden('ipblock', $ipblock);
@@ -1441,9 +1203,7 @@
 				$table->add_field($table->make_submit('Delete This Vlan'));
 				$table->add_row();
 				add_output($table->get_table());
-			}
-			else
-			{
+			} else {
 				$query = "select * from vlans where vlans_networks=':$ipblock:'";
 				$db->query($query, __LINE__, __FILE__);
 				$db->next_record();
@@ -1461,17 +1221,14 @@
 		}
 	}
 
-	function add_vlan()
-	{
+	function add_vlan() {
 		//_debug_array(get_ips2('68.168.208.0/20',TRUE));
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if ($ima == 'admin')
-		{
-			if (!isset($GLOBALS['tf']->variables->request['blocksize']))
-			{
+		if ($ima == 'admin') {
+			if (!isset($GLOBALS['tf']->variables->request['blocksize'])) {
 				$table = new TFTable;
 				$table->set_title('Add New VLAN');
 				$table->add_field('Enter Desired Block Size (ie /24)', 'l');
@@ -1530,13 +1287,10 @@
 				$t->add_row();
 
 				add_output($t->get_table());
-			}
-			else
-			{
+			} else {
 				$blocksize = str_replace('/', '', $GLOBALS['tf']->variables->request['blocksize']);
 				$blocks = available_ipblocks($blocksize);
-				if (!isset($GLOBALS['tf']->variables->request['ipaddress']))
-				{
+				if (!isset($GLOBALS['tf']->variables->request['ipaddress'])) {
 					// ok we have blocksize now need to determine what vlans are possible
 					$ipcount = get_ipcount_from_netmask($blocksize);
 					$table = new TFTable;
@@ -1551,12 +1305,10 @@
 					$table->add_field('Usable IPs', 'l');
 					$table->add_field($ipcount, 'r');
 					$table->add_row();
-					if (sizeof($blocks) > 0)
-					{
+					if (sizeof($blocks) > 0) {
 						$table->add_field('Enter Desired IP Block', 'l');
 						$sel = '<select name=ipaddress>';
-						for ($x = 0; $x < sizeof($blocks); $x++)
-						{
+						for ($x = 0; $x < sizeof($blocks); $x++) {
 							$sel .= '<option value=' . $blocks[$x][0] . '>' . $blocks[$x][0] . '/' . $blocksize . '</option>';
 						}
 						$sel .= '</select>';
@@ -1576,42 +1328,32 @@
 						$table->set_colspan(2);
 						$table->add_field($table->make_submit('Proceed To Next Step'));
 						$table->add_row();
-					}
-					else
-					{
+					} else {
 						$table->set_colspan(2);
 						$table->add_field('<b>No Usable Blocks Found Matching This Block Size</b>');
 						$table->add_row();
 					}
 					add_output($table->get_table());
-				}
-				else
-				{
+				} else {
 					$ports = $GLOBALS['tf']->variables->request['ports'];
-					if (sizeof($ports) > 0)
-					{
+					if (sizeof($ports) > 0) {
 						$ipaddress = $GLOBALS['tf']->variables->request['ipaddress'];
 						$found = false;
-						for ($x = 0; $x < sizeof($blocks); $x++)
-						{
-							if ($blocks[$x][0] == $ipaddress)
-							{
+						for ($x = 0; $x < sizeof($blocks); $x++) {
+							if ($blocks[$x][0] == $ipaddress) {
 								$block = $blocks[$x][1];
 								$found = true;
 							}
 						}
 						$ips = get_ips($ipaddress . '/' . $blocksize, TRUE);
 						$db->query("select * from ips2 left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ips) . "') and vlans_id is not NULL");
-						if ($db->num_rows() > 0)
-						{
+						if ($db->num_rows() > 0) {
 							$found = false;
-							while ($db->next_record())
-							{
+							while ($db->next_record()) {
 								echo "Conflicting IP: " . $db->Record['ips_ip'] . '<br>';
 							}
 						}
-						if (!$found)
-						{
+						if (!$found) {
 							echo 'I think this vlan already exists';
 							exit;
 						}
@@ -1623,26 +1365,18 @@
 						$query = "select ips_ip from ips2 where ips_ip in ('" . implode("', '", $ips) . "')";
 						$db->query($query, __LINE__, __FILE__);
 						$ips2 = array();
-						while ($db->next_record())
-						{
+						while ($db->next_record()) {
 							$ips2[] = $db->Record['ips_ip'];
 						}
-						for ($x = 0; $x < sizeof($ips); $x++)
-						{
-							if (($x == 0) || ($x == (sizeof($ips) - 1)))
-							{
+						for ($x = 0; $x < sizeof($ips); $x++) {
+							if (($x == 0) || ($x == (sizeof($ips) - 1))) {
 								$reserved = 1;
-							}
-							else
-							{
+							} else {
 								$reserved = 0;
 							}
-							if (in_array($ips[$x], $ips2))
-							{
+							if (in_array($ips[$x], $ips2)) {
 								$query = "update ips2 set ips_vlan='$vlan', ips_serverid=0, ips_group=0, ips_reserved='$reserved' where ips_ip='$ips[$x]'";
-							}
-							else
-							{
+							} else {
 								$query = "insert into ips2 values ('$ips[$x]', '$vlan', 0, 0, $reserved)";
 							}
 							$db->query($query, __LINE__, __FILE__);
@@ -1650,9 +1384,7 @@
 						add_output('VLAN Created');
 						`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
 						$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
-					}
-					else
-					{
+					} else {
 						add_output('You must select at least one port');
 					}
 				}
@@ -1660,14 +1392,12 @@
 		}
 	}
 
-	function portless_vlans()
-	{
+	function portless_vlans() {
 		$db = $GLOBALS['admin_dbh'];
 		$db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);
 		$table = new TFTable;
 		$table->set_title('Port-less VLAN List' . pdf_link('choice=ip.portless_vlans'));
-		if ($db->num_rows() > 0)
-		{
+		if ($db->num_rows() > 0) {
 			$table->add_field('VLAN');
 			$table->set_bgcolor(2);
 			$table->add_field('Comment');
@@ -1675,29 +1405,24 @@
 			$table->add_field('Options');
 			$table->add_row();
 			$table->alternate_rows();
-			while ($db->next_record())
-			{
+			while ($db->next_record()) {
 				$ipblock = str_replace(':', '', $db->Record['vlans_networks']);
 				$table->add_field($ipblock, 'l');
 				$table->add_field($db->Record['vlans_comment']);
 				$table->add_field($table->make_link('choice=ip.vlan_port_manager&ipblock=' . $ipblock, 'Configure Port(s)'));
 				$table->add_row();
 			}
-		}
-		else
-		{
+		} else {
 			$table->add_field('No VLANs without ports assigned to them');
 			$table->add_row();
 		}
-		if ($GLOBALS['tf']->variables->request['pdf'] == 1)
-		{
+		if ($GLOBALS['tf']->variables->request['pdf'] == 1) {
 			$table->get_pdf();
 		}
 		add_output($table->get_table());
 	}
 
-	function vlan_edit_port()
-	{
+	function vlan_edit_port() {
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		$table = new TFTable;
@@ -1712,17 +1437,13 @@
 		$networks = get_networks($db->Record['vlans_networks'], $db->Record['vlans_id'], $db->Record['vlans_comment'], $db->Record['vlans_ports']);
 		$networksize = sizeof($networks);
 		$rows = array();
-		for ($x = 0; $x < $networksize; $x++)
-		{
+		for ($x = 0; $x < $networksize; $x++) {
 			$row = array();
 			$network = $networks[$x]['network'];
 			$vlan = $networks[$x]['vlan'];
-			if ($networks[$x]['comment'])
-			{
+			if ($networks[$x]['comment']) {
 				$comment = $networks[$x]['comment'];
-			}
-			else
-			{
+			} else {
 				$comment = 'not set';
 			}
 			$portdata = explode(':', $networks[$x]['ports']);
@@ -1730,27 +1451,22 @@
 			$searchs = array();
 			$servers = array();
 			$portdatasize = sizeof($portdata);
-			for ($y = 0; $y < $portdatasize; $y++)
-			{
-				if ($portdata[$y] != '')
-				{
+			for ($y = 0; $y < $portdatasize; $y++) {
+				if ($portdata[$y] != '') {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
 					$ports[] = $portdata[$y];
 					$searchs[] = "(servers_switch='$switch' and servers_slot='$port')";
 				}
 			}
 		}
-		if (!isset($GLOBALS['tf']->variables->request['ports']))
-		{
+		if (!isset($GLOBALS['tf']->variables->request['ports'])) {
 			$select = get_select_ports($ports, 40);
 			$table->add_hidden('edit_port', 1);
 			$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 			$table->set_colspan(2);
 			$table->add_field($select . '<br>' . $table->make_submit('Set Port(s)'));
 			$editport = TRUE;
-		}
-		else
-		{
+		} else {
 			$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 			$query = "update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'";
 			$db2->query($query, __LINE__, __FILE__);
@@ -1761,8 +1477,7 @@
 		add_output($table->get_table());
 	}
 
-	function vlan_manager()
-	{
+	function vlan_manager() {
 		//			$smarty = new TFSmarty;
 		//			$smarty->debugging = true;
 		//			$smarty->assign('sortcol', 1);
@@ -1773,8 +1488,7 @@
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if ($ima == 'admin')
-		{
+		if ($ima == 'admin') {
 			if (isset($GLOBALS['tf']->variables->request['order']) && $GLOBALS['tf']->variables->request['order'] == 'id')
 				$order = 'vlans_id';
 			else
@@ -1807,14 +1521,12 @@
 			// get ip block(s)
 			$networks = array();
 			$db->query("select * from ipblocks order by ipblocks_network", __LINE__, __FILE__);
-			while ($db->next_record())
-			{
+			while ($db->next_record()) {
 				$ipinfo = ipcalc($db->Record['ipblocks_network']);
 				$network_id = $db->Record['ipblocks_id'];
 				$total_ips += $ipinfo['hosts'];
 				$db2->query("select * from vlans where vlans_block='$network_id' order by $order", __LINE__, __FILE__);
-				while ($db2->next_record())
-				{
+				while ($db2->next_record()) {
 					$network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], $db2->Record['vlans_comment'], $db2->Record['vlans_ports']);
 					$networks = array_merge($networks, $network);
 				}
@@ -1833,17 +1545,13 @@
 			$used_ips = $db->f(0);
 			$networksize = sizeof($networks);
 			$rows = array();
-			for ($x = 0; $x < $networksize; $x++)
-			{
+			for ($x = 0; $x < $networksize; $x++) {
 				$row = array();
 				$network = $networks[$x]['network'];
 				$vlan = $networks[$x]['vlan'];
-				if ($networks[$x]['comment'])
-				{
+				if ($networks[$x]['comment']) {
 					$comment = $networks[$x]['comment'];
-				}
-				else
-				{
+				} else {
 					$comment = 'not set';
 				}
 				$portdata = explode(':', $networks[$x]['ports']);
@@ -1851,21 +1559,17 @@
 				$searchs = array();
 				$servers = array();
 				$portdatasize = sizeof($portdata);
-				for ($y = 0; $y < $portdatasize; $y++)
-				{
-					if ($portdata[$y] != '')
-					{
+				for ($y = 0; $y < $portdatasize; $y++) {
+					if ($portdata[$y] != '') {
 						list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
 						$ports[] = $portdata[$y];
 						$searchs[] = "(servers_switch='$switch' and servers_slot='$port')";
 					}
 				}
-				if (sizeof($searchs))
-				{
+				if (sizeof($searchs)) {
 					$query = "select servers_hostname from servers where " . implode(' or ', $searchs);
 					$db2->query($query, __LINE__, __FILE__);
-					while ($db2->next_record())
-					{
+					while ($db2->next_record()) {
 						$servers[] = $db2->Record['servers_hostname'];
 					}
 				}
@@ -1887,21 +1591,16 @@
 
 				$editport = FALSE;
 				$editserver = FALSE;
-				if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network)
-				{
-					if (isset($GLOBALS['tf']->variables->request['edit_port']))
-					{
-						if (!isset($GLOBALS['tf']->variables->request['ports']))
-						{
+				if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network) {
+					if (isset($GLOBALS['tf']->variables->request['edit_port'])) {
+						if (!isset($GLOBALS['tf']->variables->request['ports'])) {
 							$select = get_select_ports($ports);
 							$table->add_hidden('edit_port', 1);
 							$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 							//								$row[] = $select . '<br>' . $table->make_submit('Set Port(s)');
 							$table->add_field($select . '<br>' . $table->make_submit('Set Port(s)'));
 							$editport = TRUE;
-						}
-						else
-						{
+						} else {
 							$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 							$db2->query("update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'", __LINE__, __FILE__);
 							`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
@@ -1909,17 +1608,13 @@
 						}
 					}
 				}
-				if (sizeof($ports) == 0)
-				{
+				if (sizeof($ports) == 0) {
 					$ports[] = '--';
 				}
-				if (!$editport)
-				{
+				if (!$editport) {
 					$portsize = sizeof($ports);
-					for ($y = 0; $y < $portsize; $y++)
-					{
-						if (!(strpos($ports[$y], '/') === false))
-						{
+					for ($y = 0; $y < $portsize; $y++) {
+						if (!(strpos($ports[$y], '/') === false)) {
 							list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
 							$ports[$y] = get_switch_name($switch, TRUE) . '/' . $port;
 						}
@@ -1931,36 +1626,26 @@
 				}
 				$table->add_field($table->make_link('choice=ip.ipblock_viewer&amp;ipblock=' . $network, '(?)') . $table->make_link('choice=ip.add_ips_to_server&amp;ipblock=' . $network, '(+IP)') . $table->make_link('choice=ip.delete_vlan&amp;ipblock=' .
 					$network, '(-)'), 'c');
-				if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network)
-				{
-					if (isset($GLOBALS['tf']->variables->request['edit_server']))
-					{
-						if ($ports[0] != '--')
-						{
-							if (!isset($GLOBALS['tf']->variables->request['port_0']))
-							{
+				if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network) {
+					if (isset($GLOBALS['tf']->variables->request['edit_server'])) {
+						if ($ports[0] != '--') {
+							if (!isset($GLOBALS['tf']->variables->request['port_0'])) {
 								$out = '';
-								for ($y = 0; $y < sizeof($ports); $y++)
-								{
-									if (sizeof($ports) > 1)
-									{
+								for ($y = 0; $y < sizeof($ports); $y++) {
+									if (sizeof($ports) > 1) {
 										$out .= 'Port ' . $ports[$y] . ': ';
 									}
 									list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
 									$query = "select servers_serverid, servers_hostname from servers where servers_switch='$switch' and servers_slot='$port'";
 									$db2->query($query, __LINE__, __FILE__);
-									if ($db2->num_rows())
-									{
+									if ($db2->num_rows()) {
 										$db2->next_record();
 										$server = $db2->Record['servers_serverid'];
-									}
-									else
-									{
+									} else {
 										$server = 0;
 									}
 									$out .= select_server($server, 'port_' . $y, TRUE);
-									if ($y < (sizeof($ports) - 1))
-									{
+									if ($y < (sizeof($ports) - 1)) {
 										$out .= '<br>';
 									}
 								}
@@ -1969,15 +1654,11 @@
 								//									$row[] = $out . '<br>' . $table->make_submit('Set Server(s)');
 								$table->add_field($out . '<br>' . $table->make_submit('Set Server(s)'));
 								$editserver = TRUE;
-							}
-							else
-							{
+							} else {
 								$servers = array();
-								for ($y = 0; $y < sizeof($ports); $y++)
-								{
+								for ($y = 0; $y < sizeof($ports); $y++) {
 									$server = $GLOBALS['tf']->variables->request['port_' . $y];
-									if ($server != '0')
-									{
+									if ($server != '0') {
 										$servers[] = $server;
 										list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
 										$query = "update servers set servers_switch='', servers_slot='' where servers_switch='$switch' and servers_slot='$port'";
@@ -1987,21 +1668,17 @@
 									}
 								}
 							}
-						}
-						else
-						{
+						} else {
 							//								$row[] = '<b>You Must First Assign Port(s)</b>';
 							$table->add_field('<b>You Must First Assign Port(s)</b>');
 							$editserver = TRUE;
 						}
 					}
 				}
-				if (sizeof($servers) == 0)
-				{
+				if (sizeof($servers) == 0) {
 					$servers[] = '--';
 				}
-				if (!$editserver)
-				{
+				if (!$editserver) {
 					//						$row[] = $table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock=' . $network, implode(', ', $servers));
 					//						$table->add_field($table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock=' . $network, implode(', ', $servers)));
 				}
@@ -2031,32 +1708,25 @@
 
 			//			add_output($smarty->fetch('tablesorter/tablesorter.tpl'));
 			add_output($table->get_table());
-			if (isset($GLOBALS['tf']->variables->request['pdf']) && $GLOBALS['tf']->variables->request['pdf'] == 1)
-			{
+			if (isset($GLOBALS['tf']->variables->request['pdf']) && $GLOBALS['tf']->variables->request['pdf'] == 1) {
 				$table->get_pdf();
 			}
-		}
-		else
-		{
+		} else {
 			add_output('Please contact support regarding adding additional IPs');
 		}
 	}
 
-	function edit_vlan_comment()
-	{
+	function edit_vlan_comment() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
-		if ($ima == 'admin')
-		{
+		if ($ima == 'admin') {
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			// get ip block(s)
 			$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'", __LINE__, __FILE__);
-			if ($db->num_rows())
-			{
+			if ($db->num_rows()) {
 				$db->next_record();
 				$id = $db->Record['vlans_id'];
-				if (!isset($GLOBALS['tf']->variables->request['comment']))
-				{
+				if (!isset($GLOBALS['tf']->variables->request['comment'])) {
 					$table = new TFTable;
 					$table->set_title('VLAN Comment Editor');
 					$table->add_hidden('ipblock', $ipblock);
@@ -2073,9 +1743,7 @@
 					$table->add_field($table->make_submit('Update The Comment'));
 					$table->add_row();
 					add_output($table->get_table());
-				}
-				else
-				{
+				} else {
 					$comment = $GLOBALS['tf']->variables->request['comment'];
 					$db->query("update vlans set vlans_comment='$comment' where vlans_id='$id'", __LINE__, __FILE__);
 					`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
@@ -2085,13 +1753,11 @@
 		}
 	}
 
-	function vlan_port_server_manager()
-	{
+	function vlan_port_server_manager() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if ($ima == 'admin')
-		{
+		if ($ima == 'admin') {
 			$db->query("select * from vlans order by vlans_ports, vlans_networks", __LINE__, __FILE__);
 			$table = new TFTable;
 			$table->set_title('VLAN Port <-> Server Mapping Setup');
@@ -2106,20 +1772,16 @@
 			$table->add_field('Server');
 			$table->add_row();
 			$table->alternate_rows();
-			while ($db->next_record())
-			{
+			while ($db->next_record()) {
 				$networks = explode(':', $db->Record['vlans_networks']);
 				$comment = $db->Record['vlans_comment'];
 				$network = $networks[1];
 				$ports = explode(':', $db->Record['vlans_ports']);
-				if ($ports[1] != '')
-				{
+				if ($ports[1] != '') {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[1]);
-					if (isset($GLOBALS['tf']->variables->request['vlan_' . $db->Record['vlans_id']]))
-					{
+					if (isset($GLOBALS['tf']->variables->request['vlan_' . $db->Record['vlans_id']])) {
 						$server = $GLOBALS['tf']->variables->request['vlan_' . $db->Record['vlans_id']];
-						if ($server != '0')
-						{
+						if ($server != '0') {
 							$query = "update servers set servers_switch='', servers_slot='' where servers_switch='$switch' and servers_slot='$port'";
 							$db2->query($query, __LINE__, __FILE__);
 							$query = "update servers set servers_switch='$switch', servers_slot='$port' where servers_hostname='$server'";
@@ -2128,13 +1790,10 @@
 					}
 					$query = "select servers_serverid, servers_hostname from servers where servers_switch='$switch' and servers_slot='$port'";
 					$db2->query($query, __LINE__, __FILE__);
-					if ($db->num_rows())
-					{
+					if ($db->num_rows()) {
 						$db2->next_record();
 						$server = $db2->Record['servers_serverid'];
-					}
-					else
-					{
+					} else {
 						$server = 0;
 					}
 					$table->add_field($network);
@@ -2152,25 +1811,19 @@
 		}
 	}
 
-	function vlan_port_manager()
-	{
+	function vlan_port_manager() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if ($ima == 'admin')
-		{
+		if ($ima == 'admin') {
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'", __LINE__, __FILE__);
-			if (($ipblock == '') || ($db->num_rows() == 0))
-			{
+			if (($ipblock == '') || ($db->num_rows() == 0)) {
 				add_output('Invalid IP Block');
-			}
-			else
-			{
+			} else {
 				$db->next_record();
 				$vlan_id = $db->Record['vlans_id'];
-				if (!isset($GLOBALS['tf']->variables->request['ports']))
-				{
+				if (!isset($GLOBALS['tf']->variables->request['ports'])) {
 					$ports = explode(':', $db->Record['vlans_ports']);
 					$select = get_select_ports($ports);
 					$table = new TFTable;
@@ -2186,9 +1839,7 @@
 					$table->add_field($table->make_submit('Update This VLan'));
 					$table->add_row();
 					add_output($table->get_table());
-				}
-				else
-				{
+				} else {
 					$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 					$db2->query("update vlans set vlans_ports='$ports' where vlans_networks like '%:$ipblock:%' and vlans_id='$vlan_id'", __LINE__, __FILE__);
 					`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
@@ -2198,17 +1849,14 @@
 		}
 	}
 
-	function ipblock_viewer()
-	{
+	function ipblock_viewer() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if ($ima == 'admin')
-		{
+		if ($ima == 'admin') {
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'", __LINE__, __FILE__);
-			while ($db->next_record())
-			{
+			while ($db->next_record()) {
 				$ipinfo = ipcalc($ipblock);
 				$ips = get_ips($ipblock);
 				$table = new TFTable;
@@ -2269,10 +1917,8 @@
 				$table->add_field('Options');
 				$table->add_row();
 				$table->alternate_rows();
-				if ($usedips > 0)
-				{
-					while ($db2->next_record())
-					{
+				if ($usedips > 0) {
+					while ($db2->next_record()) {
 						$server = $GLOBALS['tf']->get_server($db2->Record['ips_serverid']);
 						$table->add_field($server['servers_hostname']);
 						$table->add_field($db2->Record['ips_ip']);
@@ -2291,26 +1937,20 @@
 				add_output($table->get_table());
 
 			}
-		}
-		else
-		{
+		} else {
 			add_output('Please contact support regarding adding additional IPs');
 		}
 	}
 
-	function add_ips_to_server()
-	{
+	function add_ips_to_server() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
-		if ($ima == 'admin')
-		{
+		if ($ima == 'admin') {
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
-			if (!isset($GLOBALS['tf']->variables->request['ips']))
-			{
+			if (!isset($GLOBALS['tf']->variables->request['ips'])) {
 				$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'", __LINE__, __FILE__);
-				while ($db->next_record())
-				{
+				while ($db->next_record()) {
 					$ipinfo = ipcalc($ipblock);
 					$ips = get_ips($ipblock);
 					$table = new TFTable;
@@ -2322,8 +1962,7 @@
 					$table->add_field('Please Select IP(s) To Add');
 					$sel = '<select multiple size=8 name="ips[]">';
 					$db2->query("select * from ips2 where ips_ip in ('" . implode("', '", $ips) . "') and ips_serverid=0", __LINE__, __FILE__);
-					while ($db2->next_record())
-					{
+					while ($db2->next_record()) {
 						$sel .= '<option value=' . $db2->Record['ips_ip'] . '>' . $db2->Record['ips_ip'] . '</option>';
 					}
 					$sel .= '</select>';
@@ -2334,45 +1973,35 @@
 					$table->add_row();
 					add_output($table->get_table());
 				}
-			}
-			else
-			{
+			} else {
 				$server = $GLOBALS['tf']->variables->request['server'];
 				$server_info = $GLOBALS['tf']->get_server($server);
 				$group = get_first_group($server_info['servers_group']);
-				if ($server_info)
-				{
+				if ($server_info) {
 					$ips = $GLOBALS['tf']->variables->request['ips'];
-					for ($x = 0; $x < sizeof($ips); $x++)
-					{
+					for ($x = 0; $x < sizeof($ips); $x++) {
 						$db->query("update ips2 set ips_group='$group', ips_serverid='$server_info[servers_serverid]' where ips_ip='$ips[$x]'", __LINE__, __FILE__);
 					}
 					add_output("IP(s) Successfully Assigned To $server<br>");
 					add_output($GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock=' . $ipblock), 1));
-				}
-				else
-				{
+				} else {
 					add_output('Invalid Server (' . $server . ')');
 				}
 			}
 
-		}
-		else
-		{
+		} else {
 			add_output('Please contact support regarding adding additional IPs');
 		}
 	}
 
-	function add_ips()
-	{
+	function add_ips() {
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$color1 = COLOR1;
 		$color3 = COLOR2;
 		$color2 = COLOR3;
 		$choice = $GLOBALS['tf']->variables->request['choice'];
-		if (!isset($GLOBALS['tf']->variables->request['ipclass']))
-		{
+		if (!isset($GLOBALS['tf']->variables->request['ipclass'])) {
 			add_output('<TABLE>' . '<TR bgcolor="' . $color3 . '" align=center><TD colspan=2>IP Address Addition Menu</TD></TR>' . '<TR bgcolor="' . $color1 .
 				'" align=center><TD colspan=2>Adding A Single Class C</TD></TR>' . '<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('index.php') . '">' .
 				"<input type=hidden name=choice value=$choice>" . '<TR><TD bgcolor="' . $color2 . '">' . 'Enter First 3 Set Of IPs In The Class C (ie 216.74.109):' . '</TD><TD bgcolor="' . $color3 . '">' .
@@ -2383,49 +2012,34 @@
 				'Enter Lowest IP In The Range (ie 2):' . '</TD><TD bgcolor="' . $color3 . '">' . '<input type=text name=iplow>' . '</TD></TR>' . '<TR><TD bgcolor="' . $color2 . '">' .
 				'Enter Highest IP In The Range (ie 254):' . '</TD><TD bgcolor="' . $color3 . '">' . '<input type=text name=iphigh>' . '</TD></TR>' . '<TR bgcolor="' . $color1 . '" align=center><TD colspan=2>' .
 				'<input type=submit value="Add This Range">' . '</TD></TR>' . '</FORM>' . '</TABLE>');
-		}
-		else
-		{
+		} else {
 			$ipclass = $GLOBALS['tf']->variables->request['ipclass'];
 			add_output('Adding IPs: ');
-			if (!isset($GLOBALS['tf']->variables->request['iplow']))
-			{
+			if (!isset($GLOBALS['tf']->variables->request['iplow'])) {
 				$iplow = 2;
-			}
-			else
-			{
+			} else {
 				$iplow = $GLOBALS['tf']->variables->request['iplow'];
 			}
 
-			if (!isset($GLOBALS['tf']->variables->request['iphigh']))
-			{
+			if (!isset($GLOBALS['tf']->variables->request['iphigh'])) {
 				$iphigh = 254;
-			}
-			else
-			{
+			} else {
 				$iphigh = $GLOBALS['tf']->variables->request['iphigh'];
 			}
 
 			$new_ips = 0;
-			for ($num = $iplow; $num < ($iphigh + 1); $num++)
-			{
+			for ($num = $iplow; $num < ($iphigh + 1); $num++) {
 				$ip = $ipclass . '.' . $num;
 				$db->query("select * from ips where ips_ip='$ip'", __LINE__, __FILE__);
-				if ($db->num_rows() == 0)
-				{
-					if ($GLOBALS['tf']->accounts->data['demo'] == 1)
-					{
+				if ($db->num_rows() == 0) {
+					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
 						add_output("No Updates In Demo Mode");
-					}
-					else
-					{
+					} else {
 						$db->query("insert into ips values('$ip', '0', '$groupinfo[account_id]')", __LINE__, __FILE__);
 						$new_ips++;
 						add_output('+');
 					}
-				}
-				else
-				{
+				} else {
 					add_output('-');
 				}
 			}
@@ -2439,59 +2053,41 @@
 		}
 	}
 
-	function unblock_ip_do()
-	{
-		if (!$GLOBALS['tf']->variables->request['server'])
-		{
+	function unblock_ip_do() {
+		if (!$GLOBALS['tf']->variables->request['server']) {
 			select_server();
-		}
-		else
-		{
-			if (isset($GLOBALS['tf']->variables->request['IPBLOCK']))
-			{
+		} else {
+			if (isset($GLOBALS['tf']->variables->request['IPBLOCK'])) {
 				$ip = $GLOBALS['tf']->variables->request['IPBLOCK'];
 				$server = $GLOBALS['tf']->variables->request['server'];
 				$GLOBALS['tf']->session->appsession('server', $server);
-				if (valid_server($server))
-				{
-					if ($GLOBALS['tf']->accounts->data['demo'] == 1)
-					{
+				if (valid_server($server)) {
+					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
 						add_output("No Updates In Demo Mode");
-					}
-					else
-					{
+					} else {
 						$cmd = '';
-						if (ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", $ip))
-						{
+						if (ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", $ip)) {
 							$cmd = '/sbin/route del -host ' . $ip;
-						}
-						elseif (ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\-[0-9]{1,3}$", $ip))
-						{
+						} elseif (ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\-[0-9]{1,3}$", $ip)) {
 							$front = trim(`echo "$ip" | cut -d- -f1`);
 							$start = trim(`echo "$front" | cut -d. -f4`);
 							$ugh = trim(`echo "$ip" | cut -d. -f1-3`);
 							$end = trim(`echo "$ip" | cut -d- -f2`);
 							$cmd = '/sbin/route add -del ' . $front . '; \n';
-							for ($x = $start; $x <= $end; $x++)
-							{
+							for ($x = $start; $x <= $end; $x++) {
 								$cmd .= '/sbin/route del -host ' . $ugh . '.' . $x . '; \n';
 							}
-						}
-						else
-						{
+						} else {
 							add_output('Error: ' . $ip . ' is an incorrect format for an ip address.');
 							return 0;
 						}
 						$result = ssh($server, $cmd);
 						$table = new TFTable;
 						$table->set_title('Unblocking IP ' . $server);
-						if ($result == '')
-						{
+						if ($result == '') {
 							$table->add_field('IP ' . $ip . ' now unblocked.');
 							$table->add_row();
-						}
-						else
-						{
+						} else {
 							$table->add_field('There appears to have been an error');
 							$table->add_row();
 							$table->add_field($result);
@@ -2502,9 +2098,7 @@
 						previous_url($server);
 					}
 				}
-			}
-			else
-			{
+			} else {
 				add_output('Error: Variable IPBLOCK not passed.');
 			}
 		}
@@ -2514,29 +2108,23 @@
 	 * @param $hostname
 	 * @return string
 	 */
-	function ips_hostname($hostname)
-	{
+	function ips_hostname($hostname) {
 		$db = clone $GLOBALS['admin_dbh'];
 		$db2 = clone $db;
 		$comment = $db->real_escape($hostname);
 		$query = "select * from vlans where vlans_comment='$comment'";
 		$db->query($query);
 		$out = '';
-		if ($db->num_rows() == 0)
-		{
+		if ($db->num_rows() == 0) {
 			$query = "select * from vlans where vlans_comment like '%$comment%'";
 			$db->query($query);
 		}
-		if ($db->num_rows() > 0)
-		{
-			while ($db->next_record(MYSQL_ASSOC))
-			{
+		if ($db->num_rows() > 0) {
+			while ($db->next_record(MYSQL_ASSOC)) {
 				//		$db->Record['vlans_id'];
 				$parts = explode(':', $db->Record['vlans_ports']);
-				for ($x = 0; $x < sizeof($parts); $x++)
-				{
-					if (strpos($parts[$x], '/'))
-					{
+				for ($x = 0; $x < sizeof($parts); $x++) {
+					if (strpos($parts[$x], '/')) {
 						list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
 						$parts[$x] = get_switch_name($switch, TRUE) . '/' . $port;
 					}
@@ -2545,25 +2133,19 @@
 				$query = "select graph_id from switchports where switch='$switch' and port='$port'";
 				//echo $query;
 				$db2->query($query);
-				if ($db2->num_rows() > 0)
-				{
+				if ($db2->num_rows() > 0) {
 					$db2->next_record();
 					//print_r($db2->Record);
 					$graph_id = $db2->Record['graph_id'];
-				}
-				else
-				{
+				} else {
 					$query = "select graph_id from switchports where switch='$switch' and (port='$port' || justport='$justport')";
 					//echo $query;
 					$db2->query($query);
-					if ($db2->num_rows() > 0)
-					{
+					if ($db2->num_rows() > 0) {
 						$db2->next_record();
 						//print_r($db2->Record);
 						$graph_id = $db2->Record['graph_id'];
-					}
-					else
-					{
+					} else {
 						$graph_id = 0;
 					}
 				}
@@ -2571,9 +2153,7 @@
 				$out .= $db->Record['vlans_comment'] . "\n{$db->Record['vlans_networks']}\n{$db->Record['vlans_ports']}\n" . $graph_id . "\n";
 				;
 			}
-		}
-		else
-		{
+		} else {
 			$out .= "No vlans found\n";
 		}
 		return trim($out);
