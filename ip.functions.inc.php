@@ -457,7 +457,8 @@
 	function get_ipcount_from_netmask($netmask) {
 		$ipinfo = array();
 		//error_log("Calling ipcalc here");
-		$result = trim(`LANG=C /usr/local/bin/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
+		$path = INCLUDE_ROOT . '/../scripts/licenses';
+		$result = trim(`LANG=C $path/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
 		return intval($result);
 	}
 
@@ -467,9 +468,10 @@
 	 */
 	function ipcalc_array($networks) {
 		$cmd = "function a() {\n";
+		$path = INCLUDE_ROOT . '/../scripts/licenses';
 		for ($x = 0; $x < sizeof($networks); $x++) {
 			//error_log("Calling ipcalc here");
-			$cmd .= 'LANG=C /usr/local/bin/ipcalc -nb ' . $networks[$x]['network'] . ';echo :-----;';
+			$cmd .= 'LANG=C $path/ipcalc -nb ' . $networks[$x]['network'] . ';echo :-----;';
 		}
 		$cmd .= "}\n";
 		$cmd .= 'a | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1;';
@@ -584,9 +586,10 @@
 			6	HostMax:66.45.239.254
 			7	Hosts/Net:4094
 			*/
+			$path = INCLUDE_ROOT . '/../scripts/licenses';
 			$ipinfo = array();
 			//error_log("Calling ipcalc here");
-			$result = trim(`LANG=C /usr/local/bin/ipcalc -nb $network | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1`);
+			$result = trim(`LANG=C $path/ipcalc -nb $network | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1`);
 			$lines = explode("\n", $result);
 			$netparts = explode('/', $lines[3]);
 			$ipinfo['network'] = $lines[3];
@@ -1136,6 +1139,7 @@
 			$found = FALSE;
 			$found_count = 0;
 			$found_c = '';
+			$path = INCLUDE_ROOT . '/../scripts/licenses';
 			for ($x = 0; $x < $ipsize; $x++) {
 				// check if the ips in use already
 				if (isset($usedips[$ips[$x][0]])) {
@@ -1151,7 +1155,7 @@
 						if ($blocksize <= 24) {
 							if ($ips[$x][4] == 0) {
 								//error_log("Calling ipcalc here");
-								$cmd = 'LANG=C /usr/local/bin/ipcalc -n -b ' . $ips[$x][0] . '/' . $blocksize . ' | grep Network: | cut -d: -f2';
+								$cmd = 'LANG=C '.$path.'/ipcalc -n -b ' . $ips[$x][0] . '/' . $blocksize . ' | grep Network: | cut -d: -f2';
 								if (trim(`$cmd`) == $ips[$x][0] . "/" . $blocksize) {
 									$found = $ips[$x][0];
 									$found_c = $c;
