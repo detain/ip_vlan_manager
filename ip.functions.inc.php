@@ -1051,7 +1051,7 @@
 				$ip = long2ip($x);
 				$usedips[$ip] = $ip;
 			}
-			/* 45.126.36.0/22 */			
+			/* 45.126.36.0/22 */
 			$reserved = array(763241472, 763242495);
 			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 				$ip = long2ip($x);
@@ -1490,8 +1490,8 @@
 		$ima = $GLOBALS['tf']->ima;
 		$choice = $GLOBALS['tf']->variables->request['choice'];
 		global $groupinfo;
-		$db = $GLOBALS['admin_dbh'];
-		$db2 = $db;
+		$db = get_module_db('admin');
+		$db2 = get_module_db('admin');
 		if ($ima == 'admin') {
 			if (isset($GLOBALS['tf']->variables->request['order']) && $GLOBALS['tf']->variables->request['order'] == 'id')
 				$order = 'vlans_id';
@@ -1532,6 +1532,7 @@
 				$db2->query("select * from vlans where vlans_block='$network_id' order by $order", __LINE__, __FILE__);
 				while ($db2->next_record()) {
 					$network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], $db2->Record['vlans_comment'], $db2->Record['vlans_ports']);
+					//_debug_array($network);
 					$networks = array_merge($networks, $network);
 				}
 			}
@@ -1549,6 +1550,7 @@
 			$used_ips = $db->f(0);
 			$networksize = sizeof($networks);
 			$rows = array();
+			//_debug_array($networks);
 			for ($x = 0; $x < $networksize; $x++) {
 				$row = array();
 				$network = $networks[$x]['network'];
