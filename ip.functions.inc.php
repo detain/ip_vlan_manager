@@ -24,11 +24,7 @@
 			$blade = '';
 			$justport = $port;
 		}
-		return array(
-			$switch,
-			$port,
-			$blade,
-			$justport);
+		return array($switch, $port, $blade, $justport);
 	}
 
 	/**
