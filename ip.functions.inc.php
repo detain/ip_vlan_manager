@@ -581,7 +581,7 @@
 					'hostmax' => $matches[1],
 					'hosts' => 1,
 				);
-			require_once ('Net/IPv4.php');
+			require_once('Net/IPv4.php');
 			$network_object = new Net_IPv4();
 			$net = $network_object->parseAddress($network);
 			//billingd_log("|$network|", __LINE__, __FILE__);
@@ -1734,8 +1734,7 @@
 			$table->add_field('Free IPs ' . ($total_ips - $used_ips) . ' (' . number_format(((($total_ips - $used_ips) / $total_ips) * 100), 2) . '%)', 'l');
 			$table->add_row();
 			$table->set_colspan(4);
-			$table->add_field($table->make_link('choice=ip.add_vlan', 'Add New VLAN') . '   ' . $table->make_link('choice=ip.portless_vlans', 'List Of VLAN Without Port Assignments ') . '   ' . $table->make_link
-				('choice=ip.vlan_port_server_manager', 'VLAN Port <-> Server Mapper'));
+			$table->add_field($table->make_link('choice=ip.add_vlan', 'Add New VLAN') . '   ' . $table->make_link('choice=ip.portless_vlans', 'List Of VLAN Without Port Assignments ') . '   ' . $table->make_link('choice=ip.vlan_port_server_manager', 'VLAN Port <-> Server Mapper'));
 			$table->add_row();
 
 			//			add_output($smarty->fetch('tablesorter/tablesorter.tpl'));
