@@ -35,7 +35,7 @@
 	* @return string the netmask for the ip block
 	*/
 	function subnet2netmask($subnet) {
-		return long2ip(-1 << (32 - (int)$ip_subnet));		
+		return long2ip(-1 << (32 - (int)$ip_subnet));
 	}
 
 	/**
