@@ -62,12 +62,12 @@
 	 * @param bool $short
 	 * @return string
 	 */
-	function get_switch_name($index, $short = FALSE) {
+	function get_switch_name($index, $short = false) {
 		$db = clone $GLOBALS['admin_dbh'];
 		$db->query("select * from switchmanager where id='$index'");
 		$db->next_record();
 		$switch = $db->Record['name'];
-		if ($short == FALSE) {
+		if ($short == false) {
 			return 'Switch ' . $switch;
 		} else {
 			return $switch;
@@ -79,9 +79,9 @@
 	 * @param int  $size
 	 * @return string
 	 */
-	function get_select_ports($ports = FALSE, $size = 5) {
+	function get_select_ports($ports = false, $size = 5) {
 		$db = $GLOBALS['admin_dbh'];
-		if ($ports === FALSE) {
+		if ($ports === false) {
 			$ports = array();
 		}
 		$select = '<select multiple size=' . $size . ' name="ports[]">';
@@ -660,7 +660,7 @@
 	 * @param bool $include_unusable
 	 * @return bool
 	 */
-	function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE) {
+	function check_ip_part($part, $ipparts, $maxparts, $include_unusable = false) {
 		if ($include_unusable) {
 			$maxip = 256;
 		} else {
@@ -670,45 +670,45 @@
 			case 1:
 				if ($ipparts[0] < $maxip) {
 					if (($ipparts[0] <= $maxparts[0])) {
-						return TRUE;
+						return true;
 					} else {
-						return FALSE;
+						return false;
 					}
 				} else {
-					return FALSE;
+					return false;
 				}
 				break;
 			case 2:
 				if ($ipparts[1] < $maxip) {
 					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1])) {
-						return TRUE;
+						return true;
 					} else {
-						return FALSE;
+						return false;
 					}
 				} else {
-					return FALSE;
+					return false;
 				}
 				break;
 			case 3:
 				if ($ipparts[2] < $maxip) {
 					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2])) {
-						return TRUE;
+						return true;
 					} else {
-						return FALSE;
+						return false;
 					}
 				} else {
-					return FALSE;
+					return false;
 				}
 				break;
 			case 4:
 				if ($ipparts[3] < $maxip) {
 					if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2]) && ($ipparts[3] <= $maxparts[3])) {
-						return TRUE;
+						return true;
 					} else {
-						return FALSE;
+						return false;
 					}
 				} else {
-					return FALSE;
+					return false;
 				}
 				break;
 		}
@@ -757,7 +757,7 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_all_ips_from_ipblocks($include_unusable = FALSE) {
+	function get_all_ips_from_ipblocks($include_unusable = false) {
 		$all_blocks = get_all_ipblocks();
 		$all_ips = array();
 		foreach ($all_blocks as $ipblock)
@@ -769,7 +769,7 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_all_ips2_from_ipblocks($include_unusable = FALSE) {
+	function get_all_ips2_from_ipblocks($include_unusable = false) {
 		$all_blocks = get_all_ipblocks();
 		$all_ips = array();
 		foreach ($all_blocks as $ipblock)
@@ -782,7 +782,7 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_ips($network, $include_unusable = FALSE) {
+	function get_ips($network, $include_unusable = false) {
 		//echo "$network|$include_unusable|<br>";
 		$ips = array();
 		$network_info = ipcalc($network);
@@ -821,7 +821,7 @@
 	 * @param bool $include_unusable
 	 * @return array
 	 */
-	function get_ips2($network, $include_unusable = FALSE) {
+	function get_ips2($network, $include_unusable = false) {
 		//echo "$network|$include_unusable|<br>";
 		$ips = array();
 		$network_info = ipcalc($network);
@@ -1159,22 +1159,22 @@
 			$ipblock_id = $maindata[0];
 			$mainblock = $maindata[1];
 			// get ips from the main block
-			$ips = get_ips2($mainblock, TRUE);
+			$ips = get_ips2($mainblock, true);
 			// next loop through all available ips
 			$ipsize = sizeof($ips);
-			$found = FALSE;
+			$found = false;
 			$found_count = 0;
 			$found_c = '';
 			$path = INCLUDE_ROOT . '/../scripts/licenses';
 			for ($x = 0; $x < $ipsize; $x++) {
 				// check if the ips in use already
 				if (isset($usedips[$ips[$x][0]])) {
-					$found = FALSE;
+					$found = false;
 					$found_count = 0;
 				} else {
 					$c = $ips[$x][3];
 					if (($found) && ($blocksize >= 24) && ($found_c != $c)) {
-						$found = FALSE;
+						$found = false;
 						$found_count = 0;
 					}
 					if (!$found) {
@@ -1198,7 +1198,7 @@
 						$found_count++;
 						if ($found_count == $ipcount) {
 							$available[] = array($found, $ipblock_id);
-							$found = FALSE;
+							$found = false;
 							$found_count = 0;
 						}
 					}
@@ -1375,7 +1375,7 @@
 								$found = true;
 							}
 						}
-						$ips = get_ips($ipaddress . '/' . $blocksize, TRUE);
+						$ips = get_ips($ipaddress . '/' . $blocksize, true);
 						$db->query("select * from ips2 left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ips) . "') and vlans_id is not NULL");
 						if ($db->num_rows() > 0) {
 							$found = false;
@@ -1495,7 +1495,7 @@
 			$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 			$table->set_colspan(2);
 			$table->add_field($select . '<br>' . $table->make_submit('Set Port(s)'));
-			$editport = TRUE;
+			$editport = true;
 		} else {
 			$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 			$query = "update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'";
@@ -1621,8 +1621,8 @@
 				$table->add_field($network, 'l');
 				$table->add_field($table->make_link('choice=ip.edit_vlan_comment&amp;ipblock=' . $network, $comment), 'c');
 
-				$editport = FALSE;
-				$editserver = FALSE;
+				$editport = false;
+				$editserver = false;
 				if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network) {
 					if (isset($GLOBALS['tf']->variables->request['edit_port'])) {
 						if (!isset($GLOBALS['tf']->variables->request['ports'])) {
@@ -1631,7 +1631,7 @@
 							$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 							//								$row[] = $select . '<br>' . $table->make_submit('Set Port(s)');
 							$table->add_field($select . '<br>' . $table->make_submit('Set Port(s)'));
-							$editport = TRUE;
+							$editport = true;
 						} else {
 							$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 							$db2->query("update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'", __LINE__, __FILE__);
@@ -1648,7 +1648,7 @@
 					for ($y = 0; $y < $portsize; $y++) {
 						if (!(strpos($ports[$y], '/') === false)) {
 							list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
-							$ports[$y] = get_switch_name($switch, TRUE) . '/' . $port;
+							$ports[$y] = get_switch_name($switch, true) . '/' . $port;
 						}
 					}
 					$table->add_field($table->make_link('choice=ip.vlan_edit_port&amp;ipblock=' . $network, implode(', ', $ports)), 'l');
@@ -1676,7 +1676,7 @@
 									} else {
 										$server = 0;
 									}
-									$out .= select_server($server, 'port_' . $y, TRUE);
+									$out .= select_server($server, 'port_' . $y, true);
 									if ($y < (sizeof($ports) - 1)) {
 										$out .= '<br>';
 									}
@@ -1685,7 +1685,7 @@
 								$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 								//									$row[] = $out . '<br>' . $table->make_submit('Set Server(s)');
 								$table->add_field($out . '<br>' . $table->make_submit('Set Server(s)'));
-								$editserver = TRUE;
+								$editserver = true;
 							} else {
 								$servers = array();
 								for ($y = 0; $y < sizeof($ports); $y++) {
@@ -1703,7 +1703,7 @@
 						} else {
 							//								$row[] = '<b>You Must First Assign Port(s)</b>';
 							$table->add_field('<b>You Must First Assign Port(s)</b>');
-							$editserver = TRUE;
+							$editserver = true;
 						}
 					}
 				}
@@ -1831,7 +1831,7 @@
 					$table->add_field($comment);
 					$table->add_field(get_switch_name($switch));
 					$table->add_field($port);
-					$table->add_field(select_server($server, 'vlan_' . $db->Record['vlans_id'], TRUE));
+					$table->add_field(select_server($server, 'vlan_' . $db->Record['vlans_id'], true));
 					$table->add_row();
 				}
 			}
@@ -2157,7 +2157,7 @@
 				for ($x = 0; $x < sizeof($parts); $x++) {
 					if (strpos($parts[$x], '/')) {
 						list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
-						$parts[$x] = get_switch_name($switch, TRUE) . '/' . $port;
+						$parts[$x] = get_switch_name($switch, true) . '/' . $port;
 					}
 				}
 				$vlan = $db->Record['vlans_id'];
