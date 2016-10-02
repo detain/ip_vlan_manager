@@ -9,7 +9,6 @@
 	* Description: IP functions                                                          *
 	\************************************************************************************/
 
-
 	/**
 	* converts a network like say 66.45.228.0/24 into a gateway address
 	* @param string $network returns a gateway address from a network address in the format of  [network ip]/[subnet] ie  192.168.1.128/23
