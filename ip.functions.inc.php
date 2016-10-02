@@ -2190,4 +2190,3 @@
 		return trim($out);
 
 	}
-?>
