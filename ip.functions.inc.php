@@ -100,7 +100,7 @@
 
 	function switch_manager() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -198,7 +198,7 @@
 
 	function delegate_ips() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -254,7 +254,7 @@
 
 	function view_doublebound_ips() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -308,7 +308,7 @@
 
 	function close_doublebound() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -328,7 +328,7 @@
 
 	function alt_ip_manager() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1137,7 +1137,7 @@
 
 	function delete_vlan() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1183,7 +1183,7 @@
 
 	function add_vlan() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1357,7 +1357,7 @@
 
 	function portless_vlans() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1392,7 +1392,7 @@
 
 	function vlan_edit_port() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1452,7 +1452,7 @@
 
 	function vlan_manager() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1736,7 +1736,7 @@
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1797,7 +1797,7 @@
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1838,7 +1838,7 @@
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1931,7 +1931,7 @@
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -1980,7 +1980,7 @@
 
 	function add_ips() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
@@ -2044,7 +2044,7 @@
 
 	function unblock_ip_do() {
 		function_requirements('has_acl');
-		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('sytem_config')) {
+		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
