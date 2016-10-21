@@ -458,7 +458,7 @@
 		 */
 		function valid_ip($ip, $display_errors = true) {
 			if (!preg_match("/^[0-9\.]{7,15}$/", $ip)) {
-				// dont display errors cuz this gets called w/ a blank entry when people didnt even submit anything yet
+				// don't display errors cuz this gets called w/ a blank entry when people didnt even submit anything yet
 				//add_output('<font class="error">IP ' . $ip . ' Too short/long</font>');
 				return false;
 			}
