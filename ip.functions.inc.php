@@ -450,11 +450,11 @@
 	if (!function_exists('valid_ip')) {
 		/**
 		 * valid_ip()
-		 * returns wether or not the given IP is valid
+		 * returns whether or not the given IP is valid
 		 *
 		 * @param string $ip the ip address to validate
-		 * @param bool $display_errors wether or not errors are displayed. defauls to true
-		 * @return bool wether or not its a valid ip
+		 * @param bool $display_errors whether or not errors are displayed. defauls to true
+		 * @return bool whether or not its a valid ip
 		 */
 		function valid_ip($ip, $display_errors = true) {
 			if (!preg_match("/^[0-9\.]{7,15}$/", $ip)) {
