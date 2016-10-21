@@ -43,7 +43,7 @@ function put_extra($extra)
 		if (!isset($ipblocks[$db->Record['vlans_block']]))
 		{
 			error_log("Skipping VLAN {$db->Record['vlans_id']}, probably not our IPS");
-			continue;		
+			continue;
 		}
 		else
 		{
@@ -61,7 +61,7 @@ function put_extra($extra)
 		$total += trim(`/usr/local/bin/ipcalc -n $ip/$size | grep Hosts | cut -d" " -f2`);
 		$cmds = '';
 		$server = trim(str_replace(
-array('(FIXME Port Unknown)', 'FIXME PORT WRONG', 'FIX ME PORT WRONG', 'reuse', 'append', '[ip transit]'), 
+array('(FIXME Port Unknown)', 'FIXME PORT WRONG', 'FIX ME PORT WRONG', 'reuse', 'append', '[ip transit]'),
 array('', '', '', '', '', ''),
 ereg_replace('\(.*\)', '', strtolower($db->Record['vlans_comment']))));
 //echo "\nServer: $server :";
@@ -111,7 +111,7 @@ select * from users where id=2311;
 				{
 //					$org = 'Private Customer';
 //					$data['address1'] = 'Private Residence';
-					
+
 				}
 				$found = true;
 				$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
@@ -289,7 +289,7 @@ select * from users where id=2311;
 //							$org = 'Private Customer';
 //							$data['address1'] = 'Private Residence';
 						}
-						
+
 						$found = true;
 						$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
 						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
@@ -320,7 +320,7 @@ select * from users where id=2311;
 				}
 				else
 				{
-					$query = "select * from servers where servers_hostname like '%$server%' or servers_hostname='$server'"; 
+					$query = "select * from servers where servers_hostname like '%$server%' or servers_hostname='$server'";
 					$db4->query($query);
 					if ($db4->num_rows() == 0)
 					{
@@ -397,7 +397,7 @@ select * from users where id=2311;
 						}
 						else
 						{
-							//echo "Couldnt Find Group For Comment/Server/Group $server/" . $serverinfo['servers_hostname'] . "/$group\n";
+							//echo "Couldn't Find Group For Comment/Server/Group $server/" . $serverinfo['servers_hostname'] . "/$group\n";
 						}
 					}
 					else
@@ -413,7 +413,7 @@ select * from users where id=2311;
 		if ($found === false)
 		{
 			echo "echo \"Cant Find VLAN $ipblock\";\n";
-			
+
 		}
 	}
 //	echo "$total\n";

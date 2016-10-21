@@ -155,11 +155,11 @@
 			$db->query("select ips_ip from ips where ips_serverid='$serverid'", __LINE__, __FILE__);
 			while ($db->next_record()) {
 				$row = $db->Record;
-				$ipadres = `nslookup -sil $row[0] | grep arpa`;
-				if (preg_match("/can/i", $ipadres)) {
+				$ip_address = `nslookup -sil $row[0] | grep arpa`;
+				if (preg_match("/can/i", $ip_address)) {
 					add_output("$row[0] (ADD REVERSE DNS)<br>");
 				} else {
-					add_output("$row[0] <b>-></b> $ipadres<br>");
+					add_output("$row[0] <b>-></b> $ip_address<br>");
 				}
 			}
 		}
@@ -240,12 +240,12 @@
 							$db2->query("update ips set ips_serverid='$serverid' where ips_ip='$row[0]'", __LINE__, __FILE__);
 						}
 						add_output('done adding ips<br>');
-						add_output('restarting ipaliases');
+						add_output('restarting ip aliases');
 						$result = `/usr/bin/ssh -x -o BatchMode=yes -1 root@$server /etc/rc.d/init.d/ipaliases restart 2>/dev/null`;
 						add_output('<pre>');
 						add_output($result);
 						add_output('</pre>');
-						add_output('done restarting ipaliases<br>');
+						add_output('done restarting ip aliases<br>');
 					}
 				}
 			}
@@ -453,18 +453,18 @@
 		 * returns whether or not the given IP is valid
 		 *
 		 * @param string $ip the ip address to validate
-		 * @param bool $display_errors whether or not errors are displayed. defauls to true
+		 * @param bool $display_errors whether or not errors are displayed. defaults to true
 		 * @return bool whether or not its a valid ip
 		 */
 		function valid_ip($ip, $display_errors = true) {
 			if (!preg_match("/^[0-9\.]{7,15}$/", $ip)) {
-				// don't display errors cuz this gets called w/ a blank entry when people didnt even submit anything yet
+				// don't display errors cuz this gets called w/ a blank entry when people didn't even submit anything yet
 				//add_output('<font class="error">IP ' . $ip . ' Too short/long</font>');
 				return false;
 			}
 			$quads = explode('.', $ip);
-			$numquads = count($quads);
-			if ($numquads != 4) {
+			$num_quads = count($quads);
+			if ($num_quads != 4) {
 				if ($display_errors)
 					add_output('<font class="error">IP ' . $ip . ' Too many quads</font>');
 				return false;
@@ -1069,7 +1069,7 @@
 			$ip = long2ip($x);
 			$usedips[$ip] = $ip;
 		}
-		/* 66.23.225.0/24 reserved cogent/currenx */
+		/* 66.23.225.0/24 reserved cogent */
 		$reserved = array(1108861184, 1108861439);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ip = long2ip($x);
@@ -1428,7 +1428,7 @@
 				if ($portdata[$y] != '') {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
 					$ports[] = $portdata[$y];
-					$searchs[] = "(servers_switch='$switch' and servers_slot='$port')";
+					$searches[] = "(servers_switch='$switch' and servers_slot='$port')";
 				}
 			}
 		}
@@ -1535,18 +1535,18 @@
 			}
 			$portdata = explode(':', $networks[$x]['ports']);
 			$ports = array();
-			$searchs = array();
+			$searches = array();
 			$servers = array();
 			$portdatasize = sizeof($portdata);
 			for ($y = 0; $y < $portdatasize; $y++) {
 				if ($portdata[$y] != '') {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
 					$ports[] = $portdata[$y];
-					$searchs[] = "(servers_switch='$switch' and servers_slot='$port')";
+					$searches[] = "(servers_switch='$switch' and servers_slot='$port')";
 				}
 			}
-			if (sizeof($searchs)) {
-				$query = "select servers_hostname from servers where " . implode(' or ', $searchs);
+			if (sizeof($searches)) {
+				$query = "select servers_hostname from servers where " . implode(' or ', $searches);
 				$db2->query($query, __LINE__, __FILE__);
 				while ($db2->next_record()) {
 					$servers[] = $db2->Record['servers_hostname'];
