@@ -422,7 +422,7 @@
 	function ipcalc_array($networks) {
 		$cmd = "function a() {\n";
 		$path = INCLUDE_ROOT . '/../scripts/licenses';
-		for ($x = 0; $x < sizeof($networks); $x++) {
+		for ($x = 0, $x_max = sizeof($networks); $x < $x_max; $x++) {
 			//error_log("Calling ipcalc here");
 			$cmd .= 'LANG=C $path/ipcalc -nb ' . $networks[$x]['network'] . ';echo :-----;';
 		}
@@ -430,7 +430,7 @@
 		$cmd .= 'a | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1;';
 		$result = trim(`$cmd`);
 		$results = explode('-----', $result);
-		for ($x = 0; $x < sizeof($networks); $x++) {
+		for ($x = 0, $x_max = sizeof($networks); $x < $x_max; $x++) {
 			$ipinfo = array();
 			$lines = explode("\n", trim($results[$x]));
 			$netparts = explode('/', $lines[3]);
@@ -568,7 +568,7 @@
 	function get_networks($text, $vlan = 0, $comment = '', $ports = '') {
 		$networks = array();
 		$parts = explode(':', $text);
-		for ($x = 0; $x < sizeof($parts); $x++) {
+		for ($x = 0, $x_max = sizeof($parts); $x < $x_max; $x++) {
 			if ($parts[$x] != '') {
 				$networks[] = array(
 					'network' => $parts[$x],
@@ -1272,7 +1272,7 @@
 				if (sizeof($blocks) > 0) {
 					$table->add_field('Enter Desired IP Block', 'l');
 					$sel = '<select name=ipaddress>';
-					for ($x = 0; $x < sizeof($blocks); $x++) {
+					for ($x = 0, $x_max = sizeof($blocks); $x < $x_max; $x++) {
 						$sel .= '<option value=' . $blocks[$x][0] . '>' . $blocks[$x][0] . '/' . $blocksize . '</option>';
 					}
 					$sel .= '</select>';
@@ -1303,7 +1303,7 @@
 				if (sizeof($ports) > 0) {
 					$ipaddress = $GLOBALS['tf']->variables->request['ipaddress'];
 					$found = false;
-					for ($x = 0; $x < sizeof($blocks); $x++) {
+					for ($x = 0, $x_max = sizeof($blocks); $x < $x_max; $x++) {
 						if ($blocks[$x][0] == $ipaddress) {
 							$block = $blocks[$x][1];
 							$found = true;
@@ -1332,7 +1332,7 @@
 					while ($db->next_record()) {
 						$ips2[] = $db->Record['ips_ip'];
 					}
-					for ($x = 0; $x < sizeof($ips); $x++) {
+					for ($x = 0, $x_max = sizeof($ips); $x < $x_max; $x++) {
 						if (($x == 0) || ($x == (sizeof($ips) - 1))) {
 							$reserved = 1;
 						} else {
@@ -1967,7 +1967,7 @@
 			$group = get_first_group($server_info['servers_group']);
 			if ($server_info) {
 				$ips = $GLOBALS['tf']->variables->request['ips'];
-				for ($x = 0; $x < sizeof($ips); $x++) {
+				for ($x = 0, $x_max = sizeof($ips); $x < $x_max; $x++) {
 					$db->query("update ips2 set ips_group='$group', ips_serverid='$server_info[servers_serverid]' where ips_ip='$ips[$x]'", __LINE__, __FILE__);
 				}
 				add_output("IP(s) Successfully Assigned To $server<br>");
@@ -2117,7 +2117,7 @@
 			while ($db->next_record(MYSQL_ASSOC)) {
 				//		$db->Record['vlans_id'];
 				$parts = explode(':', $db->Record['vlans_ports']);
-				for ($x = 0; $x < sizeof($parts); $x++) {
+				for ($x = 0, $x_max = sizeof($parts); $x < $x_max; $x++) {
 					if (strpos($parts[$x], '/')) {
 						list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
 						$parts[$x] = get_switch_name($switch, true) . '/' . $port;
