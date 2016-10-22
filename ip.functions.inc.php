@@ -124,7 +124,7 @@
 		$db->query("select * from switchmanager order by id");
 		$table->alternate_rows();
 		while ($db->next_record()) {
-			if ($nextid <= intval($db->Record['name'])) {
+			if ($nextid <= (int)$db->Record['name']) {
 				$nextid = $db->Record['name'] + 1;
 			}
 			$table->add_field($db->Record['id']);
@@ -412,7 +412,7 @@
 		//error_log("Calling ipcalc here");
 		$path = INCLUDE_ROOT . '/../scripts/licenses';
 		$result = trim(`LANG=C $path/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
-		return intval($result);
+		return (int)$result;
 	}
 
 	/**
