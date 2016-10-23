@@ -9,18 +9,18 @@
 
 	// $Id: generate_banks_table.php,v 1.1.1.1 2007-04-14 22:47:56 detain Exp $
 	// $Source: /var/lib/cvs/troublefree/tempscripts/generate_banks_table.php,v $
-	
+
 	// accounts (id, login, pass, groups)
 	// accounts_ext (id, key, value)
-	
+
 	define('DEBUG',FALSE);
-	
+
 	// Load Various Functions & Connect to mysql database
 	include('../include/functions.inc.php');
 	ob_end_flush();
 	$db = $GLOBALS['tf']->db;
 	$db2 = $db;
-	
+
 	$lines = explode("\n", trim(`curl -s http://nms.interserver.net/cac/servermap.php`));
 	$switches = array();
 	foreach ($lines as $line)
@@ -44,7 +44,7 @@
 		}
 		else
 		{
-			$db->query("insert into switchmanager values (NULL, '$switch', " . sizeof($ports) . ")");
+			$db->query("insert into switchmanager values (NULL, '$switch', " . sizeof($ports) . ')');
 			$db->query("select * from switchmanager where name='$switch'");
 			$db->next_record();
 			$row = $db->Record;
@@ -104,13 +104,13 @@ echo "\nUpdate Graph";
 			}
 			if (sizeof($vlans) > 0)
 			{
-				echo "(" . sizeof($vlans) . " Vlans)";
+				echo '(' . sizeof($vlans) . ' Vlans)';
 				$vlantext = implode(',', $vlans);
 				$db->query("update switchports set vlans='$vlantext' where switch='$id' and port='$port'");
 				if ($db->affected_rows())
 					echo "\nUpdate Vlan";
 			}
-			echo ",";
+			echo ',';
 		}
 		echo "\n";
 	}

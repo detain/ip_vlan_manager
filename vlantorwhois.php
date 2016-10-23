@@ -11,6 +11,10 @@
 
 
 // set extra to a:1:{s:13:"private_whois";s:1:"1";}
+/**
+ * @param $extra
+ * @return array|mixed
+ */
 function get_extra($extra)
 {
     if ($extra == '')
@@ -20,6 +24,10 @@ function get_extra($extra)
     return $extra;
 }
 
+/**
+ * @param $extra
+ * @return array|string
+ */
 function put_extra($extra)
 {
     if ($extra == '')
@@ -28,7 +36,7 @@ function put_extra($extra)
     return $extra;
 }
 
-	$db->query("select * from ipblocks");
+	$db->query('select * from ipblocks');
 	$ipblocks = array();
 	while ($db->next_record())
 	{
@@ -163,7 +171,7 @@ select * from users where id=2311;
 						$db3->query("select * from users where username='" . $serverinfo['username'] . "'");
 						if ($db3->num_rows() == 0)
 						{
-							$db3->query("select * from users where id=9");
+							$db3->query('select * from users where id=9');
 						}
 						$db3->next_record();
 						$data = $db3->Record;
@@ -251,7 +259,7 @@ select * from users where id=2311;
 						$db3->query("select * from users where username='" . $serverinfo['username'] . "'");
 						if ($db3->num_rows() == 0)
 						{
-							$db3->query("select * from users where id=9");
+							$db3->query('select * from users where id=9');
 						}
 						$db3->next_record();
 						$data = $db3->Record;

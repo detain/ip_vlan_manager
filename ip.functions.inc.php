@@ -84,7 +84,7 @@
 			$ports = array();
 		}
 		$select = '<select multiple size=' . $size . ' name="ports[]">';
-		$db->query("select * from switchmanager as sm, switchports as sp where switch=id order by id, port");
+		$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by id, port');
 		while ($db->next_record()) {
 			$switch = $db->Record['id'];
 			$port = $db->Record['port'];
@@ -98,7 +98,10 @@
 		return $select;
 	}
 
-	function switch_manager() {
+/**
+ * @return bool
+ */
+function switch_manager() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -121,7 +124,7 @@
 		$table->add_field('Usable Ports');
 		$table->add_row();
 		$nextid = 14;
-		$db->query("select * from switchmanager order by id");
+		$db->query('select * from switchmanager order by id');
 		$table->alternate_rows();
 		while ($db->next_record()) {
 			if ($nextid <= (int)$db->Record['name']) {
@@ -156,7 +159,7 @@
 			while ($db->next_record()) {
 				$row = $db->Record;
 				$ip_address = `nslookup -sil $row[0] | grep arpa`;
-				if (preg_match("/can/i", $ip_address)) {
+				if (preg_match('/can/i', $ip_address)) {
 					add_output("$row[0] (ADD REVERSE DNS)<br>");
 				} else {
 					add_output("$row[0] <b>-></b> $ip_address<br>");
@@ -196,7 +199,10 @@
 		}
 	}
 
-	function delegate_ips() {
+/**
+ * @return bool
+ */
+function delegate_ips() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -219,8 +225,8 @@
 					add_output('<form enctype="multipart/form-data" method="post" action="' . $GLOBALS['tf']->link('index.php') . '">');
 					add_output("<input type=hidden name=choice value=$choice>");
 					add_output("<input type=hidden name=server value=$server>");
-					add_output("How many IPs do you want to add to the server?: ");
-					add_output("<input type=text name=num_ips><br>");
+					add_output('How many IPs do you want to add to the server?: ');
+					add_output('<input type=text name=num_ips><br>');
 					add_output('<input type=submit value="Add IPs To Server"><br>');
 					add_output('</form>');
 				} else {
@@ -229,7 +235,7 @@
 					$db->next_record();
 					$serverid = $db->Record;
 					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
-						add_output("No Updates In Demo Mode");
+						add_output('No Updates In Demo Mode');
 					} else {
 
 						$db->query("select * from ips where ips_serverid='0' limit $num_ips", __LINE__, __FILE__);
@@ -252,7 +258,10 @@
 		}
 	}
 
-	function view_doublebound_ips() {
+/**
+ * @return bool
+ */
+function view_doublebound_ips() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -306,7 +315,10 @@
 		}
 	}
 
-	function close_doublebound() {
+/**
+ * @return bool
+ */
+function close_doublebound() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -318,7 +330,7 @@
 		$ima = $GLOBALS['tf']->ima;
 		$ip = $GLOBALS['tf']->variables->request['ip'];
 		if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
-			add_output("No Updates In Demo Mode");
+			add_output('No Updates In Demo Mode');
 		} else {
 			// FIXME
 			$db->query("delete from history_log where history_new_value='$ip' and history_type='doubleboundip' and history_section='servers'", __LINE__, __FILE__);
@@ -326,7 +338,10 @@
 		}
 	}
 
-	function alt_ip_manager() {
+/**
+ * @return bool
+ */
+function alt_ip_manager() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -337,7 +352,7 @@
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $GLOBALS['admin_dbh'];
 		if (isset($GLOBALS['tf']->variables->request['ipblock'])) {
-			$db->query("select servers_serverid, servers_hostname from servers", __LINE__, __FILE__);
+			$db->query('select servers_serverid, servers_hostname from servers', __LINE__, __FILE__);
 			$serverids = array();
 			$serverids[0] = 'None';
 			while ($db->next_record()) {
@@ -380,7 +395,7 @@
 			$table = new TFTable;
 			$table->set_title('IP Block Selection');
 			$table->add_field('Select IP Block');
-			$db->query("select * from ips order by ips_ip", __LINE__, __FILE__);
+			$db->query('select * from ips order by ips_ip', __LINE__, __FILE__);
 			$lastip = '';
 			$sel = '<select name=ipblock>';
 			while ($db->next_record()) {
@@ -646,7 +661,7 @@
 	 */
 	function get_all_ipblocks() {
 		$db = get_module_db('admin');
-		$db->query("select ipblocks_network from ipblocks");
+		$db->query('select ipblocks_network from ipblocks');
 		$all_blocks = array();
 		while ($db->next_record(MYSQL_ASSOC))
 			$all_blocks[] = $db->Record['ipblocks_network'];
@@ -803,7 +818,7 @@
 		$mainblocks = array();
 		if ($location == 1) {
 			// get the main ipblocks we have routed
-			$db->query("select * from ipblocks", __LINE__, __FILE__);
+			$db->query('select * from ipblocks', __LINE__, __FILE__);
 			while ($db->next_record()) {
 				$mainblocks[] = array($db->Record['ipblocks_id'], $db->Record['ipblocks_network']);
 			}
@@ -858,22 +873,22 @@
 			}
 		}
 		if ($location == 4) {
-			$mainblocks[] = array(179, "66.45.241.16/28");
-			$mainblocks[] = array(1281, "69.10.38.128/25");
-			$mainblocks[] = array(2047, "69.10.60.192/26");
-			$mainblocks[] = array(1869, "69.10.56.0/25");
-			$mainblocks[] = array(2159, "68.168.216.0/22");
-			$mainblocks[] = array(2276, "69.10.57.0/24");
-			$mainblocks[] = array(1837, "69.10.52.72/29");
-			$mainblocks[] = array(1981, "69.10.52.112/29");
-			$mainblocks[] = array(1992, "69.10.61.64/26");
-			$mainblocks[] = array(2117, "68.168.212.0/24");
-			$mainblocks[] = array(2045, "69.10.60.0/26");
-			$mainblocks[] = array(2054, "68.168.222.0/24");
-			$mainblocks[] = array(2253, "68.168.214.0/23");
-			$mainblocks[] = array(2342, "69.10.53.0/24");
-			$mainblocks[] = array(2592, "209.159.159.0/24");
-			$mainblocks[] = array(3124, "66.23.224.0/24");
+			$mainblocks[] = array(179, '66.45.241.16/28');
+			$mainblocks[] = array(1281, '69.10.38.128/25');
+			$mainblocks[] = array(2047, '69.10.60.192/26');
+			$mainblocks[] = array(1869, '69.10.56.0/25');
+			$mainblocks[] = array(2159, '68.168.216.0/22');
+			$mainblocks[] = array(2276, '69.10.57.0/24');
+			$mainblocks[] = array(1837, '69.10.52.72/29');
+			$mainblocks[] = array(1981, '69.10.52.112/29');
+			$mainblocks[] = array(1992, '69.10.61.64/26');
+			$mainblocks[] = array(2117, '68.168.212.0/24');
+			$mainblocks[] = array(2045, '69.10.60.0/26');
+			$mainblocks[] = array(2054, '68.168.222.0/24');
+			$mainblocks[] = array(2253, '68.168.214.0/23');
+			$mainblocks[] = array(2342, '69.10.53.0/24');
+			$mainblocks[] = array(2592, '209.159.159.0/24');
+			$mainblocks[] = array(3124, '66.23.224.0/24');
 		} else {
 			// 66.45.241.16/28 reserved
 			$reserved = array(1110307088, 1110307103);
@@ -1076,7 +1091,7 @@
 			$usedips[$ip] = $ip;
 		}
 
-		$db->query("select ips_ip from ips2 where ips_vlan > 0", __LINE__, __FILE__);
+		$db->query('select ips_ip from ips2 where ips_vlan > 0', __LINE__, __FILE__);
 		if ($db->num_rows()) {
 			while ($db->next_record()) {
 				$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
@@ -1109,7 +1124,7 @@
 							if ($ips[$x][4] == 0) {
 								//error_log("Calling ipcalc here");
 								$cmd = 'LANG=C '.$path.'/ipcalc -n -b ' . $ips[$x][0] . '/' . $blocksize . ' | grep Network: | cut -d: -f2';
-								if (trim(`$cmd`) == $ips[$x][0] . "/" . $blocksize) {
+								if (trim(`$cmd`) == $ips[$x][0] . '/' . $blocksize) {
 									$found = $ips[$x][0];
 									$found_c = $c;
 								}
@@ -1135,7 +1150,10 @@
 		return $available;
 	}
 
-	function delete_vlan() {
+/**
+ * @return bool
+ */
+function delete_vlan() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -1181,7 +1199,10 @@
 		}
 	}
 
-	function add_vlan() {
+/**
+ * @return bool
+ */
+function add_vlan() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -1314,7 +1335,7 @@
 					if ($db->num_rows() > 0) {
 						$found = false;
 						while ($db->next_record()) {
-							echo "Conflicting IP: " . $db->Record['ips_ip'] . '<br>';
+							echo 'Conflicting IP: ' . $db->Record['ips_ip'] . '<br>';
 						}
 					}
 					if (!$found) {
@@ -1355,7 +1376,10 @@
 		}
 	}
 
-	function portless_vlans() {
+/**
+ * @return bool
+ */
+function portless_vlans() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -1390,7 +1414,10 @@
 		add_output($table->get_table());
 	}
 
-	function vlan_edit_port() {
+/**
+ * @return bool
+ */
+function vlan_edit_port() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -1450,7 +1477,10 @@
 		add_output($table->get_table());
 	}
 
-	function vlan_manager() {
+/**
+ * @return bool
+ */
+function vlan_manager() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -1497,7 +1527,7 @@
 		$used_ips = 0;
 		// get ip block(s)
 		$networks = array();
-		$db->query("select * from ipblocks order by ipblocks_network", __LINE__, __FILE__);
+		$db->query('select * from ipblocks order by ipblocks_network', __LINE__, __FILE__);
 		while ($db->next_record()) {
 			$ipinfo = ipcalc($db->Record['ipblocks_network']);
 			$network_id = $db->Record['ipblocks_id'];
@@ -1518,7 +1548,7 @@
 		//			{
 		//				$used_ips += $networks_info[$keys[$x]]['hosts'];
 		//			}
-		$db->query("select count(*) from ips2 where ips_vlan > 0");
+		$db->query('select count(*) from ips2 where ips_vlan > 0');
 		$db->next_record();
 		$used_ips = $db->f(0);
 		$networksize = sizeof($networks);
@@ -1546,7 +1576,7 @@
 				}
 			}
 			if (sizeof($searches)) {
-				$query = "select servers_hostname from servers where " . implode(' or ', $searches);
+				$query = 'select servers_hostname from servers where ' . implode(' or ', $searches);
 				$db2->query($query, __LINE__, __FILE__);
 				while ($db2->next_record()) {
 					$servers[] = $db2->Record['servers_hostname'];
@@ -1691,7 +1721,10 @@
 		}
 	}
 
-	function edit_vlan_comment() {
+/**
+ * @return bool
+ */
+function edit_vlan_comment() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		function_requirements('has_acl');
@@ -1731,7 +1764,10 @@
 		}
 	}
 
-	function vlan_port_server_manager() {
+/**
+ * @return bool
+ */
+function vlan_port_server_manager() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
@@ -1740,7 +1776,7 @@
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
-		$db->query("select * from vlans order by vlans_ports, vlans_networks", __LINE__, __FILE__);
+		$db->query('select * from vlans order by vlans_ports, vlans_networks', __LINE__, __FILE__);
 		$table = new TFTable;
 		$table->set_title('VLAN Port <-> Server Mapping Setup');
 		$table->add_field('VLAN');
@@ -1792,7 +1828,10 @@
 		add_output($table->get_table());
 	}
 
-	function vlan_port_manager() {
+/**
+ * @return bool
+ */
+function vlan_port_manager() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
@@ -1833,7 +1872,10 @@
 		}
 	}
 
-	function ipblock_viewer() {
+/**
+ * @return bool
+ */
+function ipblock_viewer() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
@@ -1926,7 +1968,10 @@
 		}
 	}
 
-	function add_ips_to_server() {
+/**
+ * @return bool
+ */
+function add_ips_to_server() {
 		$ima = $GLOBALS['tf']->ima;
 		$db = $GLOBALS['admin_dbh'];
 		$db2 = $db;
@@ -1978,7 +2023,10 @@
 		}
 	}
 
-	function add_ips() {
+/**
+ * @return bool
+ */
+function add_ips() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -2022,7 +2070,7 @@
 				$db->query("select * from ips where ips_ip='$ip'", __LINE__, __FILE__);
 				if ($db->num_rows() == 0) {
 					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
-						add_output("No Updates In Demo Mode");
+						add_output('No Updates In Demo Mode');
 					} else {
 						$db->query("insert into ips values('$ip', '0', '$groupinfo[account_id]')", __LINE__, __FILE__);
 						$new_ips++;
@@ -2042,7 +2090,10 @@
 		}
 	}
 
-	function unblock_ip_do() {
+/**
+ * @return bool
+ */
+function unblock_ip_do() {
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -2057,7 +2108,7 @@
 				$GLOBALS['tf']->session->appsession('server', $server);
 				if (valid_server($server)) {
 					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
-						add_output("No Updates In Demo Mode");
+						add_output('No Updates In Demo Mode');
 					} else {
 						$cmd = '';
 						if (ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", $ip)) {
@@ -2145,7 +2196,6 @@
 				}
 				$db->Record['vlans_ports'] = implode(':', $parts);
 				$out .= $db->Record['vlans_comment'] . "\n{$db->Record['vlans_networks']}\n{$db->Record['vlans_ports']}\n" . $graph_id . "\n";
-				;
 			}
 		} else {
 			$out .= "No vlans found\n";
