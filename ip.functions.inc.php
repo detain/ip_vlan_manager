@@ -1195,7 +1195,8 @@ function delete_vlan() {
 			$db->query($query, __LINE__, __FILE__);
 			$query = "update ips2 set ips_vlan=0 where ips_vlan='$id'";
 			$db->query($query, __LINE__, __FILE__);
-			`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
+			function_requirements('update_switch_ports');
+			update_switch_ports();
 			if (isset($_REQUEST['httpreferer']))
 				$GLOBALS['tf']->redirect($_REQUEST['httpreferer']);
 			else
@@ -1382,7 +1383,8 @@ function add_vlan() {
 						$db->query($query, __LINE__, __FILE__);
 					}
 					add_output('VLAN Created');
-					`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
+					function_requirements('update_switch_ports');
+					update_switch_ports();
 					$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 				} else {
 					add_output('You must select at least one port');
@@ -1485,7 +1487,8 @@ function vlan_edit_port() {
 			$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 			$query = "update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'";
 			$db2->query($query, __LINE__, __FILE__);
-			`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
+			function_requirements('update_switch_ports');
+			update_switch_ports();
 			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 		}
 		$table->add_row();
@@ -1627,7 +1630,8 @@ function vlan_manager() {
 					} else {
 						$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 						$db2->query("update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'", __LINE__, __FILE__);
-						`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
+						function_requirements('update_switch_ports');
+						update_switch_ports();
 						$ports = $GLOBALS['tf']->variables->request['ports'];
 					}
 				}
@@ -1773,7 +1777,8 @@ function edit_vlan_comment() {
 			} else {
 				$comment = $GLOBALS['tf']->variables->request['comment'];
 				$db->query("update vlans set vlans_comment='$comment' where vlans_id='$id'", __LINE__, __FILE__);
-				`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
+				function_requirements('update_switch_ports');
+				update_switch_ports();
 				$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 			}
 		}
@@ -1881,7 +1886,8 @@ function vlan_port_manager() {
 			} else {
 				$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 				$db2->query("update vlans set vlans_ports='$ports' where vlans_networks like '%:$ipblock:%' and vlans_id='$vlan_id'", __LINE__, __FILE__);
-				`cd /home/admin/troublefree/tempscripts; ./update_switch_ports.php >/dev/null 2>&1`;
+				function_requirements('update_switch_ports');
+				update_switch_ports();
 				$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock=' . $ipblock));
 			}
 		}
