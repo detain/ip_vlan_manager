@@ -2220,5 +2220,133 @@ function unblock_ip_do() {
 			$out .= "No vlans found\n";
 		}
 		return trim($out);
+	}
 
+	/**
+	 * updates the switch ports
+	 *
+	 * @param bool $verbose wether or not to enable verbose output.
+	 */
+	function update_switch_ports($verbose = false) {
+		$db = get_module_db('admin');
+		$db2 = clone $db;
+
+		$lines = explode("\n", getcurlpage('http://nms.interserver.net/cac/servermap.php'));
+		$switches = array();
+		foreach ($lines as $line)
+		{
+			if (trim($line) != '') {
+				$parts = explode(',', $line);
+				list($graph, $switch, $port, $comment) = $parts;
+				if ($switch != '')
+				{
+					$switches[$switch][$port] = $graph;
+				}
+			}
+		}
+		foreach ($switches as $switch => $ports)
+		{
+			$foundports = array();
+			$db->query("select * from switchmanager where name='$switch'");
+			if ($db->num_rows() > 0)
+			{
+				$db->next_record();
+				$row = $db->Record;
+				if ($verbose == true)
+					echo "Loaded Switch $switch - ";
+			}
+			else
+			{
+				$db->query(make_insert_query('switchmanager', array(
+					'id' => NULL,
+					'name' => $switch,
+					'ports' => sizeof($ports),
+				)), __LINE__, __FILE__);
+				$db->query("select * from switchmanager where name='$switch'");
+				$db->next_record();
+				$row = $db->Record;
+				if ($verbose == true)
+					echo "Created New Switch $switch - ";
+			}
+			$id = $row['id'];
+			foreach ($ports as $port => $graph)
+			{
+				$blade = '';
+				$justport = $port;
+				if (strrpos($port, '/') > 0)
+				{
+					$blade = substr($port, 0, strrpos($port, '/'));
+					$justport = substr($port, strlen($blade) + 1);
+				}
+				if (isset($foundports[$justport]))
+				{
+					$justport = '';
+				}
+				else
+				{
+					$foundports[$justport] = true;
+				}
+				$db->query("select * from switchports where switch='$id' and port='$port'");
+				if ($db->num_rows() == 0)
+				{
+					if ($verbose == true)
+						echo "$port +";
+					$db->query(make_insert_query('switchports', array(
+						'switch' => $id,
+						'blade' => $blade,
+						'justport' => $justport,
+						'port' => $port,
+						'graph_id' => $graph,
+						'vlans' => '',
+					)), __LINE__, __FILE__);
+				}
+				else
+				{
+					$db->next_record();
+					if (($db->Record['blade'] != $blade) || ($db->Record['justport'] != $justport))
+					{
+						if ($verbose == true)
+							echo "\nUpdate BladePort";
+						$query = "update switchports set blade='$blade', justport='$justport' where switch='$id' and port='$port'";
+						//echo $query;
+						$db->query($query);
+					}
+					if ($verbose == true)
+						echo "$port ";
+					if ($db->Record['graph_id'] != $graph)
+					{
+						if ($verbose == true)
+							echo "\nUpdate Graph";
+						$query = "update switchports set graph_id='$graph' where switch='$id' and port='$port'";
+						//echo $query;
+						$db->query($query);
+					}
+					if ($verbose == true)
+						echo "$graph ";
+				}
+				$query = "select * from vlans where vlans_ports like '%:$row[id]/$justport:%' or vlans_ports like '%:$row[id]/$port:%'";
+				//echo "$query\n";
+				$db->query($query);
+				$vlans = array();
+				while ($db->next_record())
+				{
+					$vlans[] = $db->Record['vlans_id'];
+				}
+				if (sizeof($vlans) > 0)
+				{
+					if ($verbose == true)
+						echo '(' . sizeof($vlans) . ' Vlans)';
+					$vlantext = implode(',', $vlans);
+					$db->query("update switchports set vlans='$vlantext' where switch='$id' and port='$port'");
+					if ($db->affected_rows())
+						if ($verbose == true)
+							echo "\nUpdate Vlan";
+				}
+				if ($verbose == true)
+					echo ',';
+			}
+			if ($verbose == true)
+				echo "\n";
+		}
+		//print_r($switches);
 	}
