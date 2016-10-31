@@ -44,7 +44,11 @@
 		}
 		else
 		{
-			$db->query("insert into switchmanager values (NULL, '$switch', " . sizeof($ports) . ')');
+			$db->query(make_insert_query('switchmanager', array(
+				'id' => NULL,
+				'name' => $switch,
+				'ports' => sizeof($ports),
+			)), __LINE__, __FILE__);
 			$db->query("select * from switchmanager where name='$switch'");
 			$db->next_record();
 			$row = $db->Record;
@@ -72,14 +76,21 @@
 			if ($db->num_rows() == 0)
 			{
 				echo "$port +";
-				$db->query("insert into switchports values ('$id', '$blade', '$justport', '$port', '$graph', '')");
+				$db->query(make_insert_query('switchports', array(
+					'switch' => $id,
+					'blade' => $blade,
+					'justport' => $justport,
+					'port' => $port,
+					'graph_id' => $graph,
+					'vlans' => '',
+				)), __LINE__, __FILE__);
 			}
 			else
 			{
 				$db->next_record();
 				if (($db->Record['blade'] != $blade) || ($db->Record['justport'] != $justport))
 				{
-echo "\nUpdate BladePort";
+					echo "\nUpdate BladePort";
 					$query = "update switchports set blade='$blade', justport='$justport' where switch='$id' and port='$port'";
 					//echo $query;
 					$db->query($query);
@@ -87,7 +98,7 @@ echo "\nUpdate BladePort";
 				echo "$port ";
 				if ($db->Record['graph_id'] != $graph)
 				{
-echo "\nUpdate Graph";
+					echo "\nUpdate Graph";
 					$query = "update switchports set graph_id='$graph' where switch='$id' and port='$port'";
 					//echo $query;
 					$db->query($query);

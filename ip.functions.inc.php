@@ -114,7 +114,11 @@ function switch_manager() {
 		if (isset($GLOBALS['tf']->variables->request['name']) && isset($GLOBALS['tf']->variables->request['ports'])) {
 			$name = $GLOBALS['tf']->variables->request['name'];
 			$ports = $GLOBALS['tf']->variables->request['ports'];
-			$db->query("insert into switchmanager values (NULL, '$name', '$ports')");
+			$db->query(make_insert_query('switchmanager', array(
+				'id' => NULL,
+				'name' => $name,
+				'ports' => $ports,
+			)), __LINE__, __FILE__);
 		}
 		$table = new TFTable;
 		$table->set_title('Switches');
@@ -1344,8 +1348,13 @@ function add_vlan() {
 					}
 					$comment = $GLOBALS['tf']->variables->request['comment'];
 					$ports = ':' . implode(':', $ports) . ':';
-					$query = "insert into vlans values (NULL, $block, ':$ipaddress/$blocksize:', '$ports', '$comment')";
-					$db->query($query, __LINE__, __FILE__);
+					$db->query(make_insert_query('vlans', array(
+						'vlans_id' => NULL,
+						'vlans_block' => $block,
+						'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
+						'vlans_ports' => $ports,
+						'vlans_comment' => $comment,
+					)), __LINE__, __FILE__);
 					$vlan = $db->get_last_insert_id('vlans', 'vlans_id');
 					$query = "select ips_ip from ips2 where ips_ip in ('" . implode("', '", $ips) . "')";
 					$db->query($query, __LINE__, __FILE__);
@@ -1362,7 +1371,13 @@ function add_vlan() {
 						if (in_array($ips[$x], $ips2)) {
 							$query = "update ips2 set ips_vlan='$vlan', ips_serverid=0, ips_group=0, ips_reserved='$reserved' where ips_ip='$ips[$x]'";
 						} else {
-							$query = "insert into ips2 values ('$ips[$x]', '$vlan', 0, 0, $reserved)";
+							$query = make_insert_query('ips2', array(
+								'ips_ip' => $ips[$x],
+								'ips_vlan' => $vlan,
+								'ips_serverid' => 0,
+								'ips_group' => 0,
+								'ips_reserved' => $reserved,
+							));
 						}
 						$db->query($query, __LINE__, __FILE__);
 					}
@@ -2072,7 +2087,11 @@ function add_ips() {
 					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
 						add_output('No Updates In Demo Mode');
 					} else {
-						$db->query("insert into ips values('$ip', '0', '$groupinfo[account_id]')", __LINE__, __FILE__);
+						$db->query(make_insert_query('ips', array(
+							'ips_ip' => $ip,
+							'ips_serverid' => 0,
+							'ips_group' => $groupinfo['account_id'],
+						)), __LINE__, __FILE__);
 						$new_ips++;
 						add_output('+');
 					}
