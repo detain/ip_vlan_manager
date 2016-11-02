@@ -1295,7 +1295,7 @@ function delete_vlan() {
 		global $groupinfo;
 		$db = $GLOBALS['admin_dbh'];
 		$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
-		if ($GLOBALS['tf']->variables->request['sure'] != 'yes') {
+		if (!isset($GLOBALS['tf']->variables->request['sure']) || $GLOBALS['tf']->variables->request['sure'] != 'yes') {
 			$table = new TFTable;
 			$table->set_title('Delete VLan');
 			$table->add_hidden('ipblock', $ipblock);
