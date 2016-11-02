@@ -1787,7 +1787,7 @@ function vlan_manager() {
 					if ($ports[0] != '--') {
 						if (!isset($GLOBALS['tf']->variables->request['port_0'])) {
 							$out = '';
-							for ($y = 0; $y < sizeof($ports); $y++) {
+							for ($y = 0, $yMax = sizeof($ports); $y < $yMax; $y++) {
 								if (sizeof($ports) > 1) {
 									$out .= 'Port ' . $ports[$y] . ': ';
 								}
@@ -1812,7 +1812,7 @@ function vlan_manager() {
 							$editserver = true;
 						} else {
 							$servers = array();
-							for ($y = 0; $y < sizeof($ports); $y++) {
+							for ($y = 0, $yMax = sizeof($ports); $y < $yMax; $y++) {
 								$server = $GLOBALS['tf']->variables->request['port_' . $y];
 								if ($server != '0') {
 									$servers[] = $server;
