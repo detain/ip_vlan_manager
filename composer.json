@@ -1,0 +1,20 @@
+{
+    "name": "detain/ip_vlan_manager",
+    "type": "library",
+    "description": "IP/VLAN Management System",
+    "keywords": ["ip", "vlan", "network"],
+    "license": "LGPL-2.1",
+    "authors": [
+        {
+            "name": "Joe Huss",
+            "homepage": "https://my.interserver.net/"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.0",
+        "ext-ssh2": "*"
+    },
+    "autoload": {
+        "classmap": ["ip.functions.inc.php "]
+    }
+}
