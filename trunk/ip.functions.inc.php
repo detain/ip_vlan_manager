@@ -44,7 +44,7 @@
 			else
 			{
 				$db->query(make_insert_query('switchmanager', array(
-					'id' => NULL,
+					'id' => null,
 					'name' => $switch,
 					'ports' => sizeof($ports),
 				)), __LINE__, __FILE__);
@@ -243,7 +243,7 @@ function switch_manager() {
 			$name = $GLOBALS['tf']->variables->request['name'];
 			$ports = $GLOBALS['tf']->variables->request['ports'];
 			$db->query(make_insert_query('switchmanager', array(
-				'id' => NULL,
+				'id' => null,
 				'name' => $name,
 				'ports' => $ports,
 			)), __LINE__, __FILE__);
@@ -595,6 +595,7 @@ function alt_ip_manager() {
 	}
 
 	if (!function_exists('valid_ip')) {
+
 		/**
 		 * valid_ip()
 		 * returns whether or not the given IP is valid
@@ -625,9 +626,11 @@ function alt_ip_manager() {
 			}
 			return true;
 		}
+
 	}
 
 	if (!function_exists('ipcalc')) {
+
 		/**
 		 * @param $network
 		 * @return array
@@ -703,6 +706,7 @@ function alt_ip_manager() {
 			//_debug_array($ipinfo);
 			return $ipinfo;
 		}
+
 	}
 
 	/**
@@ -1478,7 +1482,7 @@ function add_vlan() {
 					$comment = $GLOBALS['tf']->variables->request['comment'];
 					$ports = ':' . implode(':', $ports) . ':';
 					$db->query(make_insert_query('vlans', array(
-						'vlans_id' => NULL,
+						'vlans_id' => null,
 						'vlans_block' => $block,
 						'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
 						'vlans_ports' => $ports,
