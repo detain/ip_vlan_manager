@@ -15,25 +15,24 @@
  * @param $extra
  * @return array|mixed
  */
-function get_extra($extra)
-{
-    if ($extra == '')
-        $extra = array();
-    else
-        $extra = unserialize($extra);
-    return $extra;
+
+function get_extra($extra) {
+	if ($extra == '')
+		$extra = array();
+	else
+		$extra = unserialize($extra);
+	return $extra;
 }
 
 /**
  * @param $extra
  * @return array|string
  */
-function put_extra($extra)
-{
-    if ($extra == '')
-        $extra = array();
-    $extra = serialize($extra);
-    return $extra;
+function put_extra($extra) {
+	if ($extra == '')
+		$extra = array();
+	$extra = serialize($extra);
+	return $extra;
 }
 
 	$db->query('select * from ipblocks');
@@ -425,4 +424,3 @@ select * from users where id=2311;
 		}
 	}
 //	echo "$total\n";
-?>
