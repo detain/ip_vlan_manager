@@ -18,7 +18,7 @@
 		$db2 = clone $db;
 
 		$lines = explode("\n", getcurlpage('http://nms.interserver.net/cac/servermap.php'));
-		$switches = array();
+		$switches = [];
 		foreach ($lines as $line)
 		{
 			if (trim($line) != '') {
@@ -32,7 +32,7 @@
 		}
 		foreach ($switches as $switch => $ports)
 		{
-			$foundports = array();
+			$foundports = [];
 			$db->query("select * from switchmanager where name='$switch'");
 			if ($db->num_rows() > 0)
 			{
@@ -44,7 +44,7 @@
 			else
 			{
 				$db->query(make_insert_query('switchmanager', array(
-					'id' => null,
+					'id' => NULL,
 					'name' => $switch,
 					'ports' => sizeof($ports),
 				)), __LINE__, __FILE__);
@@ -113,7 +113,7 @@
 				$query = "select * from vlans where vlans_ports like '%:$row[id]/$justport:%' or vlans_ports like '%:$row[id]/$port:%'";
 				//echo "$query\n";
 				$db->query($query);
-				$vlans = array();
+				$vlans = [];
 				while ($db->next_record())
 				{
 					$vlans[] = $db->Record['vlans_id'];
@@ -209,7 +209,7 @@
 	function get_select_ports($ports = false, $size = 5) {
 		$db = $GLOBALS['admin_dbh'];
 		if ($ports === false) {
-			$ports = array();
+			$ports = [];
 		}
 		$select = '<select multiple size=' . $size . ' name="ports[]">';
 		$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by id, port');
@@ -243,7 +243,7 @@ function switch_manager() {
 			$name = $GLOBALS['tf']->variables->request['name'];
 			$ports = $GLOBALS['tf']->variables->request['ports'];
 			$db->query(make_insert_query('switchmanager', array(
-				'id' => null,
+				'id' => NULL,
 				'name' => $name,
 				'ports' => $ports,
 			)), __LINE__, __FILE__);
@@ -423,7 +423,7 @@ function view_doublebound_ips() {
 			$table->add_field('When It Was Detected<BR>');
 			$table->add_row();
 			$table->alternate_rows();
-			$servers = array();
+			$servers = [];
 			while ($db->next_record()) {
 				$table->add_field($db->Record['history_new_value']);
 				if (!isset($servers[$db->Record['ips_serverid']])) {
@@ -485,7 +485,7 @@ function alt_ip_manager() {
 		$db2 = $GLOBALS['admin_dbh'];
 		if (isset($GLOBALS['tf']->variables->request['ipblock'])) {
 			$db->query('select servers_serverid, servers_hostname from servers', __LINE__, __FILE__);
-			$serverids = array();
+			$serverids = [];
 			$serverids[0] = 'None';
 			while ($db->next_record()) {
 				$serverids[$db->Record['servers_serverid']] = $db->Record['servers_hostname'];
@@ -555,7 +555,7 @@ function alt_ip_manager() {
 	 * @return int
 	 */
 	function get_ipcount_from_netmask($netmask) {
-		$ipinfo = array();
+		$ipinfo = [];
 		//error_log("Calling ipcalc here");
 		$path = INCLUDE_ROOT . '/../scripts/licenses';
 		$result = trim(`LANG=C $path/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
@@ -578,7 +578,7 @@ function alt_ip_manager() {
 		$result = trim(`$cmd`);
 		$results = explode('-----', $result);
 		for ($x = 0, $x_max = sizeof($networks); $x < $x_max; $x++) {
-			$ipinfo = array();
+			$ipinfo = [];
 			$lines = explode("\n", trim($results[$x]));
 			$netparts = explode('/', $lines[3]);
 			$ipinfo['network'] = $lines[3];
@@ -595,7 +595,6 @@ function alt_ip_manager() {
 	}
 
 	if (!function_exists('valid_ip')) {
-
 		/**
 		 * valid_ip()
 		 * returns whether or not the given IP is valid
@@ -626,11 +625,9 @@ function alt_ip_manager() {
 			}
 			return true;
 		}
-
 	}
 
 	if (!function_exists('ipcalc')) {
-
 		/**
 		 * @param $network
 		 * @return array
@@ -690,7 +687,7 @@ function alt_ip_manager() {
 			7	Hosts/Net:4094
 			*/
 			$path = INCLUDE_ROOT . '/../scripts/licenses';
-			$ipinfo = array();
+			$ipinfo = [];
 			//error_log("Calling ipcalc here");
 			$result = trim(`LANG=C $path/ipcalc -nb $network | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1`);
 			$lines = explode("\n", $result);
@@ -706,7 +703,6 @@ function alt_ip_manager() {
 			//_debug_array($ipinfo);
 			return $ipinfo;
 		}
-
 	}
 
 	/**
@@ -717,7 +713,7 @@ function alt_ip_manager() {
 	 * @return array
 	 */
 	function get_networks($text, $vlan = 0, $comment = '', $ports = '') {
-		$networks = array();
+		$networks = [];
 		$parts = explode(':', $text);
 		for ($x = 0, $x_max = sizeof($parts); $x < $x_max; $x++) {
 			if ($parts[$x] != '') {
@@ -798,7 +794,7 @@ function alt_ip_manager() {
 	function get_all_ipblocks() {
 		$db = get_module_db('admin');
 		$db->query('select ipblocks_network from ipblocks');
-		$all_blocks = array();
+		$all_blocks = [];
 		while ($db->next_record(MYSQL_ASSOC))
 			$all_blocks[] = $db->Record['ipblocks_network'];
 		return $all_blocks;
@@ -824,7 +820,7 @@ function alt_ip_manager() {
 	 */
 	function get_client_ips($include_unusable = false) {
 		$ipblocks = get_client_ipblocks();
-		$client_ips = array();
+		$client_ips = [];
 		foreach ($ipblocks as $ipblock) {
 			$client_ips = array_merge($client_ips, get_ips($ipblock, $include_unusable));
 		}
@@ -837,7 +833,7 @@ function alt_ip_manager() {
 	 */
 	function get_all_ips_from_ipblocks($include_unusable = false) {
 		$all_blocks = get_all_ipblocks();
-		$all_ips = array();
+		$all_ips = [];
 		foreach ($all_blocks as $ipblock)
 			$all_ips = array_merge($all_ips, get_ips($ipblock, $include_unusable));
 		return $all_ips;
@@ -849,7 +845,7 @@ function alt_ip_manager() {
 	 */
 	function get_all_ips2_from_ipblocks($include_unusable = false) {
 		$all_blocks = get_all_ipblocks();
-		$all_ips = array();
+		$all_ips = [];
 		foreach ($all_blocks as $ipblock)
 			$all_ips = array_merge($all_ips, get_ips2($ipblock, $include_unusable));
 		return $all_ips;
@@ -862,7 +858,7 @@ function alt_ip_manager() {
 	 */
 	function get_ips($network, $include_unusable = false) {
 		//echo "$network|$include_unusable|<br>";
-		$ips = array();
+		$ips = [];
 		$network_info = ipcalc($network);
 		//_debug_array($network_info);
 		if ($include_unusable) {
@@ -874,7 +870,7 @@ function alt_ip_manager() {
 		}
 		$minparts = explode('.', $minip);
 		$maxparts = explode('.', $maxip);
-		$ips = array();
+		$ips = [];
 		for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++) {
 			for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++) {
 				for ($c = $minparts[2]; check_ip_part(3, array(
@@ -901,7 +897,7 @@ function alt_ip_manager() {
 	 */
 	function get_ips2($network, $include_unusable = false) {
 		//echo "$network|$include_unusable|<br>";
-		$ips = array();
+		$ips = [];
 		$network_info = ipcalc($network);
 		//_debug_array($network_info);
 		if ($include_unusable) {
@@ -913,7 +909,7 @@ function alt_ip_manager() {
 		}
 		$minparts = explode('.', $minip);
 		$maxparts = explode('.', $maxip);
-		$ips = array();
+		$ips = [];
 		for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++) {
 			for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++) {
 				for ($c = $minparts[2]; check_ip_part(3, array(
@@ -945,13 +941,13 @@ function alt_ip_manager() {
 	 */
 	function available_ipblocks($blocksize, $location = 1) {
 		// array of available blocks
-		$available = array();
+		$available = [];
 		$db = $GLOBALS['admin_dbh'];
 		// first we gotta get how many ips are in the blocksize they requested
 		$ipcount = get_ipcount_from_netmask($blocksize) + 2;
 		// get the ips in use
-		$usedips = array();
-		$mainblocks = array();
+		$usedips = [];
+		$mainblocks = [];
 		if ($location == 1) {
 			// get the main ipblocks we have routed
 			$db->query('select * from ipblocks', __LINE__, __FILE__);
@@ -1482,7 +1478,7 @@ function add_vlan() {
 					$comment = $GLOBALS['tf']->variables->request['comment'];
 					$ports = ':' . implode(':', $ports) . ':';
 					$db->query(make_insert_query('vlans', array(
-						'vlans_id' => null,
+						'vlans_id' => NULL,
 						'vlans_block' => $block,
 						'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
 						'vlans_ports' => $ports,
@@ -1491,7 +1487,7 @@ function add_vlan() {
 					$vlan = $db->get_last_insert_id('vlans', 'vlans_id');
 					$query = "select ips_ip from ips2 where ips_ip in ('" . implode("', '", $ips) . "')";
 					$db->query($query, __LINE__, __FILE__);
-					$ips2 = array();
+					$ips2 = [];
 					while ($db->next_record()) {
 						$ips2[] = $db->Record['ips_ip'];
 					}
@@ -1585,9 +1581,9 @@ function vlan_edit_port() {
 		$db->next_record();
 		$networks = get_networks($db->Record['vlans_networks'], $db->Record['vlans_id'], $db->Record['vlans_comment'], $db->Record['vlans_ports']);
 		$networksize = sizeof($networks);
-		$rows = array();
+		$rows = [];
 		for ($x = 0; $x < $networksize; $x++) {
-			$row = array();
+			$row = [];
 			$network = $networks[$x]['network'];
 			$vlan = $networks[$x]['vlan'];
 			if ($networks[$x]['comment']) {
@@ -1596,9 +1592,9 @@ function vlan_edit_port() {
 				$comment = 'not set';
 			}
 			$portdata = explode(':', $networks[$x]['ports']);
-			$ports = array();
-			$searchs = array();
-			$servers = array();
+			$ports = [];
+			$searchs = [];
+			$servers = [];
 			$portdatasize = sizeof($portdata);
 			for ($y = 0; $y < $portdatasize; $y++) {
 				if ($portdata[$y] != '') {
@@ -1676,7 +1672,7 @@ function vlan_manager() {
 		$total_ips = 0;
 		$used_ips = 0;
 		// get ip block(s)
-		$networks = array();
+		$networks = [];
 		$db->query('select * from ipblocks order by ipblocks_network', __LINE__, __FILE__);
 		while ($db->next_record()) {
 			$ipinfo = ipcalc($db->Record['ipblocks_network']);
@@ -1702,10 +1698,10 @@ function vlan_manager() {
 		$db->next_record();
 		$used_ips = $db->f(0);
 		$networksize = sizeof($networks);
-		$rows = array();
+		$rows = [];
 		//_debug_array($networks);
 		for ($x = 0; $x < $networksize; $x++) {
-			$row = array();
+			$row = [];
 			$network = $networks[$x]['network'];
 			$vlan = $networks[$x]['vlan'];
 			if ($networks[$x]['comment']) {
@@ -1714,9 +1710,9 @@ function vlan_manager() {
 				$comment = 'not set';
 			}
 			$portdata = explode(':', $networks[$x]['ports']);
-			$ports = array();
-			$searches = array();
-			$servers = array();
+			$ports = [];
+			$searches = [];
+			$servers = [];
 			$portdatasize = sizeof($portdata);
 			for ($y = 0; $y < $portdatasize; $y++) {
 				if ($portdata[$y] != '') {
@@ -1815,7 +1811,7 @@ function vlan_manager() {
 							$table->add_field($out . '<br>' . $table->make_submit('Set Server(s)'));
 							$editserver = true;
 						} else {
-							$servers = array();
+							$servers = [];
 							for ($y = 0, $yMax = sizeof($ports); $y < $yMax; $y++) {
 								$server = $GLOBALS['tf']->variables->request['port_' . $y];
 								if ($server != '0') {
