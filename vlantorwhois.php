@@ -15,28 +15,29 @@
  * @param $extra
  * @return array|mixed
  */
-
-function get_extra($extra) {
-	if ($extra == '')
-		$extra = array();
-	else
-		$extra = unserialize($extra);
-	return $extra;
+function get_extra($extra)
+{
+    if ($extra == '')
+        $extra = [];
+    else
+        $extra = unserialize($extra);
+    return $extra;
 }
 
 /**
  * @param $extra
  * @return array|string
  */
-function put_extra($extra) {
-	if ($extra == '')
-		$extra = array();
-	$extra = serialize($extra);
-	return $extra;
+function put_extra($extra)
+{
+    if ($extra == '')
+        $extra = [];
+    $extra = serialize($extra);
+    return $extra;
 }
 
 	$db->query('select * from ipblocks');
-	$ipblocks = array();
+	$ipblocks = [];
 	while ($db->next_record())
 	{
 		$ipblocks[$db->Record['ipblocks_id']] = $db->Record['ipblocks_network'];
@@ -424,3 +425,4 @@ select * from users where id=2311;
 		}
 	}
 //	echo "$total\n";
+?>
