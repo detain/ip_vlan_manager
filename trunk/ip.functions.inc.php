@@ -1203,6 +1203,24 @@ function alt_ip_manager() {
 				$usedips[$ip] = $ip;
 			}
 		}
+		// Switch Subnets
+		if ($location == 7) {
+			$mainblocks[] = array(22, '173.225.96.0/24');
+			$mainblocks[] = array(22, '173.225.96.0/24');
+		} else {
+			// 173.225.96.0/24
+			$reserved = [2917228544, 2917228799];
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
+			// 173.225.97.0/24
+			$reserved = [2917228800, 2917229055];
+			for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
+				$ip = long2ip($x);
+				$usedips[$ip] = $ip;
+			}
+		}
 		/* 45.126.36.0/22 */
 /*		$reserved = array(763241472, 763242495);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
@@ -1211,18 +1229,20 @@ function alt_ip_manager() {
 		}
 */
 		/* 199.231.191.0/24 reserved */
+		/* mike says ok to remove 2/24/2017
 		$reserved = array(3353853696, 3353853951);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ip = long2ip($x);
 			$usedips[$ip] = $ip;
-		}
+		} */
 		/* 66.23.225.0/24 reserved cogent */
+		/*  mike says we can undo this - 2/24/2017
 		$reserved = array(1108861184, 1108861439);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ip = long2ip($x);
 			$usedips[$ip] = $ip;
 		}
-
+		*/
 		$db->query('select ips_ip from ips2 where ips_vlan > 0', __LINE__, __FILE__);
 		if ($db->num_rows()) {
 			while ($db->next_record()) {
