@@ -283,7 +283,7 @@ function switch_manager() {
 		} else {
 			$server = $GLOBALS['tf']->variables->request['server'];
 
-			$db->query("select servers_serverid from servers where servers_hostname='{$server}'", __LINE__, __FILE__);
+			$db->query("select id from orders where servername='{$server}'", __LINE__, __FILE__);
 			$db->next_record();
 			$serverid = $db->Record;
 
@@ -307,7 +307,7 @@ function switch_manager() {
 		} else {
 			$server = $GLOBALS['tf']->variables->request['server'];
 			if (valid_server($server)) {
-				$db->query("select servers_serverid from servers where servers_hostname='{$server}'", __LINE__, __FILE__);
+				$db->query("select id from orders where servername='{$server}'", __LINE__, __FILE__);
 				$db->next_record();
 				$serverid = $db->f(0);
 				$table = new TFTable;
@@ -363,7 +363,7 @@ function delegate_ips() {
 					add_output('</form>');
 				} else {
 					add_output('Adding IPs...');
-					$db->query("select servers_serverid from servers where servers_hostname='{$server}'", __LINE__, __FILE__);
+					$db->query("select id from orders where servername='{$server}'", __LINE__, __FILE__);
 					$db->next_record();
 					$serverid = $db->Record;
 					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
@@ -406,8 +406,7 @@ function view_doublebound_ips() {
 		if ($groupinfo['account_id'] == ADMIN_GROUP) {
 			$db->query("select distinct * from history_log, ips where ips_ip=history_new_value and history_type='doubleboundip' and history_section='servers' group by history_new_value", __LINE__, __FILE__);
 		} else {
-			$db->query("select distinct history_log.*, ips.* from history_log, ips, servers where (ips_group='$groupinfo[account_id]' or servers_group like '%:$groupinfo[account_id]:%') and servers_serverid=history_old_value and ips_ip=history_new_value and history_type='doubleboundip' and history_section='servers' group by history_new_value",
-				__LINE__, __FILE__);
+			$db->query("select distinct history_log.*, ips.* from history_log, ips, orders where (ips_group='$groupinfo[account_id]' or servers_group like '%:$groupinfo[account_id]:%') and servers_serverid=history_old_value and ips_ip=history_new_value and history_type='doubleboundip' and history_section='servers' group by history_new_value", __LINE__, __FILE__);
 		}
 		if ($db->num_rows() == 0) {
 			add_output('There are currently NO double-bound IPs (Good Job)<BR>');
@@ -428,11 +427,11 @@ function view_doublebound_ips() {
 				$table->add_field($db->Record['history_new_value']);
 				if (!isset($servers[$db->Record['ips_serverid']])) {
 					$server = $GLOBALS['tf']->get_server($db->Record['ips_serverid']);
-					$servers[$db->Record['ips_serverid']] = $server['servers_hostname'];
+					$servers[$db->Record['ips_serverid']] = $server['servername'];
 				}
 				if (!isset($servers[$db->Record['history_old_value']])) {
 					$server = $GLOBALS['tf']->get_server($db->Record['history_old_value']);
-					$servers[$db->Record['history_old_value']] = $server['servers_hostname'];
+					$servers[$db->Record['history_old_value']] = $server['servername'];
 				}
 				$table->add_field($servers[$db->Record['ips_serverid']]);
 				$table->add_field($servers[$db->Record['history_old_value']]);
@@ -484,21 +483,21 @@ function alt_ip_manager() {
 		$db = $GLOBALS['innertell_dbh'];
 		$db2 = $GLOBALS['innertell_dbh'];
 		if (isset($GLOBALS['tf']->variables->request['ipblock'])) {
-			$db->query('select servers_serverid, servers_hostname from servers', __LINE__, __FILE__);
+			$db->query('select id, servername from orders', __LINE__, __FILE__);
 			$serverids = [];
 			$serverids[0] = 'None';
 			while ($db->next_record()) {
-				$serverids[$db->Record['servers_serverid']] = $db->Record['servers_hostname'];
-				$servernames[$db->Record['servers_hostname']] = $db->Record['servers_serverid'];
+				$serverids[$db->Record['id']] = $db->Record['servername'];
+				$servernames[$db->Record['servername']] = $db->Record['id'];
 			}
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			if (isset($GLOBALS['tf']->variables->request['server']) && isset($GLOBALS['tf']->variables->request['ip'])) {
 				$sid = $servernames[$GLOBALS['tf']->variables->request['server']];
 				$ip = $GLOBALS['tf']->variables->request['ip'];
-				$query = "update ips set ips_serverid='$sid' where ips_ip='$ip'";
+				$query = "update ips set ips_serverid='{$sid}' where ips_ip='{$ip}'";
 				$db->query($query, __LINE__, __FILE__);
 			}
-			$db->query("select *, INET_ATON(ips_ip) as aton from ips where ips_ip like '$ipblock.%' order by aton", __LINE__, __FILE__);
+			$db->query("select *, INET_ATON(ips_ip) as aton from ips where ips_ip like '{$ipblock}.%' order by aton", __LINE__, __FILE__);
 			$table = new TFTable;
 			$table->set_title('IP Manager');
 			$table->add_field('IP Block');
@@ -1620,7 +1619,7 @@ function vlan_edit_port() {
 				if ($portdata[$y] != '') {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
 					$ports[] = $portdata[$y];
-					$searches[] = "(servers_switch='{$switch}' and servers_slot='{$port}')";
+					$searches[] = "(switch='{$switch}' and slot='{$port}')";
 				}
 			}
 		}
@@ -1738,14 +1737,14 @@ function vlan_manager() {
 				if ($portdata[$y] != '') {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
 					$ports[] = $portdata[$y];
-					$searches[] = "(servers_switch='{$switch}' and servers_slot='{$port}')";
+					$searches[] = "(switch='{$switch}' and slot='{$port}')";
 				}
 			}
 			if (sizeof($searches)) {
-				$query = 'select servers_hostname from servers where ' . implode(' or ', $searches);
+				$query = 'select servername from orders where ' . implode(' or ', $searches);
 				$db2->query($query, __LINE__, __FILE__);
 				while ($db2->next_record()) {
-					$servers[] = $db2->Record['servers_hostname'];
+					$servers[] = $db2->Record['servername'];
 				}
 			}
 			//					$network_info = $networks_info[$network];
@@ -1812,11 +1811,11 @@ function vlan_manager() {
 									$out .= 'Port ' . $ports[$y] . ': ';
 								}
 								list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
-								$query = "select servers_serverid, servers_hostname from servers where servers_switch='{$switch}' and servers_slot='{$port}'";
+								$query = "select id, servername from orders where switch='{$switch}' and slot='{$port}'";
 								$db2->query($query, __LINE__, __FILE__);
 								if ($db2->num_rows()) {
 									$db2->next_record();
-									$server = $db2->Record['servers_serverid'];
+									$server = $db2->Record['servername'];
 								} else {
 									$server = 0;
 								}
@@ -1837,9 +1836,9 @@ function vlan_manager() {
 								if ($server != '0') {
 									$servers[] = $server;
 									list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
-									$query = "update servers set servers_switch='', servers_slot='' where servers_switch='{$switch}' and servers_slot='{$port}'";
+									$query = "update orders set switch='', slot='' where switch='{$switch}' and slot='{$port}'";
 									$db2->query($query, __LINE__, __FILE__);
-									$query = "update servers set servers_switch='{$switch}', servers_slot='{$port}' where servers_hostname='{$server}'";
+									$query = "update orders set switch='{$switch}', slot='{$port}' where servername='{$server}'";
 									$db2->query($query, __LINE__, __FILE__);
 								}
 							}
@@ -1968,17 +1967,17 @@ function vlan_port_server_manager() {
 				if (isset($GLOBALS['tf']->variables->request['vlan_' . $db->Record['vlans_id']])) {
 					$server = $GLOBALS['tf']->variables->request['vlan_' . $db->Record['vlans_id']];
 					if ($server != '0') {
-						$query = "update servers set servers_switch='', servers_slot='' where servers_switch='{$switch}' and servers_slot='{$port}'";
+						$query = "update orders set switch='', slot='' where switch='{$switch}' and slot='{$port}'";
 						$db2->query($query, __LINE__, __FILE__);
-						$query = "update servers set servers_switch='{$switch}', servers_slot='{$port}' where servers_hostname='{$server}'";
+						$query = "update orders set switch='{$switch}', slot='{$port}' where servername='{$server}'";
 						$db2->query($query, __LINE__, __FILE__);
 					}
 				}
-				$query = "select servers_serverid, servers_hostname from servers where servers_switch='{$switch}' and servers_slot='{$port}'";
+				$query = "select id, servername from orders where switch='{$switch}' and slot='{$port}'";
 				$db2->query($query, __LINE__, __FILE__);
 				if ($db->num_rows()) {
 					$db2->next_record();
-					$server = $db2->Record['servers_serverid'];
+					$server = $db2->Record['id'];
 				} else {
 					$server = 0;
 				}
@@ -2119,7 +2118,7 @@ function ipblock_viewer() {
 			if ($usedips > 0) {
 				while ($db2->next_record()) {
 					$server = $GLOBALS['tf']->get_server($db2->Record['ips_serverid']);
-					$table->add_field($server['servers_hostname']);
+					$table->add_field($server['servername']);
 					$table->add_field($db2->Record['ips_ip']);
 					$table->set_colspan(2);
 					$table->add_field('Delete');
