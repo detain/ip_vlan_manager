@@ -1733,6 +1733,7 @@ function vlan_manager() {
 			$searches = [];
 			$servers = [];
 			$portdatasize = sizeof($portdata);
+			/* commented out 3/11/2017 by joe to get things wworking for the moment
 			for ($y = 0; $y < $portdatasize; $y++) {
 				if ($portdata[$y] != '') {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
@@ -1746,7 +1747,7 @@ function vlan_manager() {
 				while ($db2->next_record()) {
 					$servers[] = $db2->Record['servername'];
 				}
-			}
+			}*/
 			//					$network_info = $networks_info[$network];
 			/*
 			$row = array(
