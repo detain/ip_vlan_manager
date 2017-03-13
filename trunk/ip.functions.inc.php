@@ -1205,7 +1205,7 @@ function alt_ip_manager() {
 		// Switch Subnets
 		if ($location == 7) {
 			$mainblocks[] = array(22, '173.225.96.0/24');
-			$mainblocks[] = array(22, '173.225.96.0/24');
+			$mainblocks[] = array(22, '173.225.97.0/24');
 		} else {
 			// 173.225.96.0/24
 			$reserved = [2917228544, 2917228799];
