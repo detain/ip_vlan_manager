@@ -123,6 +123,7 @@
 					if ($verbose == true)
 						echo '(' . sizeof($vlans) . ' Vlans)';
 					$vlantext = implode(',', $vlans);
+					$db->query("update switchports set vlans='' where vlans='{$vlantext}'");
 					$db->query("update switchports set vlans='{$vlantext}' where switch='{$id}' and port='{$port}'");
 					if ($db->affected_rows())
 						if ($verbose == true)
