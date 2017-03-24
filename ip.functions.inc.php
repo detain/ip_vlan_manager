@@ -213,7 +213,7 @@
 			$ports = [];
 		}
 		$select = '<select multiple size=' . $size . ' name="ports[]">';
-		$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by id, port');
+		$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by name, port asc');
 		while ($db->next_record()) {
 			$switch = $db->Record['id'];
 			$port = $db->Record['port'];
