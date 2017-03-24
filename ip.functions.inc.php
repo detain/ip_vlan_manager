@@ -59,10 +59,10 @@
 			{
 				$blade = '';
 				$justport = $port;
-				if (strrpos($port, '/') > 0)
+				if (mb_strrpos($port, '/') > 0)
 				{
-					$blade = substr($port, 0, strrpos($port, '/'));
-					$justport = substr($port, strlen($blade) + 1);
+					$blade = mb_substr($port, 0, mb_strrpos($port, '/'));
+					$justport = mb_substr($port, mb_strlen($blade) + 1);
 				}
 				if (isset($foundports[$justport]))
 				{
@@ -174,10 +174,10 @@
 	function parse_vlan_ports($data) {
 		$parts2 = explode('/', $data);
 		$switch = $parts2[0];
-		$port = substr($data, strlen($switch) + 1);
-		if (strpos($port, '/') > 0) {
-			$blade = substr($port, 0, strrpos($port, '/'));
-			$justport = substr($port, strlen($blade) + 1);
+		$port = mb_substr($data, mb_strlen($switch) + 1);
+		if (mb_strpos($port, '/') > 0) {
+			$blade = mb_substr($port, 0, mb_strrpos($port, '/'));
+			$justport = mb_substr($port, mb_strlen($blade) + 1);
 		} else {
 			$blade = '';
 			$justport = $port;
@@ -531,7 +531,7 @@ function alt_ip_manager() {
 			$lastip = '';
 			$sel = '<select name=ipblock>';
 			while ($db->next_record()) {
-				ereg('^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\.[0-9]{1,3}$', $db->Record['ips_ip'], $ipblock);
+				mb_ereg('^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\.[0-9]{1,3}$', $db->Record['ips_ip'], $ipblock);
 				if ($lastip != $ipblock[1]) {
 					$sel .= '<option value="' . $ipblock[1] . '">' . $ipblock[1] . '</option>';
 					$lastip = $ipblock[1];
@@ -1791,7 +1791,7 @@ function vlan_manager() {
 			if (!$editport) {
 				$portsize = sizeof($ports);
 				for ($y = 0; $y < $portsize; $y++) {
-					if (!(strpos($ports[$y], '/') === false)) {
+					if (!(mb_strpos($ports[$y], '/') === false)) {
 						list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
 						$ports[$y] = get_switch_name($switch, true) . '/' . $port;
 					}
@@ -2285,9 +2285,9 @@ function unblock_ip_do() {
 						add_output('No Updates In Demo Mode');
 					} else {
 						$cmd = '';
-						if (ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", $ip)) {
+						if (mb_ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}$", $ip)) {
 							$cmd = '/sbin/route del -host ' . $ip;
-						} elseif (ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\-[0-9]{1,3}$", $ip)) {
+						} elseif (mb_ereg("^[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\-[0-9]{1,3}$", $ip)) {
 							$front = trim(`echo "$ip" | cut -d- -f1`);
 							$start = trim(`echo "$front" | cut -d. -f4`);
 							$ugh = trim(`echo "$ip" | cut -d. -f1-3`);
@@ -2343,7 +2343,7 @@ function unblock_ip_do() {
 				//		$db->Record['vlans_id'];
 				$parts = explode(':', $db->Record['vlans_ports']);
 				for ($x = 0, $x_max = sizeof($parts); $x < $x_max; $x++) {
-					if (strpos($parts[$x], '/')) {
+					if (mb_strpos($parts[$x], '/')) {
 						list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
 						$parts[$x] = get_switch_name($switch, true) . '/' . $port;
 					}
