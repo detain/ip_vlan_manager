@@ -212,7 +212,7 @@
 		if ($ports === false) {
 			$ports = [];
 		}
-		$select = '<select multiple size=' . $size . ' name="ports[]">';
+		$select = '<select class="js-example-basic-multiple" multiple size=' . $size . ' name="ports[]">';
 		$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by id desc');
 		while ($db->next_record()) {
 			$switch = $db->Record['id'];
@@ -1588,6 +1588,11 @@ function vlan_edit_port() {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
+		$GLOBALS['tf']->add_html_head_css('<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />');
+		$GLOBALS['tf']->add_html_head_js('<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>');
+		$GLOBALS['tf']->add_html_head_js('<script type="text/javascript">
+  			$(".js-example-basic-multiple").select2();
+		</script>');
 		$db = $GLOBALS['innertell_dbh'];
 		$db2 = $db;
 		$table = new TFTable;
@@ -1640,6 +1645,7 @@ function vlan_edit_port() {
 			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 		}
 		$table->add_row();
+		
 		add_output($table->get_table());
 	}
 
