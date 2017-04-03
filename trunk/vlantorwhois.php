@@ -1,7 +1,7 @@
 <?php
 	// Load Various Functions & Connect to mysql database
-	include('../include/functions.inc.php');
-	include('../include/ip.functions.inc.php');
+	include('../../../include/functions.inc.php');
+	include('ip.functions.inc.php');
 	$db = $GLOBALS['tf']->db;
 	$db4 = $db;
 	$db_innertell = get_module_db('innertell');
