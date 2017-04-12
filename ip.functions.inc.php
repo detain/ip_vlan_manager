@@ -39,7 +39,7 @@
 				$db->next_record();
 				$row = $db->Record;
 				if ($verbose == true)
-					echo "Loaded Switch $switch - ";
+					add_output("Loaded Switch $switch - ");
 			}
 			else
 			{
@@ -52,7 +52,7 @@
 				$db->next_record();
 				$row = $db->Record;
 				if ($verbose == true)
-					echo "Created New Switch {$switch} - ";
+					add_output("Created New Switch {$switch} - ");
 			}
 			$id = $row['id'];
 			foreach ($ports as $port => $graph)
@@ -76,7 +76,7 @@
 				if ($db->num_rows() == 0)
 				{
 					if ($verbose == true)
-						echo "{$port} +";
+						add_output("{$port} +");
 					$db->query(make_insert_query('switchports', array(
 						'switch' => $id,
 						'blade' => $blade,
@@ -92,23 +92,23 @@
 					if (($db->Record['blade'] != $blade) || ($db->Record['justport'] != $justport))
 					{
 						if ($verbose == true)
-							echo "\nUpdate BladePort";
+							add_output("\nUpdate BladePort");
 						$query = "update switchports set blade='{$blade}', justport='{$justport}' where switch='{$id}' and port='{$port}'";
 						//echo $query;
 						$db->query($query);
 					}
 					if ($verbose == true)
-						echo "$port ";
+						add_output("$port ");
 					if ($db->Record['graph_id'] != $graph)
 					{
 						if ($verbose == true)
-							echo "\nUpdate Graph";
+							add_output("\nUpdate Graph");
 						$query = "update switchports set graph_id='{$graph}' where switch='{$id}' and port='{$port}'";
 						//echo $query;
 						$db->query($query);
 					}
 					if ($verbose == true)
-						echo "$graph ";
+						add_output("$graph ");
 				}
 				$query = "select * from vlans where vlans_ports like '%:{$row['id']}/{$justport}:%' or vlans_ports like '%:{$row['id']}/{$port}:%'";
 				//echo "$query\n";
@@ -121,19 +121,19 @@
 				if (sizeof($vlans) > 0)
 				{
 					if ($verbose == true)
-						echo '(' . sizeof($vlans) . ' Vlans)';
+						add_output('(' . sizeof($vlans) . ' Vlans)');
 					$vlantext = implode(',', $vlans);
 					$db->query("update switchports set vlans='' where vlans='{$vlantext}'");
 					$db->query("update switchports set vlans='{$vlantext}' where switch='{$id}' and port='{$port}'");
 					if ($db->affected_rows())
 						if ($verbose == true)
-							echo "\nUpdate Vlan";
+							add_output("\nUpdate Vlan");
 				}
 				if ($verbose == true)
-					echo ',';
+					add_output(',');
 			}
 			if ($verbose == true)
-				echo "\n";
+				add_output("\n");
 		}
 		//print_r($switches);
 	}
