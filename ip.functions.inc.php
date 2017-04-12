@@ -136,7 +136,9 @@
 				add_output("\n");
 		}
 		//print_r($switches);
-		echo nl2br($GLOBALS['output']);
+		global $output;
+		echo str_replace("\n", "<br>\n", $output);
+		$output = '';
 	}
 
 	/**
