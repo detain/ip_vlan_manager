@@ -1680,8 +1680,8 @@ function vlan_manager() {
 		$ima = $GLOBALS['tf']->ima;
 		$choice = $GLOBALS['tf']->variables->request['choice'];
 		global $groupinfo;
-		$db = get_module_db('innertell');
-		$db2 = get_module_db('innertell');
+		$db = get_module_db(IPS_MODULE);
+		$db2 = get_module_db(IPS_MODULE);
 		if (isset($GLOBALS['tf']->variables->request['order']) && $GLOBALS['tf']->variables->request['order'] == 'id')
 			$order = 'vlans_id';
 		else
