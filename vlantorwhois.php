@@ -2,10 +2,9 @@
 	// Load Various Functions & Connect to mysql database
 	include('../../../include/functions.inc.php');
 	include('ip.functions.inc.php');
-	$db = $GLOBALS['tf']->db;
+	$db = get_module_db('default');
 	$db4 = $db;
 	$db_innertell = get_module_db('innertell');
-	$db3 = $db_innertell;
 	$db_mb            = get_module_db('mb');
 	ob_end_flush();
 
@@ -83,9 +82,9 @@ select * from users where id=2311;
 +----------------+---------+---------+-------+--------+----------+---------------------------+--------------------+------+---------------------+-------------+----------+------+---------------+
 | (559) 892-0902 | 93720   | usa     | ca    | fresno |          | 7969 N Blackstone Av #248 | prominent upstairs | 2311 | greg@truecanyon.com | greg lontok | wide12   | NULL |          2427 |
 */
-			$db3->query("select * from users where id='" . str_replace('mb', '', $server) . "'");
-			$db3->next_record();
-				$data = $db3->Record;
+			$db_innertell->query("select * from users where id='" . str_replace('mb', '', $server) . "'");
+			$db_innertell->next_record();
+				$data = $db_innertell->Record;
 			$extra = get_extra($data['extra']);
 				if ($data['address1'] == '')
 				{
@@ -151,30 +150,30 @@ select * from users where id=2311;
 		else
 		{
 				$query = "select id, username, date from servers where servername like '%$server%' or servername='$server'";
-				$db_innertell->query($query);
-//echo $db_innertell->num_rows() . "|";
+				$db->query($query);
+//echo $db->num_rows() . "|";
 				$dparts = explode('.', $server);
 				$dsize = sizeof($dparts);
-				echo "echo \"Query: $query (Rows: " . $db_innertell->num_rows() . ")\";\n";
-				if (($db_innertell->num_rows() == 0) && ($dsize > 2))
+				echo "echo \"Query: $query (Rows: " . $db->num_rows() . ")\";\n";
+				if (($db->num_rows() == 0) && ($dsize > 2))
 				{
 					$server = $dparts[$dsize - 2] . '.' . $dparts[$dsize - 1];
-					$db_innertell->query("select id, username, date from servers where servername like '%$server%' or servername='$server'");
-					$drows = $db_innertell->num_rows();
+					$db->query("select id, username, date from servers where servername like '%$server%' or servername='$server'");
+					$drows = $db->num_rows();
 //					`echo "$server:$drows" >&2`;
 				}
-				if ($db_innertell->num_rows() > 0)
+				if ($db->num_rows() > 0)
 				{
-					$db_innertell->next_record();
-					$serverinfo = $db_innertell->Record;
+					$db->next_record();
+					$serverinfo = $db->Record;
 
-						$db3->query("select * from users where username='" . $serverinfo['username'] . "'");
-						if ($db3->num_rows() == 0)
+						$db_innertell->query("select * from users where username='" . $serverinfo['username'] . "'");
+						if ($db_innertell->num_rows() == 0)
 						{
-							$db3->query('select * from users where id=9');
+							$db_innertell->query('select * from users where id=9');
 						}
-						$db3->next_record();
-						$data = $db3->Record;
+						$db_innertell->next_record();
+						$data = $db_innertell->Record;
 						$extra = get_extra($data['extra']);
 
 					$query = "select * from client_info where client_email='" . $serverinfo['username'] . "'";
@@ -256,13 +255,13 @@ select * from users where id=2311;
 					}
 					else
 					{
-						$db3->query("select * from users where username='" . $serverinfo['username'] . "'");
-						if ($db3->num_rows() == 0)
+						$db_innertell->query("select * from users where username='" . $serverinfo['username'] . "'");
+						if ($db_innertell->num_rows() == 0)
 						{
-							$db3->query('select * from users where id=9');
+							$db_innertell->query('select * from users where id=9');
 						}
-						$db3->next_record();
-						$data = $db3->Record;
+						$db_innertell->next_record();
+						$data = $db_innertell->Record;
 						$extra = get_extra($data['extra']);
 						if ($data['address1'] == '')
 						{
