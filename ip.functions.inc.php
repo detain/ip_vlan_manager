@@ -214,7 +214,7 @@
 	 * @return string
 	 */
 	function get_select_ports($ports = false, $size = 5) {
-		$db = get_module_db('innertell');
+		$db = get_module_db(IPS_MODULE);
 		if ($ports === false) {
 			$ports = [];
 		}
@@ -1595,8 +1595,8 @@ function vlan_edit_port() {
 			return false;
 		}
 		$GLOBALS['tf']->add_html_head_css('<link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />');
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" />
+	<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />');
 		$GLOBALS['tf']->add_html_head_js('<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>');
 		$db = get_module_db(IPS_MODULE);
 		$db2 = $db;
@@ -1660,7 +1660,7 @@ function vlan_edit_port() {
 		} else {
 			add_output($table->get_table());
 		}
-		
+
 	}
 
 /**
