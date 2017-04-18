@@ -8,13 +8,16 @@
 	* Description: IP functions                                                          *
 	\************************************************************************************/
 
+	define('IPS_MODULE', 'innertell');
+	//define('IPS_MODULE', 'default');
+
 	/**
 	 * updates the switch ports
 	 *
 	 * @param bool $verbose wether or not to enable verbose output.
 	 */
 	function update_switch_ports($verbose = false) {
-		$db = get_module_db('innertell');
+		$db = get_module_db(IPS_MODULE);
 		$db2 = clone $db;
 
 		$lines = explode("\n", getcurlpage('http://nms.interserver.net/cac/servermap.php'));
@@ -194,7 +197,7 @@
 	 * @return string
 	 */
 	function get_switch_name($index, $short = false) {
-		$db = clone $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$db->query("select * from switchmanager where id='{$index}'");
 		$db->next_record();
 		$switch = $db->Record['name'];
@@ -211,7 +214,7 @@
 	 * @return string
 	 */
 	function get_select_ports($ports = false, $size = 5) {
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db('innertell');
 		if ($ports === false) {
 			$ports = [];
 		}
@@ -240,8 +243,8 @@ function switch_manager() {
 			return false;
 		}
 		global $groupinfo;
-		$db = $GLOBALS['innertell_dbh'];
-		$db2 = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
+		$db2 = get_module_db(IPS_MODULE);
 		$ima = $GLOBALS['tf']->ima;
 		if (isset($GLOBALS['tf']->variables->request['name']) && isset($GLOBALS['tf']->variables->request['ports'])) {
 			$name = $GLOBALS['tf']->variables->request['name'];
@@ -281,7 +284,7 @@ function switch_manager() {
 	}
 
 	function list_revips() {
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		if (!isset($GLOBALS['tf']->variables->request['server'])) {
 			select_server();
 		} else {
@@ -305,7 +308,7 @@ function switch_manager() {
 	}
 
 	function list_ips() {
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		if (!isset($GLOBALS['tf']->variables->request['server'])) {
 			select_server();
 		} else {
@@ -344,8 +347,8 @@ function delegate_ips() {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
-		$db = $GLOBALS['innertell_dbh'];
-		$db2 = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
+		$db2 = get_module_db(IPS_MODULE);
 		$ima = $GLOBALS['tf']->ima;
 		$choice = $GLOBALS['tf']->variables->request['choice'];
 		$num_ips = $GLOBALS['tf']->variables->request['num_ips'];
@@ -404,8 +407,8 @@ function view_doublebound_ips() {
 			return false;
 		}
 		global $groupinfo;
-		$db = $GLOBALS['innertell_dbh'];
-		$db2 = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
+		$db2 = get_module_db(IPS_MODULE);
 		$ima = $GLOBALS['tf']->ima;
 		if ($groupinfo['account_id'] == ADMIN_GROUP) {
 			$db->query("select distinct * from history_log, ips where ips_ip=history_new_value and history_type='doubleboundip' and history_section='servers' group by history_new_value", __LINE__, __FILE__);
@@ -460,8 +463,8 @@ function close_doublebound() {
 			return false;
 		}
 		global $groupinfo;
-		$db = $GLOBALS['innertell_dbh'];
-		$db2 = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
+		$db2 = get_module_db(IPS_MODULE);
 		$ima = $GLOBALS['tf']->ima;
 		$ip = $GLOBALS['tf']->variables->request['ip'];
 		if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
@@ -484,8 +487,8 @@ function alt_ip_manager() {
 		}
 		global $groupinfo;
 		$ima = $GLOBALS['tf']->ima;
-		$db = $GLOBALS['innertell_dbh'];
-		$db2 = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
+		$db2 = get_module_db(IPS_MODULE);
 		if (isset($GLOBALS['tf']->variables->request['ipblock'])) {
 			$db->query('select id, servername from servers', __LINE__, __FILE__);
 			$serverids = [];
@@ -795,7 +798,7 @@ function alt_ip_manager() {
 	 * @return array
 	 */
 	function get_all_ipblocks() {
-		$db = get_module_db('innertell');
+		$db = get_module_db(IPS_MODULE);
 		$db->query('select ipblocks_network from ipblocks');
 		$all_blocks = [];
 		while ($db->next_record(MYSQL_ASSOC))
@@ -945,7 +948,7 @@ function alt_ip_manager() {
 	function available_ipblocks($blocksize, $location = 1) {
 		// array of available blocks
 		$available = [];
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		// first we gotta get how many ips are in the blocksize they requested
 		$ipcount = get_ipcount_from_netmask($blocksize) + 2;
 		// get the ips in use
@@ -1316,7 +1319,7 @@ function delete_vlan() {
 		}
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 		if (!isset($GLOBALS['tf']->variables->request['sure']) || $GLOBALS['tf']->variables->request['sure'] != 'yes') {
 			$table = new TFTable;
@@ -1367,7 +1370,7 @@ function add_vlan() {
 		//_debug_array(get_ips2('68.168.208.0/20',TRUE));
 		$ima = $GLOBALS['tf']->ima;
 		global $groupinfo;
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$db2 = $db;
 		if (!isset($GLOBALS['tf']->variables->request['blocksize'])) {
 			$table = new TFTable;
@@ -1553,7 +1556,7 @@ function portless_vlans() {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 			return false;
 		}
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);
 		$table = new TFTable;
 		$table->set_title('Port-less VLAN List' . pdf_link('choice=ip.portless_vlans'));
@@ -1595,7 +1598,7 @@ function vlan_edit_port() {
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />');
 		$GLOBALS['tf']->add_html_head_js('<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>');
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$db2 = $db;
 		$table = new TFTable;
 		$table->set_title('VLAN Edit Port Assignments');
@@ -1911,7 +1914,7 @@ function vlan_manager() {
  */
 function edit_vlan_comment() {
 		$ima = $GLOBALS['tf']->ima;
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 			dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
@@ -1955,7 +1958,7 @@ function edit_vlan_comment() {
  */
 function vlan_port_server_manager() {
 		$ima = $GLOBALS['tf']->ima;
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$db2 = $db;
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
@@ -2019,7 +2022,7 @@ function vlan_port_server_manager() {
  */
 function vlan_port_manager() {
 		$ima = $GLOBALS['tf']->ima;
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$db2 = $db;
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
@@ -2064,7 +2067,7 @@ function vlan_port_manager() {
  */
 function ipblock_viewer() {
 		$ima = $GLOBALS['tf']->ima;
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$db2 = $db;
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
@@ -2160,7 +2163,7 @@ function ipblock_viewer() {
  */
 function add_ips_to_server() {
 		$ima = $GLOBALS['tf']->ima;
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$db2 = $db;
 		function_requirements('has_acl');
 		if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
@@ -2220,7 +2223,7 @@ function add_ips() {
 			return false;
 		}
 		global $groupinfo;
-		$db = $GLOBALS['innertell_dbh'];
+		$db = get_module_db(IPS_MODULE);
 		$color1 = COLOR1;
 		$color3 = COLOR2;
 		$color2 = COLOR3;
@@ -2345,7 +2348,7 @@ function unblock_ip_do() {
 	 * @return string
 	 */
 	function ips_hostname($hostname) {
-		$db = clone $GLOBALS['innertell_dbh'];
+		$db = clone get_module_db(IPS_MODULE);
 		$db2 = clone $db;
 		$comment = $db->real_escape($hostname);
 		$query = "select * from vlans where vlans_comment='{$comment}'";
