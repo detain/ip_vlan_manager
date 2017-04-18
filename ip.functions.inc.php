@@ -8,8 +8,8 @@
 	* Description: IP functions                                                          *
 	\************************************************************************************/
 
-	define('IPS_MODULE', 'innertell');
-	//define('IPS_MODULE', 'default');
+	//define('IPS_MODULE', 'innertell');
+	define('IPS_MODULE', 'default');
 
 	/**
 	 * updates the switch ports
