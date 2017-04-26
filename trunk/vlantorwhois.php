@@ -149,7 +149,7 @@ select * from users where id=2311;
 		}
 		else
 		{
-				$query = "select id, username, date from servers where servername like '%$server%' or servername='$server'";
+				$query = "select id, username, date from servers where server_hostname like '%$server%' or server_hostname='$server'";
 				$db->query($query);
 //echo $db->num_rows() . "|";
 				$dparts = explode('.', $server);
@@ -158,7 +158,7 @@ select * from users where id=2311;
 				if (($db->num_rows() == 0) && ($dsize > 2))
 				{
 					$server = $dparts[$dsize - 2] . '.' . $dparts[$dsize - 1];
-					$db->query("select id, username, date from servers where servername like '%$server%' or servername='$server'");
+					$db->query("select id, username, date from servers where server_hostname like '%$server%' or server_hostname='$server'");
 					$drows = $db->num_rows();
 //					`echo "$server:$drows" >&2`;
 				}
