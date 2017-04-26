@@ -290,7 +290,7 @@ function switch_manager() {
 		} else {
 			$server = $GLOBALS['tf']->variables->request['server'];
 
-			$db->query("select id from servers where servername='{$server}'", __LINE__, __FILE__);
+			$db->query("select id from servers where server_hostname='{$server}'", __LINE__, __FILE__);
 			$db->next_record();
 			$serverid = $db->Record;
 
@@ -314,7 +314,7 @@ function switch_manager() {
 		} else {
 			$server = $GLOBALS['tf']->variables->request['server'];
 			if (valid_server($server)) {
-				$db->query("select id from servers where servername='{$server}'", __LINE__, __FILE__);
+				$db->query("select id from servers where server_hostname='{$server}'", __LINE__, __FILE__);
 				$db->next_record();
 				$serverid = $db->f(0);
 				$table = new TFTable;
@@ -370,7 +370,7 @@ function delegate_ips() {
 					add_output('</form>');
 				} else {
 					add_output('Adding IPs...');
-					$db->query("select id from servers where servername='{$server}'", __LINE__, __FILE__);
+					$db->query("select id from servers where server_hostname='{$server}'", __LINE__, __FILE__);
 					$db->next_record();
 					$serverid = $db->Record;
 					if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
@@ -434,11 +434,11 @@ function view_doublebound_ips() {
 				$table->add_field($db->Record['history_new_value']);
 				if (!isset($servers[$db->Record['ips_serverid']])) {
 					$server = $GLOBALS['tf']->get_server($db->Record['ips_serverid']);
-					$servers[$db->Record['ips_serverid']] = $server['servername'];
+					$servers[$db->Record['ips_serverid']] = $server['server_hostname'];
 				}
 				if (!isset($servers[$db->Record['history_old_value']])) {
 					$server = $GLOBALS['tf']->get_server($db->Record['history_old_value']);
-					$servers[$db->Record['history_old_value']] = $server['servername'];
+					$servers[$db->Record['history_old_value']] = $server['server_hostname'];
 				}
 				$table->add_field($servers[$db->Record['ips_serverid']]);
 				$table->add_field($servers[$db->Record['history_old_value']]);
@@ -490,16 +490,16 @@ function alt_ip_manager() {
 		$db = get_module_db(IPS_MODULE);
 		$db2 = get_module_db(IPS_MODULE);
 		if (isset($GLOBALS['tf']->variables->request['ipblock'])) {
-			$db->query('select id, servername from servers', __LINE__, __FILE__);
+			$db->query('select id, server_hostname from servers', __LINE__, __FILE__);
 			$serverids = [];
 			$serverids[0] = 'None';
 			while ($db->next_record()) {
-				$serverids[$db->Record['id']] = $db->Record['servername'];
-				$servernames[$db->Record['servername']] = $db->Record['id'];
+				$serverids[$db->Record['id']] = $db->Record['server_hostname'];
+				$server_hostnames[$db->Record['server_hostname']] = $db->Record['id'];
 			}
 			$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 			if (isset($GLOBALS['tf']->variables->request['server']) && isset($GLOBALS['tf']->variables->request['ip'])) {
-				$sid = $servernames[$GLOBALS['tf']->variables->request['server']];
+				$sid = $server_hostnames[$GLOBALS['tf']->variables->request['server']];
 				$ip = $GLOBALS['tf']->variables->request['ip'];
 				$query = "update ips set ips_serverid='{$sid}' where ips_ip='{$ip}'";
 				$db->query($query, __LINE__, __FILE__);
@@ -1763,10 +1763,10 @@ function vlan_manager() {
 				}
 			}
 			if (sizeof($searches)) {
-				$query = 'select servername from servers where ' . implode(' or ', $searches);
+				$query = 'select server_hostname from servers where ' . implode(' or ', $searches);
 				$db2->query($query, __LINE__, __FILE__);
 				while ($db2->next_record()) {
-					$servers[] = $db2->Record['servername'];
+					$servers[] = $db2->Record['server_hostname'];
 				}
 			}*/
 			//					$network_info = $networks_info[$network];
@@ -1833,11 +1833,11 @@ function vlan_manager() {
 									$out .= 'Port ' . $ports[$y] . ': ';
 								}
 								list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
-								$query = "select id, servername from servers where switch='{$switch}' and slot='{$port}'";
+								$query = "select id, server_hostname from servers where switch='{$switch}' and slot='{$port}'";
 								$db2->query($query, __LINE__, __FILE__);
 								if ($db2->num_rows()) {
 									$db2->next_record();
-									$server = $db2->Record['servername'];
+									$server = $db2->Record['server_hostname'];
 								} else {
 									$server = 0;
 								}
@@ -1860,7 +1860,7 @@ function vlan_manager() {
 									list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
 									$query = "update servers set switch='', slot='' where switch='{$switch}' and slot='{$port}'";
 									$db2->query($query, __LINE__, __FILE__);
-									$query = "update servers set switch='{$switch}', slot='{$port}' where servername='{$server}'";
+									$query = "update servers set switch='{$switch}', slot='{$port}' where server_hostname='{$server}'";
 									$db2->query($query, __LINE__, __FILE__);
 								}
 							}
@@ -1991,11 +1991,11 @@ function vlan_port_server_manager() {
 					if ($server != '0') {
 						$query = "update servers set switch='', slot='' where switch='{$switch}' and slot='{$port}'";
 						$db2->query($query, __LINE__, __FILE__);
-						$query = "update servers set switch='{$switch}', slot='{$port}' where servername='{$server}'";
+						$query = "update servers set switch='{$switch}', slot='{$port}' where server_hostname='{$server}'";
 						$db2->query($query, __LINE__, __FILE__);
 					}
 				}
-				$query = "select id, servername from servers where switch='{$switch}' and slot='{$port}'";
+				$query = "select id, server_hostname from servers where switch='{$switch}' and slot='{$port}'";
 				$db2->query($query, __LINE__, __FILE__);
 				if ($db->num_rows()) {
 					$db2->next_record();
@@ -2140,7 +2140,7 @@ function ipblock_viewer() {
 			if ($usedips > 0) {
 				while ($db2->next_record()) {
 					$server = $GLOBALS['tf']->get_server($db2->Record['ips_serverid']);
-					$table->add_field($server['servername']);
+					$table->add_field($server['server_hostname']);
 					$table->add_field($db2->Record['ips_ip']);
 					$table->set_colspan(2);
 					$table->add_field('Delete');
