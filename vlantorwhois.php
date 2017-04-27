@@ -19,7 +19,7 @@ function get_extra($extra)
     if ($extra == '')
         $extra = [];
     else
-        $extra = unserialize($extra);
+        $extra = myadmin_unstringify($extra);
     return $extra;
 }
 
@@ -31,7 +31,7 @@ function put_extra($extra)
 {
     if ($extra == '')
         $extra = [];
-    $extra = serialize($extra);
+    $extra = myadmin_stringify($extra);
     return $extra;
 }
 
