@@ -21,6 +21,7 @@ function vlan_manager() {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 		return false;
 	}
+	function_requirements('update_switch_ports');
 	//			$smarty = new TFSmarty;
 	//			$smarty->debugging = true;
 	//			$smarty->assign('sortcol', 1);

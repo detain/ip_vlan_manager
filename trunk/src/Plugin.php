@@ -11,8 +11,9 @@
 
 namespace Detain\IpVlanManager;
 
-class Plugin {
+use Symfony\Component\EventDispatcher\GenericEvent;
 
+class Plugin {
 	public function __construct() {
 	}
 
