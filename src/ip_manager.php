@@ -10,3 +10,7 @@
  * @category IPs
  */
 
+function ip_manager() {
+	$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
+}
+
