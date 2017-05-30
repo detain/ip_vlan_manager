@@ -14,6 +14,7 @@
  * @return bool
  */
 function vlan_port_server_manager() {
+	function_requirements('update_switch_ports');
 	$ima = $GLOBALS['tf']->ima;
 	$db = get_module_db(IPS_MODULE);
 	$db2 = $db;
