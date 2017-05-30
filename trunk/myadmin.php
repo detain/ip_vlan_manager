@@ -12,10 +12,10 @@ return [
 	'author' => 'detain@interserver.net',
 	'home' => 'https://github.com/detain/myadmin-softaculous-licensing',
 	'repo' => 'https://github.com/detain/myadmin-softaculous-licensing',
-	'version' => '1.0.3',
+	'version' => '1.0.0',
 	'type' => 'functionality',
 	'hooks' => [
 		'function.requirements' => ['Detain\IpVlanManager\Plugin', 'Requirements'],
-	/*	'ui.menu' => ['Detain\IpVlanManager\Plugin', 'Menu'] */
+		/* 'ui.menu' => ['Detain\IpVlanManager\Plugin', 'Menu'] */
 	],
 ];
