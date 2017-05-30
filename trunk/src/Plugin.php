@@ -5,7 +5,7 @@
  * @author detain
  * @version $Revision: 15402 $
  * @copyright 2017
- * @package MyAdmin-Softaculous-Licensing
+ * @package IP-VLAN-Manager-Softaculous-Licensing
  * @category Licenses
  */
 

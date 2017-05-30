@@ -6,7 +6,7 @@
  * @author detain
  * @version $Revision: 24803 $
  * @copyright 2017
- * @package MyAdmin
+ * @package IP-VLAN-Manager
  * @category IPs
  */
 
