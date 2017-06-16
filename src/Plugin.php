@@ -14,7 +14,19 @@ namespace Detain\IpVlanManager;
 use Symfony\Component\EventDispatcher\GenericEvent;
 
 class Plugin {
+
+	public static $name = 'IP Management';
+	public static $description = 'Enables management and allocation of IPs';
+	public static $type = 'functionality';
+
 	public function __construct() {
+	}
+	
+	public static function Hooks() {
+		return [
+			'function.requirements' => [__CLASS__, 'Requirements'],
+			/* 'ui.menu' => [__CLASS__, 'Menu'] */
+		];
 	}
 
 	public static function Menu(GenericEvent $event) {
