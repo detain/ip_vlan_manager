@@ -4,7 +4,7 @@
 	include('ip.functions.inc.php');
 	$db = get_module_db('default');
 	$db4 = $db;
-	$db_innertell = get_module_db('innertell');
+	$dbInnertell = get_module_db('innertell');
 	$db_mb            = get_module_db('mb');
 	ob_end_flush();
 
@@ -82,9 +82,9 @@ select * from users where id=2311;
 +----------------+---------+---------+-------+--------+----------+---------------------------+--------------------+------+---------------------+-------------+----------+------+---------------+
 | (559) 892-0902 | 93720   | usa     | ca    | fresno |          | 7969 N Blackstone Av #248 | prominent upstairs | 2311 | greg@truecanyon.com | greg lontok | wide12   | NULL |          2427 |
 */
-			$db_innertell->query("select * from users where id='" . str_replace('mb', '', $server) . "'");
-			$db_innertell->next_record();
-				$data = $db_innertell->Record;
+			$dbInnertell->query("select * from users where id='" . str_replace('mb', '', $server) . "'");
+			$dbInnertell->next_record();
+				$data = $dbInnertell->Record;
 			$extra = get_extra($data['extra']);
 				if ($data['address1'] == '')
 				{
@@ -167,13 +167,13 @@ select * from users where id=2311;
 					$db->next_record();
 					$serverinfo = $db->Record;
 
-						$db_innertell->query("select * from users where username='" . $serverinfo['username'] . "'");
-						if ($db_innertell->num_rows() == 0)
+						$dbInnertell->query("select * from users where username='" . $serverinfo['username'] . "'");
+						if ($dbInnertell->num_rows() == 0)
 						{
-							$db_innertell->query('select * from users where id=9');
+							$dbInnertell->query('select * from users where id=9');
 						}
-						$db_innertell->next_record();
-						$data = $db_innertell->Record;
+						$dbInnertell->next_record();
+						$data = $dbInnertell->Record;
 						$extra = get_extra($data['extra']);
 
 					$query = "select * from client_info where client_email='" . $serverinfo['username'] . "'";
@@ -255,13 +255,13 @@ select * from users where id=2311;
 					}
 					else
 					{
-						$db_innertell->query("select * from users where username='" . $serverinfo['username'] . "'");
-						if ($db_innertell->num_rows() == 0)
+						$dbInnertell->query("select * from users where username='" . $serverinfo['username'] . "'");
+						if ($dbInnertell->num_rows() == 0)
 						{
-							$db_innertell->query('select * from users where id=9');
+							$dbInnertell->query('select * from users where id=9');
 						}
-						$db_innertell->next_record();
-						$data = $db_innertell->Record;
+						$dbInnertell->next_record();
+						$data = $dbInnertell->Record;
 						$extra = get_extra($data['extra']);
 						if ($data['address1'] == '')
 						{
