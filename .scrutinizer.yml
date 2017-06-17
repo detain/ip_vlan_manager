@@ -1,31 +1,30 @@
-
 filter:
     excluded_paths:
         - tests/*
-
-build:
-    tests:
-        override:
-            -
-                command: 'vendor/bin/phpunit --bootstrap tests/bootstrap.php tests/ -v --coverage-clover clover.xml --whitelist src/'
-                coverage:
-                    file: 'clover.xml'
-                    format: 'clover'
-
 build:
     environment:
-        php: 7.0.6
+        php: 7.0
+    cache:
+        disabled:             false
+        directories:
+            - ~/.composer/cache
+            - tmp/
+            - vendor/
+    dependencies:
+        override:
+            - composer self-update
+            - composer update --with-dependencies -v -o
     tests:
         override:
-            - eslint-run "public_html/js/*js"
-            - shellcheck-run
-            - csslint-run [file|dir]
+            - jshint-run public_html/js/*js
+            - shellcheck-run scripts/*/*sh
+            - csslint-run public_html/css
             -
-                command: 'phpdbg -qrr vendor/bin/phpunit --bootstrap tests/bootstrap.php tests/ -v --coverage-clover clover.xml --whitelist src/'
+                command: 'vendor/bin/phpunit --bootstrap tests/bootstrap.php tests/ -v --coverage-clover coverage.xml --whitelist src/'
+                #command: 'phpdbg -qrr vendor/bin/phpunit --bootstrap tests/bootstrap.php tests/ -v --coverage-clover coverage.xml --whitelist src/'
                 coverage:
-                    file: 'clover.xml'
+                    file: 'coverage.xml'
                     format: 'clover'
-
 checks:
     php:
         uppercase_constants: true
@@ -79,7 +78,6 @@ checks:
         avoid_corrupting_byteorder_marks: true
         avoid_closing_tag: true
         argument_type_checks: true
-
 coding_style:
     php:
         indentation:
