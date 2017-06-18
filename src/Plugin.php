@@ -22,7 +22,7 @@ class Plugin {
 	public function __construct() {
 	}
 	
-	public static function Hooks() {
+	public static function getHooks() {
 		return [
 			'function.requirements' => [__CLASS__, 'Requirements'],
 			/* 'ui.menu' => [__CLASS__, 'Menu'] */
