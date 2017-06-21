@@ -63,9 +63,9 @@ function put_extra($extra)
 		$vlandata = explode('/', $vlan);
 		$network_info = ipcalc($vlan);
 		$maxip = $network_info['broadcast'];
-		$ip = $vlandata[0];
+		$ipAddress = $vlandata[0];
 		$size = $vlandata[1];
-		$total += trim(`/usr/local/bin/ipcalc -n $ip/$size | grep Hosts | cut -d" " -f2`);
+		$total += trim(`/usr/local/bin/ipcalc -n $ipAddress/$size | grep Hosts | cut -d" " -f2`);
 		$cmds = '';
 		$server = trim(str_replace(
 array('(FIXME Port Unknown)', 'FIXME PORT WRONG', 'FIX ME PORT WRONG', 'reuse', 'append', '[ip transit]'),
@@ -135,8 +135,8 @@ select * from users where id=2311;
 				. 'Updated: ' . date('Ymd') . '" > data/org/' . $data['id'] . '.txt;\n'
 				. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
 				. 'Auth-Area: ' . $ipblock . '\n'
-				. 'Network-Name: INTSRV-' . $ip . '\n'
-				. 'IP-Network: ' . $ip . '/' . $size . '\n'
+				. 'Network-Name: INTSRV-' . $ipAddress . '\n'
+				. 'IP-Network: ' . $ipAddress . '/' . $size . '\n'
 				. 'Org-Name: ' . trim($org) . '\n'
 				. 'Street-Address: ' . $data['address1'] . '\n'
 				. 'City: ' . $data['city'] . '\n'
@@ -145,7 +145,7 @@ select * from users where id=2311;
 				. 'Country-Code: ' . $data['country'] . '\n'
 				. 'Created: 20050101\n'
 				. 'Updated: ' . date('Ymd') . '\n'
-				. 'Updated-By: abuse@interserver.net" > data/network/' . $ip . '-' . $size . '.txt;\n';
+				. 'Updated-By: abuse@interserver.net" > data/network/' . $ipAddress . '-' . $size . '.txt;\n';
 		}
 		else
 		{
@@ -241,8 +241,8 @@ select * from users where id=2311;
 						. 'Updated: ' . date('Ymd') . '" > data/org/' . trim($data['client_id']) . '.txt;\n'
 						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
 						. 'Auth-Area: ' . $ipblock . '\n'
-						. 'Network-Name: INTSRV-' . $ip . '\n'
-						. 'IP-Network: ' . $ip . '/' . $size . '\n'
+						. 'Network-Name: INTSRV-' . $ipAddress . '\n'
+						. 'IP-Network: ' . $ipAddress . '/' . $size . '\n'
 						. 'Org-Name: ' . trim($org) . '\n'
 						. 'Street-Address: ' . trim($data['client_address']) . '\n'
 						. 'City: ' . trim($data['client_city']) . '\n'
@@ -251,7 +251,7 @@ select * from users where id=2311;
 						. 'Country-Code: ' . trim($data['client_country']) . '\n'
 						. 'Created: ' . date('Ymd', $serverinfo['date']) . '\n'
 						. 'Updated: ' . date('Ymd') . '\n'
-						. 'Updated-By: abuse@interserver.net" > data/network/' . $ip . '-' . $size . '.txt;\n';
+						. 'Updated-By: abuse@interserver.net" > data/network/' . $ipAddress . '-' . $size . '.txt;\n';
 					}
 					else
 					{
@@ -312,8 +312,8 @@ select * from users where id=2311;
 						. 'Updated: ' . date('Ymd') . '" > data/org/' . $data['id'] . '.txt;\n'
 						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
 						. 'Auth-Area: ' . $ipblock . '\n'
-						. 'Network-Name: INTSRV-' . $ip . '\n'
-						. 'IP-Network: ' . $ip . '/' . $size . '\n'
+						. 'Network-Name: INTSRV-' . $ipAddress . '\n'
+						. 'IP-Network: ' . $ipAddress . '/' . $size . '\n'
 						. 'Org-Name: ' . trim($org) . '\n'
 						. 'Street-Address: ' . $data['address1'] . '\n'
 						. 'City: ' . $data['city'] . '\n'
@@ -322,7 +322,7 @@ select * from users where id=2311;
 						. 'Country-Code: ' . $data['country'] . '\n'
 						. 'Created: 20050101\n'
 						. 'Updated: ' . date('Ymd') . '\n'
-						. 'Updated-By: abuse@interserver.net" > data/network/' . $ip . '-' . $size . '.txt;\n';
+						. 'Updated-By: abuse@interserver.net" > data/network/' . $ipAddress . '-' . $size . '.txt;\n';
 					}
 				}
 				else
@@ -389,8 +389,8 @@ select * from users where id=2311;
 							. 'Updated: ' . date('Ymd') . '" > data/org/' . $data['url'] . '.txt;\n'
 							. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
 							. 'Auth-Area: ' . $ipblock . '\n'
-							. 'Network-Name: INTSRV-' . $ip . '\n'
-							. 'IP-Network: ' . $ip . '/' . $size . '\n'
+							. 'Network-Name: INTSRV-' . $ipAddress . '\n'
+							. 'IP-Network: ' . $ipAddress . '/' . $size . '\n'
 							. 'Org-Name: ' . trim($org) . '\n'
 							. 'Street-Address: ' . $data['address'] . '\n'
 							. 'City: ' . $data['city'] . '\n'
@@ -399,7 +399,7 @@ select * from users where id=2311;
 							. 'Country-Code: ' . $data['country'] . '\n'
 							. 'Created: 20050101\n'
 							. 'Updated: ' . date('Ymd') . '\n'
-							. 'Updated-By: abuse@interserver.net" > data/network/' . $ip . '-' . $size . '.txt;\n';
+							. 'Updated-By: abuse@interserver.net" > data/network/' . $ipAddress . '-' . $size . '.txt;\n';
 /*
 						}
 						else
