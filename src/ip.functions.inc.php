@@ -150,18 +150,18 @@ function update_switch_ports($verbose = false) {
 * @return string gateway address ie 192.168.1.129 or 66.45.228.1
 */
 function network2gateway($network) {
-	list($ip_address, $subnet) = explode('/', $network);
-	return ipnetmask2gateway($ip_address, subnet2netmask($subnet));
+	list($ipAddress, $subnet) = explode('/', $network);
+	return ipnetmask2gateway($ipAddress, subnet2netmask($subnet));
 }
 
 /**
 * converts a ip address and netmask into a gateway address
-* @param string $ip_address the networks ip address or any ip within the network
+* @param string $ipAddress the networks ip address or any ip within the network
 * @param string $netmask the netmask for the network ie 255.255.255.0
 * @return string gateway address ie 192.168.1.129 or 66.45.228.1
 */
-function ipnetmask2gateway($ip_address, $netmask) {
-	return long2ip((ip2long($ip_address) & ip2long($netmask))+1);
+function ipnetmask2gateway($ipAddress, $netmask) {
+	return long2ip((ip2long($ipAddress) & ip2long($netmask))+1);
 }
 
 /**
@@ -170,7 +170,7 @@ function ipnetmask2gateway($ip_address, $netmask) {
 * @return string the netmask for the ip block
 */
 function subnet2netmask($subnet) {
-	return long2ip(-1 << (32 - (int)$ip_subnet));
+	return long2ip(-1 << (32 - (int)$ipAddress_subnet));
 }
 
 /**
@@ -283,27 +283,27 @@ if (!function_exists('valid_ip')) {
 	 * valid_ip()
 	 * returns whether or not the given IP is valid
 	 *
-	 * @param string $ip the ip address to validate
+	 * @param string $ipAddress the ip address to validate
 	 * @param bool $display_errors whether or not errors are displayed. defaults to true
 	 * @return bool whether or not its a valid ip
 	 */
-	function valid_ip($ip, $display_errors = true) {
-		if (!preg_match("/^[0-9\.]{7,15}$/", $ip)) {
+	function valid_ip($ipAddress, $display_errors = true) {
+		if (!preg_match("/^[0-9\.]{7,15}$/", $ipAddress)) {
 			// don't display errors cuz this gets called w/ a blank entry when people didn't even submit anything yet
-			//add_output('<font class="error">IP ' . $ip . ' Too short/long</font>');
+			//add_output('<font class="error">IP ' . $ipAddress . ' Too short/long</font>');
 			return false;
 		}
-		$quads = explode('.', $ip);
+		$quads = explode('.', $ipAddress);
 		$num_quads = count($quads);
 		if ($num_quads != 4) {
 			if ($display_errors)
-				add_output('<font class="error">IP ' . $ip . ' Too many quads</font>');
+				add_output('<font class="error">IP ' . $ipAddress . ' Too many quads</font>');
 			return false;
 		}
 		for ($i = 0; $i < 4; $i++) {
 			if ($quads[$i] > 255) {
 				if ($display_errors)
-					add_output('<font class="error">IP ' . $ip . ' number ' . $quads[$i] . ' too high</font>');
+					add_output('<font class="error">IP ' . $ipAddress . ' number ' . $quads[$i] . ' too high</font>');
 				return false;
 			}
 		}
@@ -343,7 +343,7 @@ if (!function_exists('ipcalc')) {
 		$network_object = new Net_IPv4();
 		$net = $network_object->parseAddress($network);
 		//billingd_log("|$network|", __LINE__, __FILE__);
-		$ip_info = array(
+		$ipAddress_info = array(
 			'network' => $net->network . '/' . $net->bitmask,
 			'network_ip' => $net->network,
 			'netmask' => $net->netmask,
@@ -352,7 +352,7 @@ if (!function_exists('ipcalc')) {
 			'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
 			'hosts' => $net->ip2double($net->broadcast) - $net->ip2double($net->network) - 1,
 			);
-		return $ip_info;
+		return $ipAddress_info;
 	}
 
 	/**
@@ -649,33 +649,33 @@ function available_ipblocks($blocksize, $location = 1) {
 		//  104.37.184.0/24 LA reserved
 		$reserved = array(1747302400, 1747302655);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		/*  added by joe 08/24/11 to temporarily hide  173.214.160.0/23 lax1 ips */
 		$reserved = array(2916524033, 2916524542);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 206.72.192.0  LA
 		$reserved = array(3460874240, 3460874751);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 162.220.160.0/24 LA
 		$reserved = array(2732367872, 2732368127);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 
 		// 162.216.112.0/24   LA
 		$reserved = array(2732093440, 2732093695);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 	}
 	if ($location == 3) {
@@ -684,8 +684,8 @@ function available_ipblocks($blocksize, $location = 1) {
 		// 162.220.161.0/24 NY4
 		$reserved = array(2732368128, 2732368383);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 	}
 	if ($location == 4) {
@@ -709,98 +709,98 @@ function available_ipblocks($blocksize, $location = 1) {
 		// 66.45.241.16/28 reserved
 		$reserved = array(1110307088, 1110307103);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.38.128/25 reserved
 		$reserved = array(1158293120, 1158293247);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.60.192/26 reserved
 		$reserved = array(1158298816, 1158298879);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.56.0/25 reserved
 		$reserved = array(1158297600, 1158297727);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 68.168.216.0/22 reserved
 		$reserved = array(1151916032, 1151917055);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.57.0/24 reserved
 		$reserved = array(1158297856, 1158298111);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.52.72/29 reserved
 		$reserved = array(1158296648, 1158296655);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.52.112/29 reserved
 		$reserved = array(1158296688, 1158296695);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.61.64/26 reserved
 		$reserved = array(1158298944, 1158299007);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 68.168.212.0/24 reserved
 		$reserved = array(1151915008, 1151915263);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.60.0/26 reserved
 		$reserved = array(1158298624, 1158298687);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 68.168.222.0/24 reserved
 		$reserved = array(1151917568, 1151917823);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 68.168.214.0/23 reserved
 		$reserved = array(1151915520, 1151916031);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 69.10.53.0/24 reserved
 		$reserved = array(1158296832, 1158297087);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 209.159.159.0/24 reserved
 		$reserved = array(3516899072, 3516899327);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 66.23.224.0/24 reserved
 		$reserved = array(1108860928, 1108861183);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 	}
 	if ($location == 5) {
@@ -814,38 +814,38 @@ function available_ipblocks($blocksize, $location = 1) {
 		/* 103.237.44.0/22 */
 		$reserved = array(1743596544, 1743597567);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		/* 43.243.84.0/22 */
 		$reserved = array(737367040, 737367040);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		/* 103.48.176.0/22 */
 		$reserved = array(1731244032, 1731245055);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		/* 45.113.224.0/22 */
 		$reserved = array(762437632, 762438400);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		/* 45.126.36.0/22 */
 		$reserved = array(763241472, 763242495);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		/* 103.197.16.0/22 */
 		$reserved = array(1740967936, 1740968959);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 	}
 	// la 3
@@ -859,32 +859,32 @@ function available_ipblocks($blocksize, $location = 1) {
 		// 69.10.50.0/24
 		$reserved = array(1158296064, 1158296319);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 208.73.200.0/24
 		$reserved = array(3494496256, 3494496511);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 208.73.201.0/24
 		$reserved = array(3494496512, 3494496767);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 216.158.224.0/23
 		$reserved = array(3634290688, 3634291199);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 67.211.208.0/24
 		$reserved = array(1137954816, 1137955071);
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 	}
 	// Switch Subnets
@@ -895,36 +895,36 @@ function available_ipblocks($blocksize, $location = 1) {
 		// 173.225.96.0/24
 		$reserved = [2917228544, 2917228799];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 		// 173.225.97.0/24
 		$reserved = [2917228800, 2917229055];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ip = long2ip($x);
-			$usedips[$ip] = $ip;
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ip;
 		}
 	}
 	/* 45.126.36.0/22 */
 /*		$reserved = array(763241472, 763242495);
 	for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-		$ip = long2ip($x);
-		$usedips[$ip] = $ip;
+		$ipAddress = long2ip($x);
+		$usedips[$ipAddress] = $ip;
 	}
 */
 	/* 199.231.191.0/24 reserved */
 	/* mike says ok to remove 2/24/2017
 	$reserved = array(3353853696, 3353853951);
 	for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-		$ip = long2ip($x);
-		$usedips[$ip] = $ip;
+		$ipAddress = long2ip($x);
+		$usedips[$ipAddress] = $ip;
 	} */
 	/* 66.23.225.0/24 reserved cogent */
 	/*  mike says we can undo this - 2/24/2017
 	$reserved = array(1108861184, 1108861439);
 	for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-		$ip = long2ip($x);
-		$usedips[$ip] = $ip;
+		$ipAddress = long2ip($x);
+		$usedips[$ipAddress] = $ip;
 	}
 	*/
 	$db->query('select ips_ip from ips where ips_vlan > 0', __LINE__, __FILE__);

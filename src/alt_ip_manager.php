@@ -34,8 +34,8 @@ function alt_ip_manager() {
 		$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 		if (isset($GLOBALS['tf']->variables->request['server']) && isset($GLOBALS['tf']->variables->request['ip'])) {
 			$sid = $server_hostnames[$GLOBALS['tf']->variables->request['server']];
-			$ip = $GLOBALS['tf']->variables->request['ip'];
-			$query = "update ips set ips_serverid='{$sid}' where ips_ip='{$ip}'";
+			$ipAddress = $GLOBALS['tf']->variables->request['ip'];
+			$query = "update ips set ips_serverid='{$sid}' where ips_ip='{$ipAddress}'";
 			$db->query($query, __LINE__, __FILE__);
 		}
 		$db->query("select *, INET_ATON(ips_ip) as aton from ips where ips_ip like '{$ipblock}.%' order by aton", __LINE__, __FILE__);

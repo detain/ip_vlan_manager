@@ -53,14 +53,14 @@ function add_ips() {
 
 		$new_ips = 0;
 		for ($num = $iplow; $num < ($iphigh + 1); $num++) {
-			$ip = $ipclass . '.' . $num;
-			$db->query("select * from ips where ips_ip='$ip'", __LINE__, __FILE__);
+			$ipAddress = $ipclass . '.' . $num;
+			$db->query("select * from ips where ips_ip='$ipAddress'", __LINE__, __FILE__);
 			if ($db->num_rows() == 0) {
 				if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
 					add_output('No Updates In Demo Mode');
 				} else {
 					$db->query(make_insert_query('ips', array(
-						'ips_ip' => $ip,
+						'ips_ip' => $ipAddress,
 						'ips_serverid' => 0,
 						'ips_group' => $groupinfo['account_id'],
 					)), __LINE__, __FILE__);
