@@ -21,7 +21,7 @@ class Plugin {
 
 	public function __construct() {
 	}
-	
+
 	public static function getHooks() {
 		return [
 			'function.requirements' => [__CLASS__, 'getRequirements'],
@@ -31,10 +31,7 @@ class Plugin {
 
 	public static function getMenu(GenericEvent $event) {
 		$menu = $event->getSubject();
-		$module = 'licenses';
 		if ($GLOBALS['tf']->ima == 'admin') {
-			$menu->add_link($module.'api', 'choice=none.softaculous_list', 'whm/createacct.gif', 'List all Softaculous Licenses');
-			$menu->add_link($module.'api', 'choice=none.webuzo_list', 'whm/createacct.gif', 'List all Webuzo Licenses');
 		}
 	}
 
