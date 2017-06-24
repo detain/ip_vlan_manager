@@ -24,13 +24,12 @@ class Plugin {
 	
 	public static function getHooks() {
 		return [
-			'function.requirements' => [__CLASS__, 'Requirements'],
-			/* 'ui.menu' => [__CLASS__, 'Menu'] */
+			'function.requirements' => [__CLASS__, 'getRequirements'],
+			/* 'ui.menu' => [__CLASS__, 'getMenu'] */
 		];
 	}
 
-	public static function Menu(GenericEvent $event) {
-		// will be executed when the licenses.settings event is dispatched
+	public static function getMenu(GenericEvent $event) {
 		$menu = $event->getSubject();
 		$module = 'licenses';
 		if ($GLOBALS['tf']->ima == 'admin') {
@@ -39,8 +38,7 @@ class Plugin {
 		}
 	}
 
-	public static function Requirements(GenericEvent $event) {
-		// will be executed when the licenses.loader event is dispatched
+	public static function getRequirements(GenericEvent $event) {
 		$loader = $event->getSubject();
 		$loader->add_requirement('add_ips', '/../vendor/detain/ip_vlan_manager/src/add_ips.php');
 		$loader->add_requirement('add_ips_to_server', '/../vendor/detain/ip_vlan_manager/src/add_ips_to_server.php');
