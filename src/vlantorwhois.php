@@ -42,11 +42,11 @@ function put_extra($extra)
 		$ipblocks[$db->Record['ipblocks_id']] = $db->Record['ipblocks_network'];
 	}
 
-	$db->query("select * from vlans left join ipblocks on ipblocks_id=vlans_block where vlans_comment != 'REUSE' and vlans_id is not null");
+	$db->query("select * from vlans left join ipblocks on ipblocks_id=vlans_block where vlans_comment != 'REUSE' and vlans_id is not NULL");
 	$total = 0;
 	while ($db->next_record())
 	{
-		$found = false;
+		$found = FALSE;
 		if (!isset($ipblocks[$db->Record['vlans_block']]))
 		{
 			error_log("Skipping VLAN {$db->Record['vlans_id']}, probably not our IPS");
@@ -120,7 +120,7 @@ select * from users where id=2311;
 //					$data['address1'] = 'Private Residence';
 
 				}
-				$found = true;
+				$found = TRUE;
 				$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
 				. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
 				. 'Auth-Area: ' . $ipblock . '\n'
@@ -226,7 +226,7 @@ select * from users where id=2311;
 //							$data['address1'] = 'Private Residence';
 //							$data['client_address'] = 'Private Residence';
 						}
-						$found = true;
+						$found = TRUE;
 						$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
 						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
 						. 'Auth-Area: ' . $ipblock . '\n'
@@ -297,7 +297,7 @@ select * from users where id=2311;
 //							$data['address1'] = 'Private Residence';
 						}
 
-						$found = true;
+						$found = TRUE;
 						$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
 						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
 						. 'Auth-Area: ' . $ipblock . '\n'
@@ -374,7 +374,7 @@ select * from users where id=2311;
 							{
 								$org = 'Account' . $group;
 							}
-							$found = true;
+							$found = TRUE;
 							$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
 							. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
 							. 'Auth-Area: ' . $ipblock . '\n'
@@ -417,7 +417,7 @@ select * from users where id=2311;
 		}
 /**/
 		echo str_replace('\n', "\n", $cmds);
-		if ($found === false)
+		if ($found === FALSE)
 		{
 			echo "echo \"Cant Find VLAN $ipblock\";\n";
 

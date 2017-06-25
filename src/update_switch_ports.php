@@ -9,7 +9,7 @@
 	// $Id: generate_banks_table.php,v 1.1.1.1 2007-04-14 22:47:56 detain Exp $
 	// $Source: /var/lib/cvs/troublefree/tempscripts/generate_banks_table.php,v $
 
-	define('DEBUG', false);
+	define('DEBUG', FALSE);
 
 	// Load Various Functions & Connect to mysql database
 	require_once dirname(__FILE__) . '/../../../include/functions.inc.php';

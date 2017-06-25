@@ -17,7 +17,7 @@ function portless_vlans() {
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return false;
+		return FALSE;
 	}
 	$db = get_module_db(IPS_MODULE);
 	$db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);

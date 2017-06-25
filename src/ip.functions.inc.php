@@ -16,7 +16,7 @@ define('IPS_MODULE', 'default');
  *
  * @param bool $verbose wether or not to enable verbose output.
  */
-function update_switch_ports($verbose = false) {
+function update_switch_ports($verbose = FALSE) {
 	$db = get_module_db(IPS_MODULE);
 	$db2 = clone $db;
 
@@ -41,7 +41,7 @@ function update_switch_ports($verbose = false) {
 		{
 			$db->next_record();
 			$row = $db->Record;
-			if ($verbose == true)
+			if ($verbose == TRUE)
 				add_output("Loaded Switch $switch - ");
 		}
 		else
@@ -54,7 +54,7 @@ function update_switch_ports($verbose = false) {
 			$db->query("select * from switchmanager where name='{$switch}'");
 			$db->next_record();
 			$row = $db->Record;
-			if ($verbose == true)
+			if ($verbose == TRUE)
 				add_output("Created New Switch {$switch} - ");
 		}
 		$id = $row['id'];
@@ -73,12 +73,12 @@ function update_switch_ports($verbose = false) {
 			}
 			else
 			{
-				$foundports[$justport] = true;
+				$foundports[$justport] = TRUE;
 			}
 			$db->query("select * from switchports where switch='{$id}' and port='{$port}'");
 			if ($db->num_rows() == 0)
 			{
-				if ($verbose == true)
+				if ($verbose == TRUE)
 					add_output("{$port} +");
 				$db->query(make_insert_query('switchports', array(
 					'switch' => $id,
@@ -94,23 +94,23 @@ function update_switch_ports($verbose = false) {
 				$db->next_record();
 				if (($db->Record['blade'] != $blade) || ($db->Record['justport'] != $justport))
 				{
-					if ($verbose == true)
+					if ($verbose == TRUE)
 						add_output("\nUpdate BladePort");
 					$query = "update switchports set blade='{$blade}', justport='{$justport}' where switch='{$id}' and port='{$port}'";
 					//echo $query;
 					$db->query($query);
 				}
-				if ($verbose == true)
+				if ($verbose == TRUE)
 					add_output("$port ");
 				if ($db->Record['graph_id'] != $graph)
 				{
-					if ($verbose == true)
+					if ($verbose == TRUE)
 						add_output("\nUpdate Graph");
 					$query = "update switchports set graph_id='{$graph}' where switch='{$id}' and port='{$port}'";
 					//echo $query;
 					$db->query($query);
 				}
-				if ($verbose == true)
+				if ($verbose == TRUE)
 					add_output("$graph ");
 			}
 			$query = "select * from vlans where vlans_ports like '%:{$row['id']}/{$justport}:%' or vlans_ports like '%:{$row['id']}/{$port}:%'";
@@ -123,19 +123,19 @@ function update_switch_ports($verbose = false) {
 			}
 			if (sizeof($vlans) > 0)
 			{
-				if ($verbose == true)
+				if ($verbose == TRUE)
 					add_output('(' . sizeof($vlans) . ' Vlans)');
 				$vlantext = implode(',', $vlans);
 				$db->query("update switchports set vlans='' where vlans='{$vlantext}'");
 				$db->query("update switchports set vlans='{$vlantext}' where switch='{$id}' and port='{$port}'");
 				if ($db->affected_rows())
-					if ($verbose == true)
+					if ($verbose == TRUE)
 						add_output("\nUpdate Vlan");
 			}
-			if ($verbose == true)
+			if ($verbose == TRUE)
 				add_output(',');
 		}
-		if ($verbose == true)
+		if ($verbose == TRUE)
 			add_output("\n");
 	}
 	//print_r($switches);
@@ -196,12 +196,12 @@ function parse_vlan_ports($data) {
  * @param bool $short
  * @return string
  */
-function get_switch_name($index, $short = false) {
+function get_switch_name($index, $short = FALSE) {
 	$db = get_module_db(IPS_MODULE);
 	$db->query("select * from switchmanager where id='{$index}'");
 	$db->next_record();
 	$switch = $db->Record['name'];
-	if ($short == false) {
+	if ($short == FALSE) {
 		return 'Switch ' . $switch;
 	} else {
 		return $switch;
@@ -213,9 +213,9 @@ function get_switch_name($index, $short = false) {
  * @param int  $size
  * @return string
  */
-function get_select_ports($ports = false, $size = 5) {
+function get_select_ports($ports = FALSE, $size = 5) {
 	$db = get_module_db(IPS_MODULE);
-	if ($ports === false) {
+	if ($ports === FALSE) {
 		$ports = [];
 	}
 	$select = '<select multiple="multiple" size=' . $size . ' name="ports[]">';
@@ -284,30 +284,30 @@ if (!function_exists('valid_ip')) {
 	 * returns whether or not the given IP is valid
 	 *
 	 * @param string $ipAddress the ip address to validate
-	 * @param bool $display_errors whether or not errors are displayed. defaults to true
+	 * @param bool $display_errors whether or not errors are displayed. defaults to TRUE
 	 * @return bool whether or not its a valid ip
 	 */
-	function valid_ip($ipAddress, $display_errors = true) {
+	function valid_ip($ipAddress, $display_errors = TRUE) {
 		if (!preg_match("/^[0-9\.]{7,15}$/", $ipAddress)) {
 			// don't display errors cuz this gets called w/ a blank entry when people didn't even submit anything yet
 			//add_output('<font class="error">IP ' . $ipAddress . ' Too short/long</font>');
-			return false;
+			return FALSE;
 		}
 		$quads = explode('.', $ipAddress);
 		$num_quads = count($quads);
 		if ($num_quads != 4) {
 			if ($display_errors)
 				add_output('<font class="error">IP ' . $ipAddress . ' Too many quads</font>');
-			return false;
+			return FALSE;
 		}
 		for ($i = 0; $i < 4; $i++) {
 			if ($quads[$i] > 255) {
 				if ($display_errors)
 					add_output('<font class="error">IP ' . $ipAddress . ' number ' . $quads[$i] . ' too high</font>');
-				return false;
+				return FALSE;
 			}
 		}
-		return true;
+		return TRUE;
 	}
 }
 
@@ -318,7 +318,7 @@ if (!function_exists('ipcalc')) {
 	 */
 	function ipcalc($network) {
 		if (trim($network) == '')
-			return false;
+			return FALSE;
 		$parts = explode('/', $network);
 		if (sizeof($parts) > 1) {
 			list($block, $bitmask) = $parts;
@@ -327,8 +327,8 @@ if (!function_exists('ipcalc')) {
 			$bitmask = '32';
 			$network = $block . '/' . $bitmask;
 		}
-		if (!valid_ip($block, false) || !is_numeric($bitmask))
-			return false;
+		if (!valid_ip($block, FALSE) || !is_numeric($bitmask))
+			return FALSE;
 		if (preg_match('/^(.*)\/32$/', $network, $matches))
 			return array(
 				'network' => $matches[1],
@@ -418,7 +418,7 @@ function get_networks($text, $vlan = 0, $comment = '', $ports = '') {
  * @param bool $include_unusable
  * @return bool
  */
-function check_ip_part($part, $ipparts, $maxparts, $include_unusable = false) {
+function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE) {
 	if ($include_unusable) {
 		$maxip = 256;
 	} else {
@@ -428,45 +428,45 @@ function check_ip_part($part, $ipparts, $maxparts, $include_unusable = false) {
 		case 1:
 			if ($ipparts[0] < $maxip) {
 				if (($ipparts[0] <= $maxparts[0])) {
-					return true;
+					return TRUE;
 				} else {
-					return false;
+					return FALSE;
 				}
 			} else {
-				return false;
+				return FALSE;
 			}
 			break;
 		case 2:
 			if ($ipparts[1] < $maxip) {
 				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1])) {
-					return true;
+					return TRUE;
 				} else {
-					return false;
+					return FALSE;
 				}
 			} else {
-				return false;
+				return FALSE;
 			}
 			break;
 		case 3:
 			if ($ipparts[2] < $maxip) {
 				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2])) {
-					return true;
+					return TRUE;
 				} else {
-					return false;
+					return FALSE;
 				}
 			} else {
-				return false;
+				return FALSE;
 			}
 			break;
 		case 4:
 			if ($ipparts[3] < $maxip) {
 				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2]) && ($ipparts[3] <= $maxparts[3])) {
-					return true;
+					return TRUE;
 				} else {
-					return false;
+					return FALSE;
 				}
 			} else {
-				return false;
+				return FALSE;
 			}
 			break;
 	}
@@ -502,7 +502,7 @@ function get_client_ipblocks() {
  * @param bool $include_unusable
  * @return array
  */
-function get_client_ips($include_unusable = false) {
+function get_client_ips($include_unusable = FALSE) {
 	$ipblocks = get_client_ipblocks();
 	$client_ips = [];
 	foreach ($ipblocks as $ipblock) {
@@ -515,7 +515,7 @@ function get_client_ips($include_unusable = false) {
  * @param bool $include_unusable
  * @return array
  */
-function get_all_ips_from_ipblocks($include_unusable = false) {
+function get_all_ips_from_ipblocks($include_unusable = FALSE) {
 	$all_blocks = get_all_ipblocks();
 	$all_ips = [];
 	foreach ($all_blocks as $ipblock)
@@ -527,7 +527,7 @@ function get_all_ips_from_ipblocks($include_unusable = false) {
  * @param bool $include_unusable
  * @return array
  */
-function get_all_ips2_from_ipblocks($include_unusable = false) {
+function get_all_ips2_from_ipblocks($include_unusable = FALSE) {
 	$all_blocks = get_all_ipblocks();
 	$all_ips = [];
 	foreach ($all_blocks as $ipblock)
@@ -540,7 +540,7 @@ function get_all_ips2_from_ipblocks($include_unusable = false) {
  * @param bool $include_unusable
  * @return array
  */
-function get_ips($network, $include_unusable = false) {
+function get_ips($network, $include_unusable = FALSE) {
 	//echo "$network|$include_unusable|<br>";
 	$ips = [];
 	$network_info = ipcalc($network);
@@ -579,7 +579,7 @@ function get_ips($network, $include_unusable = false) {
  * @param bool $include_unusable
  * @return array
  */
-function get_ips2($network, $include_unusable = false) {
+function get_ips2($network, $include_unusable = FALSE) {
 	//echo "$network|$include_unusable|<br>";
 	$ips = [];
 	$network_info = ipcalc($network);
@@ -937,22 +937,22 @@ function available_ipblocks($blocksize, $location = 1) {
 		$ipblock_id = $maindata[0];
 		$mainblock = $maindata[1];
 		// get ips from the main block
-		$ips = get_ips2($mainblock, true);
+		$ips = get_ips2($mainblock, TRUE);
 		// next loop through all available ips
 		$ipsize = sizeof($ips);
-		$found = false;
+		$found = FALSE;
 		$found_count = 0;
 		$found_c = '';
 		$path = INCLUDE_ROOT . '/../scripts/licenses';
 		for ($x = 0; $x < $ipsize; $x++) {
 			// check if the ips in use already
 			if (isset($usedips[$ips[$x][0]])) {
-				$found = false;
+				$found = FALSE;
 				$found_count = 0;
 			} else {
 				$c = $ips[$x][3];
 				if (($found) && ($blocksize >= 24) && ($found_c != $c)) {
-					$found = false;
+					$found = FALSE;
 					$found_count = 0;
 				}
 				if (!$found) {
@@ -976,7 +976,7 @@ function available_ipblocks($blocksize, $location = 1) {
 					$found_count++;
 					if ($found_count == $ipcount) {
 						$available[] = array($found, $ipblock_id);
-						$found = false;
+						$found = FALSE;
 						$found_count = 0;
 					}
 				}
@@ -1011,7 +1011,7 @@ function ips_hostname($hostname) {
 			for ($x = 0, $x_max = sizeof($parts); $x < $x_max; $x++) {
 				if (mb_strpos($parts[$x], '/')) {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
-					$parts[$x] = get_switch_name($switch, true) . '/' . $port;
+					$parts[$x] = get_switch_name($switch, TRUE) . '/' . $port;
 				}
 			}
 			$vlan = $db->Record['vlans_id'];

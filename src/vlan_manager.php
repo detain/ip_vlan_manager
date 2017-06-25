@@ -19,11 +19,11 @@ function vlan_manager() {
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return false;
+		return FALSE;
 	}
 	function_requirements('update_switch_ports');
 	//			$smarty = new TFSmarty;
-	//			$smarty->debugging = true;
+	//			$smarty->debugging = TRUE;
 	//			$smarty->assign('sortcol', 1);
 	//			$smarty->assign('sortdir', 0);
 	//			$smarty->assign('textextraction', "'complex'");
@@ -130,8 +130,8 @@ function vlan_manager() {
 		$table->add_field($network, 'l');
 		$table->add_field($table->make_link('choice=ip.edit_vlan_comment&amp;ipblock=' . $network, $comment), 'c');
 
-		$editport = false;
-		$editserver = false;
+		$editport = FALSE;
+		$editserver = FALSE;
 		if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network) {
 			if (isset($GLOBALS['tf']->variables->request['edit_port'])) {
 				if (!isset($GLOBALS['tf']->variables->request['ports'])) {
@@ -140,7 +140,7 @@ function vlan_manager() {
 					$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 					//								$row[] = $select . '<br>' . $table->make_submit('Set Port(s)');
 					$table->add_field($select . '<br>' . $table->make_submit('Set Port(s)'));
-					$editport = true;
+					$editport = TRUE;
 				} else {
 					$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 					$db2->query("update vlans set vlans_ports='{$ports}' where vlans_networks like '%:{$network}:%' and vlans_id='{$vlan}'", __LINE__, __FILE__);
@@ -156,9 +156,9 @@ function vlan_manager() {
 		if (!$editport) {
 			$portsize = sizeof($ports);
 			for ($y = 0; $y < $portsize; $y++) {
-				if (!(mb_strpos($ports[$y], '/') === false)) {
+				if (!(mb_strpos($ports[$y], '/') === FALSE)) {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
-					$ports[$y] = get_switch_name($switch, true) . '/' . $port;
+					$ports[$y] = get_switch_name($switch, TRUE) . '/' . $port;
 				}
 			}
 			$table->add_field($table->make_link('choice=ip.vlan_edit_port&amp;ipblock=' . $network, implode(', ', $ports)), 'l');
@@ -185,7 +185,7 @@ function vlan_manager() {
 							} else {
 								$server = 0;
 							}
-							$out .= select_server($server, 'port_' . $y, true);
+							$out .= select_server($server, 'port_' . $y, TRUE);
 							if ($y < (sizeof($ports) - 1)) {
 								$out .= '<br>';
 							}
@@ -194,7 +194,7 @@ function vlan_manager() {
 						$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 						//									$row[] = $out . '<br>' . $table->make_submit('Set Server(s)');
 						$table->add_field($out . '<br>' . $table->make_submit('Set Server(s)'));
-						$editserver = true;
+						$editserver = TRUE;
 					} else {
 						$servers = [];
 						for ($y = 0, $yMax = sizeof($ports); $y < $yMax; $y++) {
@@ -212,7 +212,7 @@ function vlan_manager() {
 				} else {
 					//								$row[] = '<b>You Must First Assign Port(s)</b>';
 					$table->add_field('<b>You Must First Assign Port(s)</b>');
-					$editserver = true;
+					$editserver = TRUE;
 				}
 			}
 		}
