@@ -22,7 +22,7 @@ function portless_vlans() {
 	$db = get_module_db(IPS_MODULE);
 	$db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);
 	$table = new TFTable;
-	$table->set_title('Port-less VLAN List' . pdf_link('choice=ip.portless_vlans'));
+	$table->set_title('Port-less VLAN List'.pdf_link('choice=ip.portless_vlans'));
 	if ($db->num_rows() > 0) {
 		$table->add_field('VLAN');
 		$table->set_bgcolor(2);
@@ -35,7 +35,7 @@ function portless_vlans() {
 			$ipblock = str_replace(':', '', $db->Record['vlans_networks']);
 			$table->add_field($ipblock, 'l');
 			$table->add_field($db->Record['vlans_comment']);
-			$table->add_field($table->make_link('choice=ip.vlan_port_manager&ipblock=' . $ipblock, 'Configure Port(s)'));
+			$table->add_field($table->make_link('choice=ip.vlan_port_manager&ipblock='.$ipblock, 'Configure Port(s)'));
 			$table->add_row();
 		}
 	} else {

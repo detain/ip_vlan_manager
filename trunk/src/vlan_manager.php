@@ -37,11 +37,11 @@ function vlan_manager() {
 	else
 		$order = 'vlans_networks';
 	$table = new TFTable;
-	$table->set_title('VLan Manager ' . pdf_link('choice=' . $choice . '&order=' . $order));
+	$table->set_title('VLan Manager '.pdf_link('choice='.$choice . '&order='.$order));
 	$table->set_options('width="100%"');
 	/*			$title = array(
-	$table->make_link('choice=' . $choice . '&order=id', 'VLAN'),
-	$table->make_link('choice=' . $choice . '&order=ip', 'Network'),
+	$table->make_link('choice='.$choice . '&order=id', 'VLAN'),
+	$table->make_link('choice='.$choice . '&order=ip', 'Network'),
 	'Comments',
 	'Port(s)'
 	);
@@ -50,8 +50,8 @@ function vlan_manager() {
 	//			$smarty->assign('table_header', $title);
 
 	$table->set_bgcolor(3);
-	//			$table->add_field($table->make_link('choice=' . $choice . '&order=id', 'VLAN'));
-	$table->add_field($table->make_link('choice=' . $choice . '&order=ip', 'Network'));
+	//			$table->add_field($table->make_link('choice='.$choice . '&order=id', 'VLAN'));
+	$table->add_field($table->make_link('choice='.$choice . '&order=ip', 'Network'));
 	$table->add_field('Comment');
 	$table->add_field('Port(s)');
 	//			$table->set_colspan(3);
@@ -108,7 +108,7 @@ function vlan_manager() {
 			$servers[] = $vlans[$vlan]['server_hostname'];
 		/* commented out 3/11/2017 by joe to get things wworking for the moment
 		if (sizeof($searches)) {
-			$query = 'select server_hostname from servers where ' . implode(' or ', $searches);
+			$query = 'select server_hostname from servers where '.implode(' or ', $searches);
 			$db2->query($query, __LINE__, __FILE__);
 			while ($db2->next_record()) {
 				$servers[] = $db2->Record['server_hostname'];
@@ -119,16 +119,16 @@ function vlan_manager() {
 		$row = array(
 		$vlan,
 		$network . ' ' .
-		$table->make_link('choice=ip.ipblock_viewer&amp;ipblock=' . $network, '(?)') . ' ' .
-		$table->make_link('choice=ip.add_ips_to_server&amp;ipblock=' . $network, '(+IP)') . ' ' .
-		$table->make_link('choice=ip.delete_vlan&amp;ipblock=' . $network, '(-)'),
-		$table->make_link('choice=ip.edit_vlan_comment&amp;ipblock=' . $network, $comment)
+		$table->make_link('choice=ip.ipblock_viewer&amp;ipblock='.$network, '(?)') . ' ' .
+		$table->make_link('choice=ip.add_ips_to_server&amp;ipblock='.$network, '(+IP)') . ' ' .
+		$table->make_link('choice=ip.delete_vlan&amp;ipblock='.$network, '(-)'),
+		$table->make_link('choice=ip.edit_vlan_comment&amp;ipblock='.$network, $comment)
 		);
 		*/
 		//					$table->add_field($vlan);
 
 		$table->add_field($network, 'l');
-		$table->add_field($table->make_link('choice=ip.edit_vlan_comment&amp;ipblock=' . $network, $comment), 'c');
+		$table->add_field($table->make_link('choice=ip.edit_vlan_comment&amp;ipblock='.$network, $comment), 'c');
 
 		$editport = FALSE;
 		$editserver = FALSE;
@@ -138,11 +138,11 @@ function vlan_manager() {
 					$select = get_select_ports($ports);
 					$table->add_hidden('edit_port', 1);
 					$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
-					//								$row[] = $select . '<br>' . $table->make_submit('Set Port(s)');
-					$table->add_field($select . '<br>' . $table->make_submit('Set Port(s)'));
+					//								$row[] = $select . '<br>'.$table->make_submit('Set Port(s)');
+					$table->add_field($select . '<br>'.$table->make_submit('Set Port(s)'));
 					$editport = TRUE;
 				} else {
-					$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
+					$ports = ':'.implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 					$db2->query("update vlans set vlans_ports='{$ports}' where vlans_networks like '%:{$network}:%' and vlans_id='{$vlan}'", __LINE__, __FILE__);
 					function_requirements('update_switch_ports');
 					update_switch_ports();
@@ -158,15 +158,15 @@ function vlan_manager() {
 			for ($y = 0; $y < $portsize; $y++) {
 				if (!(mb_strpos($ports[$y], '/') === FALSE)) {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
-					$ports[$y] = get_switch_name($switch, TRUE) . '/' . $port;
+					$ports[$y] = get_switch_name($switch, TRUE) . '/'.$port;
 				}
 			}
-			$table->add_field($table->make_link('choice=ip.vlan_edit_port&amp;ipblock=' . $network, implode(', ', $ports)), 'l');
-			//						$row[] = $table->make_link('choice=ip.vlan_edit_port=1&amp;ipblock=' . $network, implode(', ', $ports));
-			//						$row[] = $table->make_link('choice=ip.vlan_manager&amp;edit_port=1&amp;ipblock=' . $network, implode(', ', $ports));
-			//						$table->add_field($table->make_link('choice=ip.vlan_manager&amp;edit_port=1&amp;ipblock=' . $network, implode(', ', $ports)));
+			$table->add_field($table->make_link('choice=ip.vlan_edit_port&amp;ipblock='.$network, implode(', ', $ports)), 'l');
+			//						$row[] = $table->make_link('choice=ip.vlan_edit_port=1&amp;ipblock='.$network, implode(', ', $ports));
+			//						$row[] = $table->make_link('choice=ip.vlan_manager&amp;edit_port=1&amp;ipblock='.$network, implode(', ', $ports));
+			//						$table->add_field($table->make_link('choice=ip.vlan_manager&amp;edit_port=1&amp;ipblock='.$network, implode(', ', $ports)));
 		}
-		$table->add_field($table->make_link('choice=ip.ipblock_viewer&amp;ipblock=' . $network, '(?)') . $table->make_link('choice=ip.add_ips_to_server&amp;ipblock=' . $network, '(+IP)') . $table->make_link('choice=ip.delete_vlan&amp;ipblock=' . $network, '(-)'), 'c');
+		$table->add_field($table->make_link('choice=ip.ipblock_viewer&amp;ipblock='.$network, '(?)') . $table->make_link('choice=ip.add_ips_to_server&amp;ipblock='.$network, '(+IP)') . $table->make_link('choice=ip.delete_vlan&amp;ipblock='.$network, '(-)'), 'c');
 		if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network) {
 			if (isset($GLOBALS['tf']->variables->request['edit_server'])) {
 				if ($ports[0] != '--') {
@@ -174,7 +174,7 @@ function vlan_manager() {
 						$out = '';
 						for ($y = 0, $yMax = sizeof($ports); $y < $yMax; $y++) {
 							if (sizeof($ports) > 1) {
-								$out .= 'Port ' . $ports[$y] . ': ';
+								$out .= 'Port '.$ports[$y] . ': ';
 							}
 							list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
 							$query = "select id, server_hostname from servers where switch='{$switch}' and slot='{$port}'";
@@ -185,20 +185,20 @@ function vlan_manager() {
 							} else {
 								$server = 0;
 							}
-							$out .= select_server($server, 'port_' . $y, TRUE);
+							$out .= select_server($server, 'port_'.$y, TRUE);
 							if ($y < (sizeof($ports) - 1)) {
 								$out .= '<br>';
 							}
 						}
 						$table->add_hidden('edit_server', 1);
 						$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
-						//									$row[] = $out . '<br>' . $table->make_submit('Set Server(s)');
-						$table->add_field($out . '<br>' . $table->make_submit('Set Server(s)'));
+						//									$row[] = $out . '<br>'.$table->make_submit('Set Server(s)');
+						$table->add_field($out . '<br>'.$table->make_submit('Set Server(s)'));
 						$editserver = TRUE;
 					} else {
 						$servers = [];
 						for ($y = 0, $yMax = sizeof($ports); $y < $yMax; $y++) {
-							$server = $GLOBALS['tf']->variables->request['port_' . $y];
+							$server = $GLOBALS['tf']->variables->request['port_'.$y];
 							if ($server != '0') {
 								$servers[] = $server;
 								list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
@@ -220,8 +220,8 @@ function vlan_manager() {
 			$servers[] = '--';
 		}
 		if (!$editserver) {
-			//						$row[] = $table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock=' . $network, implode(', ', $servers));
-			//						$table->add_field($table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock=' . $network, implode(', ', $servers)));
+			//						$row[] = $table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock='.$network, implode(', ', $servers));
+			//						$table->add_field($table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock='.$network, implode(', ', $servers)));
 		}
 		//					$rows[] = $row;
 		$table->add_row();
@@ -234,16 +234,16 @@ function vlan_manager() {
 	//			$table->add_row();
 
 	$table->set_colspan(4);
-	$table->add_field('Total IPs ' . $total_ips, 'l');
+	$table->add_field('Total IPs '.$total_ips, 'l');
 	$table->add_row();
 	$table->set_colspan(4);
-	$table->add_field('Used IPs ' . $used_ips . ' (' . number_format((($used_ips / $total_ips) * 100), 2) . '%) (Rough Estimate, I can get better numbers if you want)', 'l');
+	$table->add_field('Used IPs '.$used_ips . ' ('.number_format((($used_ips / $total_ips) * 100), 2) . '%) (Rough Estimate, I can get better numbers if you want)', 'l');
 	$table->add_row();
 	$table->set_colspan(4);
-	$table->add_field('Free IPs ' . ($total_ips - $used_ips) . ' (' . number_format(((($total_ips - $used_ips) / $total_ips) * 100), 2) . '%)', 'l');
+	$table->add_field('Free IPs '.($total_ips - $used_ips) . ' ('.number_format(((($total_ips - $used_ips) / $total_ips) * 100), 2) . '%)', 'l');
 	$table->add_row();
 	$table->set_colspan(4);
-	$table->add_field($table->make_link('choice=ip.add_vlan', 'Add New VLAN') . '   ' . $table->make_link('choice=ip.portless_vlans', 'List Of VLAN Without Port Assignments ') . '   ' . $table->make_link('choice=ip.vlan_port_server_manager', 'VLAN Port <-> Server Mapper'));
+	$table->add_field($table->make_link('choice=ip.add_vlan', 'Add New VLAN') . '   '.$table->make_link('choice=ip.portless_vlans', 'List Of VLAN Without Port Assignments ') . '   '.$table->make_link('choice=ip.vlan_port_server_manager', 'VLAN Port <-> Server Mapper'));
 	$table->add_row();
 
 	//			add_output($smarty->fetch('tablesorter/tablesorter.tpl'));

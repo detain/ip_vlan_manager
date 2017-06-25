@@ -36,7 +36,7 @@ function delete_vlan() {
 		$table->add_field($ipblock);
 		$table->add_row();
 		$table->add_field('Go Ahead And Delete');
-		$table->add_field('<select name=sure>' . '<option value=no>No</option>' . '<option value=yes>Yes</option>' . '</select>');
+		$table->add_field('<select name=sure>'.'<option value=no>No</option>'.'<option value=yes>Yes</option>'.'</select>');
 		$table->add_row();
 		$table->set_colspan(2);
 		$table->add_field($table->make_submit('Delete This Vlan'));

@@ -64,10 +64,10 @@ function vlan_edit_port() {
 		$table->add_hidden('edit_port', 1);
 		$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 		$table->set_colspan(2);
-		$table->add_field($select . '<br>' . $table->make_submit('Set Port(s)'));
+		$table->add_field($select . '<br>'.$table->make_submit('Set Port(s)'));
 		$editport = TRUE;
 	} else {
-		$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
+		$ports = ':'.implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 		$query = "update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'";
 		$db2->query($query, __LINE__, __FILE__);
 		//function_requirements('update_switch_ports');

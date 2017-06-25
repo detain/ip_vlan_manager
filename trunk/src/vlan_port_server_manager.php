@@ -44,8 +44,8 @@ function vlan_port_server_manager() {
 		$ports = explode(':', $db->Record['vlans_ports']);
 		if ($ports[1] != '') {
 			list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[1]);
-			if (isset($GLOBALS['tf']->variables->request['vlan_' . $db->Record['vlans_id']])) {
-				$server = $GLOBALS['tf']->variables->request['vlan_' . $db->Record['vlans_id']];
+			if (isset($GLOBALS['tf']->variables->request['vlan_'.$db->Record['vlans_id']])) {
+				$server = $GLOBALS['tf']->variables->request['vlan_'.$db->Record['vlans_id']];
 				if ($server != '0') {
 					$query = "update servers set switch='', slot='' where switch='{$switch}' and slot='{$port}'";
 					$db2->query($query, __LINE__, __FILE__);
@@ -65,7 +65,7 @@ function vlan_port_server_manager() {
 			$table->add_field($comment);
 			$table->add_field(get_switch_name($switch));
 			$table->add_field($port);
-			$table->add_field(select_server($server, 'vlan_' . $db->Record['vlans_id'], TRUE));
+			$table->add_field(select_server($server, 'vlan_'.$db->Record['vlans_id'], TRUE));
 			$table->add_row();
 		}
 	}

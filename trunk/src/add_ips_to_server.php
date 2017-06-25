@@ -38,7 +38,7 @@ function add_ips_to_server() {
 			$sel = '<select multiple size=8 name="ips[]">';
 			$db2->query("select * from ips where ips_ip in ('" . implode("', '", $ips) . "') and ips_serverid=0", __LINE__, __FILE__);
 			while ($db2->next_record()) {
-				$sel .= '<option value=' . $db2->Record['ips_ip'] . '>' . $db2->Record['ips_ip'] . '</option>';
+				$sel .= '<option value='.$db2->Record['ips_ip'] . '>'.$db2->Record['ips_ip'] . '</option>';
 			}
 			$sel .= '</select>';
 			$table->add_field($sel, 'r');
@@ -58,9 +58,9 @@ function add_ips_to_server() {
 				$db->query("update ips set ips_group='{$group}', ips_serverid='{$server_info['servers_serverid']}' where ips_ip='{$ips[$x]}'", __LINE__, __FILE__);
 			}
 			add_output("IP(s) Successfully Assigned To $server<br>");
-			add_output($GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock=' . $ipblock), 1));
+			add_output($GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock='.$ipblock), 1));
 		} else {
-			add_output('Invalid Server (' . $server . ')');
+			add_output('Invalid Server ('.$server . ')');
 		}
 	}
 }

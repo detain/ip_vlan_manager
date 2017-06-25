@@ -47,11 +47,11 @@ function vlan_port_manager() {
 			$table->add_row();
 			add_output($table->get_table());
 		} else {
-			$ports = ':' . implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
+			$ports = ':'.implode(':', $GLOBALS['tf']->variables->request['ports']) . ':';
 			$db2->query("update vlans set vlans_ports='$ports' where vlans_networks like '%:$ipblock:%' and vlans_id='$vlan_id'", __LINE__, __FILE__);
 			function_requirements('update_switch_ports');
 			update_switch_ports();
-			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock=' . $ipblock));
+			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock='.$ipblock));
 		}
 	}
 }
