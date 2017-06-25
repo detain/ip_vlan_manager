@@ -73,6 +73,6 @@ class Plugin {
 		$loader->add_requirement('parse_vlan_ports', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('subnet2netmask', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('update_switch_ports', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
-		$loader->add_requirement('valid_ip', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
+		$loader->add_requirement('validIp', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 	}
 }

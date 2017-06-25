@@ -278,16 +278,16 @@ function ipcalc_array($networks) {
 	return $network_info;
 }
 
-if (!function_exists('valid_ip')) {
+if (!function_exists('validIp')) {
 	/**
-	 * valid_ip()
+	 * validIp()
 	 * returns whether or not the given IP is valid
 	 *
 	 * @param string $ipAddress the ip address to validate
 	 * @param bool $display_errors whether or not errors are displayed. defaults to TRUE
 	 * @return bool whether or not its a valid ip
 	 */
-	function valid_ip($ipAddress, $display_errors = TRUE) {
+	function validIp($ipAddress, $display_errors = TRUE) {
 		if (!preg_match("/^[0-9\.]{7,15}$/", $ipAddress)) {
 			// don't display errors cuz this gets called w/ a blank entry when people didn't even submit anything yet
 			//add_output('<font class="error">IP ' . $ipAddress . ' Too short/long</font>');
@@ -327,7 +327,7 @@ if (!function_exists('ipcalc')) {
 			$bitmask = '32';
 			$network = $block . '/' . $bitmask;
 		}
-		if (!valid_ip($block, FALSE) || !is_numeric($bitmask))
+		if (!validIp($block, FALSE) || !is_numeric($bitmask))
 			return FALSE;
 		if (preg_match('/^(.*)\/32$/', $network, $matches))
 			return array(
