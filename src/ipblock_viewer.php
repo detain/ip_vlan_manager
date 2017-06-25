@@ -70,12 +70,12 @@ function ipblock_viewer() {
 		$table->set_colspan(2);
 		$table->add_field('Used IPs');
 		$table->set_colspan(2);
-		$table->add_field($usedips . ' ('.number_format((($usedips / $ipinfo['hosts']) * 100), 2) . '%)', 'r');
+		$table->add_field($usedips.' ('.number_format((($usedips / $ipinfo['hosts']) * 100), 2).'%)', 'r');
 		$table->add_row();
 		$table->set_colspan(2);
 		$table->add_field('Free IPs');
 		$table->set_colspan(2);
-		$table->add_field(($ipinfo['hosts'] - $usedips) . ' ('.number_format(((($ipinfo['hosts'] - $usedips) / $ipinfo['hosts']) * 100), 2) . '%)', 'r');
+		$table->add_field(($ipinfo['hosts'] - $usedips).' ('.number_format(((($ipinfo['hosts'] - $usedips) / $ipinfo['hosts']) * 100), 2).'%)', 'r');
 		$table->add_row();
 		$table->set_bgcolor(1);
 		$table->add_field('Server');
