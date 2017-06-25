@@ -17,7 +17,7 @@ function delete_vlan() {
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return false;
+		return FALSE;
 	}
 	$ima = $GLOBALS['tf']->ima;
 	global $groupinfo;

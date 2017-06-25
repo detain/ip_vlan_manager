@@ -17,7 +17,7 @@ function add_vlan() {
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return false;
+		return FALSE;
 	}
 	//_debug_array(get_ips2('68.168.208.0/20',TRUE));
 	$ima = $GLOBALS['tf']->ima;
@@ -134,17 +134,17 @@ function add_vlan() {
 			$ports = $GLOBALS['tf']->variables->request['ports'];
 			if (sizeof($ports) > 0) {
 				$ipaddress = $GLOBALS['tf']->variables->request['ipaddress'];
-				$found = false;
+				$found = FALSE;
 				for ($x = 0, $x_max = sizeof($blocks); $x < $x_max; $x++) {
 					if ($blocks[$x][0] == $ipaddress) {
 						$block = $blocks[$x][1];
-						$found = true;
+						$found = TRUE;
 					}
 				}
-				$ips = get_ips($ipaddress . '/' . $blocksize, true);
+				$ips = get_ips($ipaddress . '/' . $blocksize, TRUE);
 				$db->query("select * from ips left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ips) . "') and vlans_id is not NULL");
 				if ($db->num_rows() > 0) {
-					$found = false;
+					$found = FALSE;
 					while ($db->next_record()) {
 						echo 'Conflicting IP: ' . $db->Record['ips_ip'] . '<br>';
 					}
