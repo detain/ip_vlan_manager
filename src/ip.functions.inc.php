@@ -124,7 +124,7 @@ function update_switch_ports($verbose = FALSE) {
 			if (sizeof($vlans) > 0)
 			{
 				if ($verbose == TRUE)
-					add_output('(' . sizeof($vlans) . ' Vlans)');
+					add_output('('.sizeof($vlans) . ' Vlans)');
 				$vlantext = implode(',', $vlans);
 				$db->query("update switchports set vlans='' where vlans='{$vlantext}'");
 				$db->query("update switchports set vlans='{$vlantext}' where switch='{$id}' and port='{$port}'");
@@ -202,7 +202,7 @@ function get_switch_name($index, $short = FALSE) {
 	$db->next_record();
 	$switch = $db->Record['name'];
 	if ($short == FALSE) {
-		return 'Switch ' . $switch;
+		return 'Switch '.$switch;
 	} else {
 		return $switch;
 	}
@@ -218,15 +218,15 @@ function get_select_ports($ports = FALSE, $size = 5) {
 	if ($ports === FALSE) {
 		$ports = [];
 	}
-	$select = '<select multiple="multiple" size=' . $size . ' name="ports[]">';
+	$select = '<select multiple="multiple" size='.$size . ' name="ports[]">';
 	$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by id desc');
 	while ($db->next_record()) {
 		$switch = $db->Record['id'];
 		$port = $db->Record['port'];
-		if (in_array($switch . '/' . $port, $ports)) {
-			$select .= '<option selected value="' . $switch . '/' . $port . '">Switch ' . $db->Record['name'] . ' Port ' . $port . '</option>';
+		if (in_array($switch . '/'.$port, $ports)) {
+			$select .= '<option selected value="'.$switch . '/'.$port . '">Switch '.$db->Record['name'] . ' Port '.$port . '</option>';
 		} else {
-			$select .= '<option value="' . $switch . '/' . $port . '">Switch ' . $db->Record['name'] . ' Port ' . $port . '</option>';
+			$select .= '<option value="'.$switch . '/'.$port . '">Switch '.$db->Record['name'] . ' Port '.$port . '</option>';
 		}
 	}
 	$select .= '</select>';
@@ -255,7 +255,7 @@ function ipcalc_array($networks) {
 	$path = INCLUDE_ROOT . '/../scripts/licenses';
 	for ($x = 0, $x_max = sizeof($networks); $x < $x_max; $x++) {
 		//error_log("Calling ipcalc here");
-		$cmd .= 'LANG=C $path/ipcalc -nb ' . $networks[$x]['network'] . ';echo :-----;';
+		$cmd .= 'LANG=C $path/ipcalc -nb '.$networks[$x]['network'] . ';echo :-----;';
 	}
 	$cmd .= "}\n";
 	$cmd .= 'a | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1;';
@@ -290,20 +290,20 @@ if (!function_exists('validIp')) {
 	function validIp($ipAddress, $display_errors = TRUE) {
 		if (!preg_match("/^[0-9\.]{7,15}$/", $ipAddress)) {
 			// don't display errors cuz this gets called w/ a blank entry when people didn't even submit anything yet
-			//add_output('<font class="error">IP ' . $ipAddress . ' Too short/long</font>');
+			//add_output('<font class="error">IP '.$ipAddress . ' Too short/long</font>');
 			return FALSE;
 		}
 		$quads = explode('.', $ipAddress);
 		$num_quads = count($quads);
 		if ($num_quads != 4) {
 			if ($display_errors)
-				add_output('<font class="error">IP ' . $ipAddress . ' Too many quads</font>');
+				add_output('<font class="error">IP '.$ipAddress . ' Too many quads</font>');
 			return FALSE;
 		}
 		for ($i = 0; $i < 4; $i++) {
 			if ($quads[$i] > 255) {
 				if ($display_errors)
-					add_output('<font class="error">IP ' . $ipAddress . ' number ' . $quads[$i] . ' too high</font>');
+					add_output('<font class="error">IP '.$ipAddress . ' number '.$quads[$i] . ' too high</font>');
 				return FALSE;
 			}
 		}
@@ -325,7 +325,7 @@ if (!function_exists('ipcalc')) {
 		} else {
 			$block = $parts[0];
 			$bitmask = '32';
-			$network = $block . '/' . $bitmask;
+			$network = $block . '/'.$bitmask;
 		}
 		if (!validIp($block, FALSE) || !is_numeric($bitmask))
 			return FALSE;
@@ -344,7 +344,7 @@ if (!function_exists('ipcalc')) {
 		$net = $network_object->parseAddress($network);
 		//billingd_log("|$network|", __LINE__, __FILE__);
 		$ipAddress_info = array(
-			'network' => $net->network . '/' . $net->bitmask,
+			'network' => $net->network . '/'.$net->bitmask,
 			'network_ip' => $net->network,
 			'netmask' => $net->netmask,
 			'broadcast' => $net->broadcast,
@@ -566,7 +566,7 @@ function get_ips($network, $include_unusable = FALSE) {
 					$b,
 					$c,
 					$d), $maxparts, $include_unusable); $d++) {
-					$ips[] = $a . '.' . $b . '.' . $c . '.' . $d;
+					$ips[] = $a . '.'.$b . '.'.$c . '.'.$d;
 				}
 			}
 		}
@@ -606,7 +606,7 @@ function get_ips2($network, $include_unusable = FALSE) {
 					$c,
 					$d), $maxparts, $include_unusable); $d++) {
 					$ips[] = array(
-						$a . '.' . $b . '.' . $c . '.' . $d,
+						$a . '.'.$b . '.'.$c . '.'.$d,
 						$a,
 						$b,
 						$c,
@@ -959,8 +959,8 @@ function available_ipblocks($blocksize, $location = 1) {
 					if ($blocksize <= 24) {
 						if ($ips[$x][4] == 0) {
 							//error_log("Calling ipcalc here");
-							$cmd = 'LANG=C '.$path.'/ipcalc -n -b ' . $ips[$x][0] . '/' . $blocksize . ' | grep Network: | cut -d: -f2';
-							if (trim(`$cmd`) == $ips[$x][0] . '/' . $blocksize) {
+							$cmd = 'LANG=C '.$path.'/ipcalc -n -b '.$ips[$x][0] . '/'.$blocksize . ' | grep Network: | cut -d: -f2';
+							if (trim(`$cmd`) == $ips[$x][0] . '/'.$blocksize) {
 								$found = $ips[$x][0];
 								$found_c = $c;
 							}
@@ -1011,7 +1011,7 @@ function ips_hostname($hostname) {
 			for ($x = 0, $x_max = sizeof($parts); $x < $x_max; $x++) {
 				if (mb_strpos($parts[$x], '/')) {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
-					$parts[$x] = get_switch_name($switch, TRUE) . '/' . $port;
+					$parts[$x] = get_switch_name($switch, TRUE) . '/'.$port;
 				}
 			}
 			$vlan = $db->Record['vlans_id'];

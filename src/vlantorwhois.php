@@ -112,7 +112,7 @@ select * from users where id=2311;
 				}
 				if (trim($org) == '')
 				{
-					$org = 'Account' . $data['id'];
+					$org = 'Account'.$data['id'];
 				}
 				if ($extra['private_whois'] == 1)
 				{
@@ -121,31 +121,31 @@ select * from users where id=2311;
 
 				}
 				$found = TRUE;
-				$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
-				. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
-				. 'Auth-Area: ' . $ipblock . '\n'
-				. 'Org-Name: ' . trim($org) . '\n'
-				. 'Street-Address: ' . trim($data['address1']) . '\n'
-				. 'City: ' . $data['city'] . '\n'
-				. 'State: ' . $data['state'] . '\n'
-				. 'Postal-Code: ' . $data['zip'] . '\n'
-				. 'Country-Code: ' . $data['country'] . '\n'
-				. 'Phone: ' . trim($data['phone']) . '\n'
+				$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-'.$ipblock_ip . '-'.$ipblock_size . ';\n'
+				. 'echo -e "ID: NETBLK-INTSRV.'.$ipblock . '\n'
+				. 'Auth-Area: '.$ipblock . '\n'
+				. 'Org-Name: '.trim($org) . '\n'
+				. 'Street-Address: '.trim($data['address1']) . '\n'
+				. 'City: '.$data['city'] . '\n'
+				. 'State: '.$data['state'] . '\n'
+				. 'Postal-Code: '.$data['zip'] . '\n'
+				. 'Country-Code: '.$data['country'] . '\n'
+				. 'Phone: '.trim($data['phone']) . '\n'
 				. 'Created: 20050101\n'
-				. 'Updated: ' . date('Ymd') . '" > data/org/' . $data['id'] . '.txt;\n'
-				. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
-				. 'Auth-Area: ' . $ipblock . '\n'
-				. 'Network-Name: INTSRV-' . $ipAddress . '\n'
-				. 'IP-Network: ' . $ipAddress . '/' . $size . '\n'
-				. 'Org-Name: ' . trim($org) . '\n'
-				. 'Street-Address: ' . $data['address1'] . '\n'
-				. 'City: ' . $data['city'] . '\n'
-				. 'State: ' . $data['state'] . '\n'
-				. 'Postal-Code: ' . $data['zip'] . '\n'
-				. 'Country-Code: ' . $data['country'] . '\n'
+				. 'Updated: '.date('Ymd') . '" > data/org/'.$data['id'] . '.txt;\n'
+				. 'echo -e "ID: NETBLK-INTSRV.'.$ipblock . '\n'
+				. 'Auth-Area: '.$ipblock . '\n'
+				. 'Network-Name: INTSRV-'.$ipAddress . '\n'
+				. 'IP-Network: '.$ipAddress . '/'.$size . '\n'
+				. 'Org-Name: '.trim($org) . '\n'
+				. 'Street-Address: '.$data['address1'] . '\n'
+				. 'City: '.$data['city'] . '\n'
+				. 'State: '.$data['state'] . '\n'
+				. 'Postal-Code: '.$data['zip'] . '\n'
+				. 'Country-Code: '.$data['country'] . '\n'
 				. 'Created: 20050101\n'
-				. 'Updated: ' . date('Ymd') . '\n'
-				. 'Updated-By: abuse@interserver.net" > data/network/' . $ipAddress . '-' . $size . '.txt;\n';
+				. 'Updated: '.date('Ymd') . '\n'
+				. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress . '-'.$size . '.txt;\n';
 		}
 		else
 		{
@@ -157,7 +157,7 @@ select * from users where id=2311;
 				echo "echo \"Query: $query (Rows: " . $db->num_rows() . ")\";\n";
 				if (($db->num_rows() == 0) && ($dsize > 2))
 				{
-					$server = $dparts[$dsize - 2] . '.' . $dparts[$dsize - 1];
+					$server = $dparts[$dsize - 2] . '.'.$dparts[$dsize - 1];
 					$db->query("select id, username, date from servers where server_hostname like '%$server%' or server_hostname='$server'");
 					$drows = $db->num_rows();
 //					`echo "$server:$drows" >&2`;
@@ -210,7 +210,7 @@ select * from users where id=2311;
 						}
 						if (trim($data['client_company']) == '')
 						{
-							$org = $data['client_fname'] . ' ' . $data['client_lname'];
+							$org = $data['client_fname'] . ' '.$data['client_lname'];
 						}
 						else
 						{
@@ -218,7 +218,7 @@ select * from users where id=2311;
 						}
 						if (trim($org) == '')
 						{
-							$org = 'Account' . $data['client_id'];
+							$org = 'Account'.$data['client_id'];
 						}
 						if ((isset($extra['private_whois']) && $extra['private_whois'] == 1) || $data['client_field_10'] == 1)
 						{
@@ -227,31 +227,31 @@ select * from users where id=2311;
 //							$data['client_address'] = 'Private Residence';
 						}
 						$found = TRUE;
-						$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
-						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
-						. 'Auth-Area: ' . $ipblock . '\n'
-						. 'Org-Name: ' . trim($org) . '\n'
-						. 'Street-Address: ' . trim($data['client_address']) . '\n'
-						. 'City: ' . trim($data['client_city']) . '\n'
-						. 'State: ' . trim($data['client_state']) . '\n'
-						. 'Postal-Code: ' . trim($data['client_zip']) . '\n'
-						. 'Country-Code: ' . trim($data['client_country']) . '\n'
-						. 'Phone: ' . trim($data['client_phone1']) . '\n'
-						. 'Created: ' . date('Ymd', $serverinfo['date']) . '\n'
-						. 'Updated: ' . date('Ymd') . '" > data/org/' . trim($data['client_id']) . '.txt;\n'
-						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
-						. 'Auth-Area: ' . $ipblock . '\n'
-						. 'Network-Name: INTSRV-' . $ipAddress . '\n'
-						. 'IP-Network: ' . $ipAddress . '/' . $size . '\n'
-						. 'Org-Name: ' . trim($org) . '\n'
-						. 'Street-Address: ' . trim($data['client_address']) . '\n'
-						. 'City: ' . trim($data['client_city']) . '\n'
-						. 'State: ' . trim($data['client_state']) . '\n'
-						. 'Postal-Code: ' . trim($data['client_zip']) . '\n'
-						. 'Country-Code: ' . trim($data['client_country']) . '\n'
-						. 'Created: ' . date('Ymd', $serverinfo['date']) . '\n'
-						. 'Updated: ' . date('Ymd') . '\n'
-						. 'Updated-By: abuse@interserver.net" > data/network/' . $ipAddress . '-' . $size . '.txt;\n';
+						$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-'.$ipblock_ip . '-'.$ipblock_size . ';\n'
+						. 'echo -e "ID: NETBLK-INTSRV.'.$ipblock . '\n'
+						. 'Auth-Area: '.$ipblock . '\n'
+						. 'Org-Name: '.trim($org) . '\n'
+						. 'Street-Address: '.trim($data['client_address']) . '\n'
+						. 'City: '.trim($data['client_city']) . '\n'
+						. 'State: '.trim($data['client_state']) . '\n'
+						. 'Postal-Code: '.trim($data['client_zip']) . '\n'
+						. 'Country-Code: '.trim($data['client_country']) . '\n'
+						. 'Phone: '.trim($data['client_phone1']) . '\n'
+						. 'Created: '.date('Ymd', $serverinfo['date']) . '\n'
+						. 'Updated: '.date('Ymd') . '" > data/org/'.trim($data['client_id']) . '.txt;\n'
+						. 'echo -e "ID: NETBLK-INTSRV.'.$ipblock . '\n'
+						. 'Auth-Area: '.$ipblock . '\n'
+						. 'Network-Name: INTSRV-'.$ipAddress . '\n'
+						. 'IP-Network: '.$ipAddress . '/'.$size . '\n'
+						. 'Org-Name: '.trim($org) . '\n'
+						. 'Street-Address: '.trim($data['client_address']) . '\n'
+						. 'City: '.trim($data['client_city']) . '\n'
+						. 'State: '.trim($data['client_state']) . '\n'
+						. 'Postal-Code: '.trim($data['client_zip']) . '\n'
+						. 'Country-Code: '.trim($data['client_country']) . '\n'
+						. 'Created: '.date('Ymd', $serverinfo['date']) . '\n'
+						. 'Updated: '.date('Ymd') . '\n'
+						. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress . '-'.$size . '.txt;\n';
 					}
 					else
 					{
@@ -289,7 +289,7 @@ select * from users where id=2311;
 						}
 						if (trim($org) == '')
 						{
-							$org = 'Account' . $data['id'];
+							$org = 'Account'.$data['id'];
 						}
 						if ($extra['private_whois'] == 1)
 						{
@@ -298,31 +298,31 @@ select * from users where id=2311;
 						}
 
 						$found = TRUE;
-						$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
-						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
-						. 'Auth-Area: ' . $ipblock . '\n'
-						. 'Org-Name: ' . trim($org) . '\n'
-						. 'Street-Address: ' . trim($data['address1']) . '\n'
-						. 'City: ' . $data['city'] . '\n'
-						. 'State: ' . $data['state'] . '\n'
-						. 'Postal-Code: ' . $data['zipcode'] . '\n'
-						. 'Country-Code: ' . $data['country'] . '\n'
-						. 'Phone: ' . trim($data['phone']) . '\n'
+						$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-'.$ipblock_ip . '-'.$ipblock_size . ';\n'
+						. 'echo -e "ID: NETBLK-INTSRV.'.$ipblock . '\n'
+						. 'Auth-Area: '.$ipblock . '\n'
+						. 'Org-Name: '.trim($org) . '\n'
+						. 'Street-Address: '.trim($data['address1']) . '\n'
+						. 'City: '.$data['city'] . '\n'
+						. 'State: '.$data['state'] . '\n'
+						. 'Postal-Code: '.$data['zipcode'] . '\n'
+						. 'Country-Code: '.$data['country'] . '\n'
+						. 'Phone: '.trim($data['phone']) . '\n'
 						. 'Created: 20050101\n'
-						. 'Updated: ' . date('Ymd') . '" > data/org/' . $data['id'] . '.txt;\n'
-						. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
-						. 'Auth-Area: ' . $ipblock . '\n'
-						. 'Network-Name: INTSRV-' . $ipAddress . '\n'
-						. 'IP-Network: ' . $ipAddress . '/' . $size . '\n'
-						. 'Org-Name: ' . trim($org) . '\n'
-						. 'Street-Address: ' . $data['address1'] . '\n'
-						. 'City: ' . $data['city'] . '\n'
-						. 'State: ' . $data['state'] . '\n'
-						. 'Postal-Code: ' . $data['zipcode'] . '\n'
-						. 'Country-Code: ' . $data['country'] . '\n'
+						. 'Updated: '.date('Ymd') . '" > data/org/'.$data['id'] . '.txt;\n'
+						. 'echo -e "ID: NETBLK-INTSRV.'.$ipblock . '\n'
+						. 'Auth-Area: '.$ipblock . '\n'
+						. 'Network-Name: INTSRV-'.$ipAddress . '\n'
+						. 'IP-Network: '.$ipAddress . '/'.$size . '\n'
+						. 'Org-Name: '.trim($org) . '\n'
+						. 'Street-Address: '.$data['address1'] . '\n'
+						. 'City: '.$data['city'] . '\n'
+						. 'State: '.$data['state'] . '\n'
+						. 'Postal-Code: '.$data['zipcode'] . '\n'
+						. 'Country-Code: '.$data['country'] . '\n'
 						. 'Created: 20050101\n'
-						. 'Updated: ' . date('Ymd') . '\n'
-						. 'Updated-By: abuse@interserver.net" > data/network/' . $ipAddress . '-' . $size . '.txt;\n';
+						. 'Updated: '.date('Ymd') . '\n'
+						. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress . '-'.$size . '.txt;\n';
 					}
 				}
 				else
@@ -372,34 +372,34 @@ select * from users where id=2311;
 							}
 							if (trim($org) == '')
 							{
-								$org = 'Account' . $group;
+								$org = 'Account'.$group;
 							}
 							$found = TRUE;
-							$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-' . $ipblock_ip . '-' . $ipblock_size . ';\n'
-							. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
-							. 'Auth-Area: ' . $ipblock . '\n'
-							. 'Org-Name: ' . trim($org) . '\n'
-							. 'Street-Address: ' . trim($data['address']) . '\n'
-							. 'City: ' . $data['city'] . '\n'
-							. 'State: ' . $data['state'] . '\n'
-							. 'Postal-Code: ' . $data['zip'] . '\n'
-							. 'Country-Code: ' . $data['country'] . '\n'
-							. 'Phone: ' . trim($data['phone']) . '\n'
+							$cmds .= 'cd /opt/rwhoisd/etc/rwhoisd/net-'.$ipblock_ip . '-'.$ipblock_size . ';\n'
+							. 'echo -e "ID: NETBLK-INTSRV.'.$ipblock . '\n'
+							. 'Auth-Area: '.$ipblock . '\n'
+							. 'Org-Name: '.trim($org) . '\n'
+							. 'Street-Address: '.trim($data['address']) . '\n'
+							. 'City: '.$data['city'] . '\n'
+							. 'State: '.$data['state'] . '\n'
+							. 'Postal-Code: '.$data['zip'] . '\n'
+							. 'Country-Code: '.$data['country'] . '\n'
+							. 'Phone: '.trim($data['phone']) . '\n'
 							. 'Created: 20050101\n'
-							. 'Updated: ' . date('Ymd') . '" > data/org/' . $data['url'] . '.txt;\n'
-							. 'echo -e "ID: NETBLK-INTSRV.' . $ipblock . '\n'
-							. 'Auth-Area: ' . $ipblock . '\n'
-							. 'Network-Name: INTSRV-' . $ipAddress . '\n'
-							. 'IP-Network: ' . $ipAddress . '/' . $size . '\n'
-							. 'Org-Name: ' . trim($org) . '\n'
-							. 'Street-Address: ' . $data['address'] . '\n'
-							. 'City: ' . $data['city'] . '\n'
-							. 'State: ' . $data['state'] . '\n'
-							. 'Postal-Code: ' . $data['zip'] . '\n'
-							. 'Country-Code: ' . $data['country'] . '\n'
+							. 'Updated: '.date('Ymd') . '" > data/org/'.$data['url'] . '.txt;\n'
+							. 'echo -e "ID: NETBLK-INTSRV.'.$ipblock . '\n'
+							. 'Auth-Area: '.$ipblock . '\n'
+							. 'Network-Name: INTSRV-'.$ipAddress . '\n'
+							. 'IP-Network: '.$ipAddress . '/'.$size . '\n'
+							. 'Org-Name: '.trim($org) . '\n'
+							. 'Street-Address: '.$data['address'] . '\n'
+							. 'City: '.$data['city'] . '\n'
+							. 'State: '.$data['state'] . '\n'
+							. 'Postal-Code: '.$data['zip'] . '\n'
+							. 'Country-Code: '.$data['country'] . '\n'
 							. 'Created: 20050101\n'
-							. 'Updated: ' . date('Ymd') . '\n'
-							. 'Updated-By: abuse@interserver.net" > data/network/' . $ipAddress . '-' . $size . '.txt;\n';
+							. 'Updated: '.date('Ymd') . '\n'
+							. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress . '-'.$size . '.txt;\n';
 /*
 						}
 						else

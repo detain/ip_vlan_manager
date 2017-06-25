@@ -28,7 +28,7 @@ function add_vlan() {
 		$table = new TFTable;
 		$table->set_title('Add New VLAN');
 		$table->add_field('Enter Desired Block Size (ie /24)', 'l');
-		$table->add_field('/' . $table->make_input('blocksize', '', 5), 'r');
+		$table->add_field('/'.$table->make_input('blocksize', '', 5), 'r');
 		$table->add_row();
 		$table->set_colspan(2);
 		$table->add_field($table->make_submit('Proceed To Next Step'));
@@ -93,7 +93,7 @@ function add_vlan() {
 			$table->set_title('Add New VLAN');
 			$table->add_hidden('blocksize', $blocksize);
 			$table->add_field('Block Size', 'l');
-			$table->add_field('/' . $blocksize, 'r');
+			$table->add_field('/'.$blocksize, 'r');
 			$table->add_row();
 			$table->add_field('Total IPs', 'l');
 			$table->add_field($ipcount + 2, 'r');
@@ -105,7 +105,7 @@ function add_vlan() {
 				$table->add_field('Enter Desired IP Block', 'l');
 				$sel = '<select name=ipaddress>';
 				for ($x = 0, $x_max = sizeof($blocks); $x < $x_max; $x++) {
-					$sel .= '<option value=' . $blocks[$x][0] . '>' . $blocks[$x][0] . '/' . $blocksize . '</option>';
+					$sel .= '<option value='.$blocks[$x][0] . '>'.$blocks[$x][0] . '/'.$blocksize . '</option>';
 				}
 				$sel .= '</select>';
 				$table->add_field($sel, 'r');
@@ -141,12 +141,12 @@ function add_vlan() {
 						$found = TRUE;
 					}
 				}
-				$ips = get_ips($ipaddress . '/' . $blocksize, TRUE);
+				$ips = get_ips($ipaddress . '/'.$blocksize, TRUE);
 				$db->query("select * from ips left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ips) . "') and vlans_id is not NULL");
 				if ($db->num_rows() > 0) {
 					$found = FALSE;
 					while ($db->next_record()) {
-						echo 'Conflicting IP: ' . $db->Record['ips_ip'] . '<br>';
+						echo 'Conflicting IP: '.$db->Record['ips_ip'] . '<br>';
 					}
 				}
 				if (!$found) {
@@ -154,7 +154,7 @@ function add_vlan() {
 					exit;
 				}
 				$comment = $GLOBALS['tf']->variables->request['comment'];
-				$ports = ':' . implode(':', $ports) . ':';
+				$ports = ':'.implode(':', $ports) . ':';
 				$db->query(make_insert_query('vlans', array(
 					'vlans_id' => NULL,
 					'vlans_block' => $block,

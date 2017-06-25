@@ -58,7 +58,7 @@ function alt_ip_manager() {
 				$table->add_field($table->make_submit('Update Server'));
 			} else {
 				$table->set_colspan(2);
-				$table->add_field($table->make_link('choice=ip.alt_ip_manager&ipblock=' . $ipblock . '&ip=' . $db->Record['ips_ip'], $serverids[$db->Record['ips_serverid']]));
+				$table->add_field($table->make_link('choice=ip.alt_ip_manager&ipblock='.$ipblock . '&ip='.$db->Record['ips_ip'], $serverids[$db->Record['ips_serverid']]));
 			}
 			$table->add_row();
 		}
@@ -73,7 +73,7 @@ function alt_ip_manager() {
 		while ($db->next_record()) {
 			mb_ereg('^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})\.[0-9]{1,3}$', $db->Record['ips_ip'], $ipblock);
 			if ($lastip != $ipblock[1]) {
-				$sel .= '<option value="' . $ipblock[1] . '">' . $ipblock[1] . '</option>';
+				$sel .= '<option value="'.$ipblock[1] . '">'.$ipblock[1] . '</option>';
 				$lastip = $ipblock[1];
 			}
 		}

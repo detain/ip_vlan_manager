@@ -70,12 +70,12 @@ function ipblock_viewer() {
 		$table->set_colspan(2);
 		$table->add_field('Used IPs');
 		$table->set_colspan(2);
-		$table->add_field($usedips . ' (' . number_format((($usedips / $ipinfo['hosts']) * 100), 2) . '%)', 'r');
+		$table->add_field($usedips . ' ('.number_format((($usedips / $ipinfo['hosts']) * 100), 2) . '%)', 'r');
 		$table->add_row();
 		$table->set_colspan(2);
 		$table->add_field('Free IPs');
 		$table->set_colspan(2);
-		$table->add_field(($ipinfo['hosts'] - $usedips) . ' (' . number_format(((($ipinfo['hosts'] - $usedips) / $ipinfo['hosts']) * 100), 2) . '%)', 'r');
+		$table->add_field(($ipinfo['hosts'] - $usedips) . ' ('.number_format(((($ipinfo['hosts'] - $usedips) / $ipinfo['hosts']) * 100), 2) . '%)', 'r');
 		$table->add_row();
 		$table->set_bgcolor(1);
 		$table->add_field('Server');
@@ -98,10 +98,10 @@ function ipblock_viewer() {
 		}
 		$table->alternate_rows();
 		$table->set_colspan(4);
-		$table->add_field($table->make_link('choice=ip.add_ips_to_server&amp;ipblock=' . $ipblock, 'Add IP(s) To Server'));
+		$table->add_field($table->make_link('choice=ip.add_ips_to_server&amp;ipblock='.$ipblock, 'Add IP(s) To Server'));
 		$table->add_row();
 		$table->set_colspan(4);
-		$table->add_field($table->make_link('choice=ip.vlan_port_manager&amp;ipblock=' . $ipblock, 'Manage Ports Connected To VLan'));
+		$table->add_field($table->make_link('choice=ip.vlan_port_manager&amp;ipblock='.$ipblock, 'Manage Ports Connected To VLan'));
 		$table->add_row();
 		add_output($table->get_table());
 	}
