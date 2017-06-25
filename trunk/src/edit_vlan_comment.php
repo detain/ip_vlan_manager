@@ -39,7 +39,7 @@ function edit_vlan_comment() {
 			$table->add_field('Vlan Comment', 'c');
 			$table->add_row();
 			$table->set_colspan(2);
-			$table->add_field('<textarea rows=7 cols=25 name=comment>'.$db->Record['vlans_comment'] . '</textarea>', 'c');
+			$table->add_field('<textarea rows=7 cols=25 name=comment>'.$db->Record['vlans_comment'].'</textarea>', 'c');
 			$table->add_row();
 			$table->set_colspan(2);
 			$table->add_field($table->make_submit('Update The Comment'));
