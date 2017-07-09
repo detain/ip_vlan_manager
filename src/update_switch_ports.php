@@ -6,7 +6,6 @@
 	* Description: update switch ports                                                   *
 	\************************************************************************************/
 
-	// $Id: generate_banks_table.php,v 1.1.1.1 2007-04-14 22:47:56 detain Exp $
 	// $Source: /var/lib/cvs/troublefree/tempscripts/generate_banks_table.php,v $
 
 	define('DEBUG', FALSE);
