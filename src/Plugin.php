@@ -3,7 +3,6 @@
  * Softaculous Related Functionality
  * Last Changed: $LastChangedDate: 2015-09-23 14:50:01 -0400 (Wed, 23 Sep 2015) $
  * @author detain
- * @version $Revision: 15402 $
  * @copyright 2017
  * @package IP-VLAN-Manager-Softaculous-Licensing
  * @category Licenses
