@@ -314,7 +314,7 @@ if (!function_exists('validIp')) {
 if (!function_exists('ipcalc')) {
 	/**
 	 * @param $network
-	 * @return array
+	 * @return array|bool
 	 */
 	function ipcalc($network) {
 		if (trim($network) == '')
