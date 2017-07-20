@@ -340,7 +340,7 @@ if (!function_exists('ipcalc')) {
 				'hostmax' => $matches[1],
 				'hosts' => 1
 			];
-		require_once('Net/IPv4.php');
+		require_once 'Net/IPv4.php';
 		$network_object = new Net_IPv4();
 		$net = $network_object->parseAddress($network);
 		//billingd_log("|$network|", __LINE__, __FILE__);
@@ -429,7 +429,7 @@ function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE) {
 	switch ($part) {
 		case 1:
 			if ($ipparts[0] < $maxip) {
-				if (($ipparts[0] <= $maxparts[0])) {
+				if ($ipparts[0] <= $maxparts[0]) {
 					return TRUE;
 				} else {
 					return FALSE;
@@ -959,7 +959,7 @@ function available_ipblocks($blocksize, $location = 1) {
 				$found_count = 0;
 			} else {
 				$c = $ips[$x][3];
-				if (($found) && ($blocksize >= 24) && ($found_c != $c)) {
+				if ($found && ($blocksize >= 24) && ($found_c != $c)) {
 					$found = FALSE;
 					$found_count = 0;
 				}
