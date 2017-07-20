@@ -61,8 +61,8 @@ function add_ips() {
 					$db->query(make_insert_query('ips', [
 						'ips_ip' => $ipAddress,
 						'ips_serverid' => 0,
-						'ips_group' => $groupinfo['account_id'],
-					]
+						'ips_group' => $groupinfo['account_id']
+					                                  ]
 					           ), __LINE__, __FILE__);
 					$new_ips++;
 					add_output('+');

@@ -48,8 +48,8 @@ function update_switch_ports($verbose = FALSE) {
 			$db->query(make_insert_query('switchmanager', [
 				'id' => NULL,
 				'name' => $switch,
-				'ports' => count($ports),
-			]
+				'ports' => count($ports)
+			                                            ]
 			           ), __LINE__, __FILE__);
 			$db->query("select * from switchmanager where name='{$switch}'");
 			$db->next_record();
@@ -86,8 +86,8 @@ function update_switch_ports($verbose = FALSE) {
 					'justport' => $justport,
 					'port' => $port,
 					'graph_id' => $graph,
-					'vlans' => '',
-				]
+					'vlans' => ''
+				                                          ]
 				           ), __LINE__, __FILE__);
 			}
 			else
@@ -338,7 +338,7 @@ if (!function_exists('ipcalc')) {
 				'broadcast' => '',
 				'hostmin' => $matches[1],
 				'hostmax' => $matches[1],
-				'hosts' => 1,
+				'hosts' => 1
 			];
 		require_once('Net/IPv4.php');
 		$network_object = new Net_IPv4();
@@ -351,7 +351,7 @@ if (!function_exists('ipcalc')) {
 			'broadcast' => $net->broadcast,
 			'hostmin' => long2ip($net->ip2double($net->network) + 1),
 			'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
-			'hosts' => $net->ip2double($net->broadcast) - $net->ip2double($net->network) - 1,
+			'hosts' => $net->ip2double($net->broadcast) - $net->ip2double($net->network) - 1
 		];
 		return $ipAddress_info;
 	}

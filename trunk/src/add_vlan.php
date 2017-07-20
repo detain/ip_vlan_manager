@@ -159,8 +159,8 @@ function add_vlan() {
 					'vlans_block' => $block,
 					'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
 					'vlans_ports' => $ports,
-					'vlans_comment' => $comment,
-				]
+					'vlans_comment' => $comment
+				                                    ]
 				           ), __LINE__, __FILE__);
 				$vlan = $db->get_last_insert_id('vlans', 'vlans_id');
 				$query = "select ips_ip from ips where ips_ip in ('" . implode("', '", $ips) . "')";
@@ -183,8 +183,8 @@ function add_vlan() {
 							'ips_vlan' => $vlan,
 							'ips_serverid' => 0,
 							'ips_group' => 0,
-							'ips_reserved' => $reserved,
-						]
+							'ips_reserved' => $reserved
+						                                ]
 						);
 					}
 					$db->query($query, __LINE__, __FILE__);
