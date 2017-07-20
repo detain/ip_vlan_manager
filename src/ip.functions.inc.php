@@ -208,7 +208,7 @@ function get_switch_name($index, $short = FALSE) {
 }
 
 /**
- * @param bool $ports
+ * @param bool|array $ports
  * @param int  $size
  * @return string
  */
