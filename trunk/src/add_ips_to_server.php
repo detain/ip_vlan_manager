@@ -53,7 +53,7 @@ function add_ips_to_server() {
 		$group = get_first_group($server_info['servers_group']);
 		if ($server_info) {
 			$ips = $GLOBALS['tf']->variables->request['ips'];
-			for ($x = 0, $x_max = sizeof($ips); $x < $x_max; $x++) {
+			for ($x = 0, $x_max = count($ips); $x < $x_max; $x++) {
 				$db->query("update ips set ips_group='{$group}', ips_serverid='{$server_info['servers_serverid']}' where ips_ip='{$ips[$x]}'", __LINE__, __FILE__);
 			}
 			add_output("IP(s) Successfully Assigned To $server<br>");

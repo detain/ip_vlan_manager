@@ -153,7 +153,7 @@ select * from users where id=2311;
 				$db->query($query);
 //echo $db->num_rows() . "|";
 				$dparts = explode('.', $server);
-				$dsize = sizeof($dparts);
+				$dsize = count($dparts);
 				echo "echo \"Query: $query (Rows: " . $db->num_rows() . ")\";\n";
 				if (($db->num_rows() == 0) && ($dsize > 2))
 				{

@@ -100,10 +100,10 @@ function add_vlan() {
 			$table->add_field('Usable IPs', 'l');
 			$table->add_field($ipcount, 'r');
 			$table->add_row();
-			if (sizeof($blocks) > 0) {
+			if (count($blocks) > 0) {
 				$table->add_field('Enter Desired IP Block', 'l');
 				$sel = '<select name=ipaddress>';
-				for ($x = 0, $x_max = sizeof($blocks); $x < $x_max; $x++) {
+				for ($x = 0, $x_max = count($blocks); $x < $x_max; $x++) {
 					$sel .= '<option value='.$blocks[$x][0].'>'.$blocks[$x][0].'/'.$blocksize.'</option>';
 				}
 				$sel .= '</select>';
@@ -131,10 +131,10 @@ function add_vlan() {
 			add_output($table->get_table());
 		} else {
 			$ports = $GLOBALS['tf']->variables->request['ports'];
-			if (sizeof($ports) > 0) {
+			if (count($ports) > 0) {
 				$ipaddress = $GLOBALS['tf']->variables->request['ipaddress'];
 				$found = FALSE;
-				for ($x = 0, $x_max = sizeof($blocks); $x < $x_max; $x++) {
+				for ($x = 0, $x_max = count($blocks); $x < $x_max; $x++) {
 					if ($blocks[$x][0] == $ipaddress) {
 						$block = $blocks[$x][1];
 						$found = TRUE;
@@ -168,8 +168,8 @@ function add_vlan() {
 				while ($db->next_record()) {
 					$ips2[] = $db->Record['ips_ip'];
 				}
-				for ($x = 0, $x_max = sizeof($ips); $x < $x_max; $x++) {
-					if (($x == 0) || ($x == (sizeof($ips) - 1))) {
+				for ($x = 0, $x_max = count($ips); $x < $x_max; $x++) {
+					if (($x == 0) || ($x == (count($ips) - 1))) {
 						$reserved = 1;
 					} else {
 						$reserved = 0;
