@@ -45,11 +45,12 @@ function update_switch_ports($verbose = FALSE) {
 		}
 		else
 		{
-			$db->query(make_insert_query('switchmanager', array(
+			$db->query(make_insert_query('switchmanager', [
 				'id' => NULL,
 				'name' => $switch,
 				'ports' => count($ports),
-			)), __LINE__, __FILE__);
+			]
+			           ), __LINE__, __FILE__);
 			$db->query("select * from switchmanager where name='{$switch}'");
 			$db->next_record();
 			$row = $db->Record;
@@ -79,14 +80,15 @@ function update_switch_ports($verbose = FALSE) {
 			{
 				if ($verbose == TRUE)
 					add_output("{$port} +");
-				$db->query(make_insert_query('switchports', array(
+				$db->query(make_insert_query('switchports', [
 					'switch' => $id,
 					'blade' => $blade,
 					'justport' => $justport,
 					'port' => $port,
 					'graph_id' => $graph,
 					'vlans' => '',
-				)), __LINE__, __FILE__);
+				]
+				           ), __LINE__, __FILE__);
 			}
 			else
 			{
@@ -187,7 +189,7 @@ function parse_vlan_ports($data) {
 		$blade = '';
 		$justport = $port;
 	}
-	return array($switch, $port, $blade, $justport);
+	return [$switch, $port, $blade, $justport];
 }
 
 /**
@@ -329,7 +331,7 @@ if (!function_exists('ipcalc')) {
 		if (!validIp($block, FALSE) || !is_numeric($bitmask))
 			return FALSE;
 		if (preg_match('/^(.*)\/32$/', $network, $matches))
-			return array(
+			return [
 				'network' => $matches[1],
 				'network_ip' => $matches[1],
 				'netmask' => '255.255.255.255',
@@ -337,12 +339,12 @@ if (!function_exists('ipcalc')) {
 				'hostmin' => $matches[1],
 				'hostmax' => $matches[1],
 				'hosts' => 1,
-			);
+			];
 		require_once('Net/IPv4.php');
 		$network_object = new Net_IPv4();
 		$net = $network_object->parseAddress($network);
 		//billingd_log("|$network|", __LINE__, __FILE__);
-		$ipAddress_info = array(
+		$ipAddress_info = [
 			'network' => $net->network.'/'.$net->bitmask,
 			'network_ip' => $net->network,
 			'netmask' => $net->netmask,
@@ -350,7 +352,7 @@ if (!function_exists('ipcalc')) {
 			'hostmin' => long2ip($net->ip2double($net->network) + 1),
 			'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
 			'hosts' => $net->ip2double($net->broadcast) - $net->ip2double($net->network) - 1,
-			);
+		];
 		return $ipAddress_info;
 	}
 
@@ -400,11 +402,12 @@ function get_networks($text, $vlan = 0, $comment = '', $ports = '') {
 	$parts = explode(':', $text);
 	for ($x = 0, $x_max = count($parts); $x < $x_max; $x++) {
 		if ($parts[$x] != '') {
-			$networks[] = array(
+			$networks[] = [
 				'network' => $parts[$x],
 				'vlan' => $vlan,
 				'comment' => $comment,
-				'ports' => $ports);
+				'ports' => $ports
+			];
 		}
 	}
 	return $networks;
@@ -487,13 +490,14 @@ function get_all_ipblocks() {
  * @return array
  */
 function get_client_ipblocks() {
-	$ipblocks = array(
+	$ipblocks = [
 		'67.217.48.0/20',
 		'69.164.240.0/20',
 		'74.50.64.0/19',
 		'202.53.73.0/24',
 		'205.209.96.0/19',
-		'216.219.80.0/20');
+		'216.219.80.0/20'
+	];
 	return $ipblocks;
 }
 
@@ -554,17 +558,19 @@ function get_ips($network, $include_unusable = FALSE) {
 	$minparts = explode('.', $minip);
 	$maxparts = explode('.', $maxip);
 	$ips = [];
-	for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++) {
-		for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++) {
-			for ($c = $minparts[2]; check_ip_part(3, array(
+	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++) {
+		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++) {
+			for ($c = $minparts[2]; check_ip_part(3, [
 				$a,
 				$b,
-				$c), $maxparts, $include_unusable); $c++) {
-				for ($d = $minparts[3]; check_ip_part(4, array(
+				$c
+			], $maxparts, $include_unusable); $c++) {
+				for ($d = $minparts[3]; check_ip_part(4, [
 					$a,
 					$b,
 					$c,
-					$d), $maxparts, $include_unusable); $d++) {
+					$d
+				], $maxparts, $include_unusable); $d++) {
 					$ips[] = $a.'.'.$b.'.'.$c.'.'.$d;
 				}
 			}
@@ -593,23 +599,26 @@ function get_ips2($network, $include_unusable = FALSE) {
 	$minparts = explode('.', $minip);
 	$maxparts = explode('.', $maxip);
 	$ips = [];
-	for ($a = $minparts[0]; check_ip_part(1, array($a), $maxparts, $include_unusable); $a++) {
-		for ($b = $minparts[1]; check_ip_part(2, array($a, $b), $maxparts, $include_unusable); $b++) {
-			for ($c = $minparts[2]; check_ip_part(3, array(
+	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++) {
+		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++) {
+			for ($c = $minparts[2]; check_ip_part(3, [
 				$a,
 				$b,
-				$c), $maxparts, $include_unusable); $c++) {
-				for ($d = $minparts[3]; check_ip_part(4, array(
+				$c
+			], $maxparts, $include_unusable); $c++) {
+				for ($d = $minparts[3]; check_ip_part(4, [
 					$a,
 					$b,
 					$c,
-					$d), $maxparts, $include_unusable); $d++) {
-					$ips[] = array(
+					$d
+				], $maxparts, $include_unusable); $d++) {
+					$ips[] = [
 						$a.'.'.$b.'.'.$c.'.'.$d,
 						$a,
 						$b,
 						$c,
-						$d);
+						$d
+					];
 				}
 			}
 		}
@@ -635,213 +644,213 @@ function available_ipblocks($blocksize, $location = 1) {
 		// get the main ipblocks we have routed
 		$db->query('select * from ipblocks', __LINE__, __FILE__);
 		while ($db->next_record()) {
-			$mainblocks[] = array($db->Record['ipblocks_id'], $db->Record['ipblocks_network']);
+			$mainblocks[] = [$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
 		}
 	}
 	if ($location == 2) {
-		$mainblocks[] = array(7, '173.214.160.0/23');
-		$mainblocks[] = array(8, '206.72.192.0/24');
-		$mainblocks[] = array(12, '162.220.160.0/24');
-		$mainblocks[] = array(15, '104.37.184.0/24');
+		$mainblocks[] = [7, '173.214.160.0/23'];
+		$mainblocks[] = [8, '206.72.192.0/24'];
+		$mainblocks[] = [12, '162.220.160.0/24'];
+		$mainblocks[] = [15, '104.37.184.0/24'];
 
 	} else {
 		//  104.37.184.0/24 LA reserved
-		$reserved = array(1747302400, 1747302655);
+		$reserved = [1747302400, 1747302655];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		/*  added by joe 08/24/11 to temporarily hide  173.214.160.0/23 lax1 ips */
-		$reserved = array(2916524033, 2916524542);
+		$reserved = [2916524033, 2916524542];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 206.72.192.0  LA
-		$reserved = array(3460874240, 3460874751);
+		$reserved = [3460874240, 3460874751];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 162.220.160.0/24 LA
-		$reserved = array(2732367872, 2732368127);
+		$reserved = [2732367872, 2732368127];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 
 		// 162.216.112.0/24   LA
-		$reserved = array(2732093440, 2732093695);
+		$reserved = [2732093440, 2732093695];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 	}
 	if ($location == 3) {
-		$mainblocks[] = array(12, '162.220.161.0/24');
+		$mainblocks[] = [12, '162.220.161.0/24'];
 	} else {
 		// 162.220.161.0/24 NY4
-		$reserved = array(2732368128, 2732368383);
+		$reserved = [2732368128, 2732368383];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 	}
 	if ($location == 4) {
-		$mainblocks[] = array(179, '66.45.241.16/28');
-		$mainblocks[] = array(1281, '69.10.38.128/25');
-		$mainblocks[] = array(2047, '69.10.60.192/26');
-		$mainblocks[] = array(1869, '69.10.56.0/25');
-		$mainblocks[] = array(2159, '68.168.216.0/22');
-		$mainblocks[] = array(2276, '69.10.57.0/24');
-		$mainblocks[] = array(1837, '69.10.52.72/29');
-		$mainblocks[] = array(1981, '69.10.52.112/29');
-		$mainblocks[] = array(1992, '69.10.61.64/26');
-		$mainblocks[] = array(2117, '68.168.212.0/24');
-		$mainblocks[] = array(2045, '69.10.60.0/26');
-		$mainblocks[] = array(2054, '68.168.222.0/24');
-		$mainblocks[] = array(2253, '68.168.214.0/23');
-		$mainblocks[] = array(2342, '69.10.53.0/24');
-		$mainblocks[] = array(2592, '209.159.159.0/24');
-		$mainblocks[] = array(3124, '66.23.224.0/24');
+		$mainblocks[] = [179, '66.45.241.16/28'];
+		$mainblocks[] = [1281, '69.10.38.128/25'];
+		$mainblocks[] = [2047, '69.10.60.192/26'];
+		$mainblocks[] = [1869, '69.10.56.0/25'];
+		$mainblocks[] = [2159, '68.168.216.0/22'];
+		$mainblocks[] = [2276, '69.10.57.0/24'];
+		$mainblocks[] = [1837, '69.10.52.72/29'];
+		$mainblocks[] = [1981, '69.10.52.112/29'];
+		$mainblocks[] = [1992, '69.10.61.64/26'];
+		$mainblocks[] = [2117, '68.168.212.0/24'];
+		$mainblocks[] = [2045, '69.10.60.0/26'];
+		$mainblocks[] = [2054, '68.168.222.0/24'];
+		$mainblocks[] = [2253, '68.168.214.0/23'];
+		$mainblocks[] = [2342, '69.10.53.0/24'];
+		$mainblocks[] = [2592, '209.159.159.0/24'];
+		$mainblocks[] = [3124, '66.23.224.0/24'];
 	} else {
 		// 66.45.241.16/28 reserved
-		$reserved = array(1110307088, 1110307103);
+		$reserved = [1110307088, 1110307103];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.38.128/25 reserved
-		$reserved = array(1158293120, 1158293247);
+		$reserved = [1158293120, 1158293247];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.60.192/26 reserved
-		$reserved = array(1158298816, 1158298879);
+		$reserved = [1158298816, 1158298879];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.56.0/25 reserved
-		$reserved = array(1158297600, 1158297727);
+		$reserved = [1158297600, 1158297727];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 68.168.216.0/22 reserved
-		$reserved = array(1151916032, 1151917055);
+		$reserved = [1151916032, 1151917055];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.57.0/24 reserved
-		$reserved = array(1158297856, 1158298111);
+		$reserved = [1158297856, 1158298111];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.52.72/29 reserved
-		$reserved = array(1158296648, 1158296655);
+		$reserved = [1158296648, 1158296655];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.52.112/29 reserved
-		$reserved = array(1158296688, 1158296695);
+		$reserved = [1158296688, 1158296695];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.61.64/26 reserved
-		$reserved = array(1158298944, 1158299007);
+		$reserved = [1158298944, 1158299007];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 68.168.212.0/24 reserved
-		$reserved = array(1151915008, 1151915263);
+		$reserved = [1151915008, 1151915263];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.60.0/26 reserved
-		$reserved = array(1158298624, 1158298687);
+		$reserved = [1158298624, 1158298687];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 68.168.222.0/24 reserved
-		$reserved = array(1151917568, 1151917823);
+		$reserved = [1151917568, 1151917823];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 68.168.214.0/23 reserved
-		$reserved = array(1151915520, 1151916031);
+		$reserved = [1151915520, 1151916031];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 69.10.53.0/24 reserved
-		$reserved = array(1158296832, 1158297087);
+		$reserved = [1158296832, 1158297087];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 209.159.159.0/24 reserved
-		$reserved = array(3516899072, 3516899327);
+		$reserved = [3516899072, 3516899327];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 66.23.224.0/24 reserved
-		$reserved = array(1108860928, 1108861183);
+		$reserved = [1108860928, 1108861183];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 	}
 	if ($location == 5) {
-		$mainblocks[] = array(16, '103.237.44.0/22');
-		$mainblocks[] = array(17, '43.243.84.0/22');
-		$mainblocks[] = array(16, '103.48.176.0/22');
-		$mainblocks[] = array(17, '45.113.224.0/22');
-		$mainblocks[] = array(17, '45.126.36.0/22');
-		$mainblocks[] = array(16, '103.197.16.0/22');
+		$mainblocks[] = [16, '103.237.44.0/22'];
+		$mainblocks[] = [17, '43.243.84.0/22'];
+		$mainblocks[] = [16, '103.48.176.0/22'];
+		$mainblocks[] = [17, '45.113.224.0/22'];
+		$mainblocks[] = [17, '45.126.36.0/22'];
+		$mainblocks[] = [16, '103.197.16.0/22'];
 	} else {
 		/* 103.237.44.0/22 */
-		$reserved = array(1743596544, 1743597567);
+		$reserved = [1743596544, 1743597567];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		/* 43.243.84.0/22 */
-		$reserved = array(737367040, 737367040);
+		$reserved = [737367040, 737367040];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		/* 103.48.176.0/22 */
-		$reserved = array(1731244032, 1731245055);
+		$reserved = [1731244032, 1731245055];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		/* 45.113.224.0/22 */
-		$reserved = array(762437632, 762438400);
+		$reserved = [762437632, 762438400];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		/* 45.126.36.0/22 */
-		$reserved = array(763241472, 763242495);
+		$reserved = [763241472, 763242495];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		/* 103.197.16.0/22 */
-		$reserved = array(1740967936, 1740968959);
+		$reserved = [1740967936, 1740968959];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
@@ -849,38 +858,38 @@ function available_ipblocks($blocksize, $location = 1) {
 	}
 	// la 3
 	if ($location == 6) {
-		$mainblocks[] = array(3, '69.10.50.0/24');
-		$mainblocks[] = array(18, '208.73.200.0/24');
-		$mainblocks[] = array(18, '208.73.201.0/24');
-		$mainblocks[] = array(20, '216.158.224.0/23');
-		$mainblocks[] = array(20, '67.211.208.0/24');
+		$mainblocks[] = [3, '69.10.50.0/24'];
+		$mainblocks[] = [18, '208.73.200.0/24'];
+		$mainblocks[] = [18, '208.73.201.0/24'];
+		$mainblocks[] = [20, '216.158.224.0/23'];
+		$mainblocks[] = [20, '67.211.208.0/24'];
 	} else {
 		// 69.10.50.0/24
-		$reserved = array(1158296064, 1158296319);
+		$reserved = [1158296064, 1158296319];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 208.73.200.0/24
-		$reserved = array(3494496256, 3494496511);
+		$reserved = [3494496256, 3494496511];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 208.73.201.0/24
-		$reserved = array(3494496512, 3494496767);
+		$reserved = [3494496512, 3494496767];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 216.158.224.0/23
-		$reserved = array(3634290688, 3634291199);
+		$reserved = [3634290688, 3634291199];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
 		}
 		// 67.211.208.0/24
-		$reserved = array(1137954816, 1137955071);
+		$reserved = [1137954816, 1137955071];
 		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
 			$ipAddress = long2ip($x);
 			$usedips[$ipAddress] = $ipAddress;
@@ -888,8 +897,8 @@ function available_ipblocks($blocksize, $location = 1) {
 	}
 	// Switch Subnets
 	if ($location == 7) {
-		$mainblocks[] = array(22, '173.225.96.0/24');
-		$mainblocks[] = array(22, '173.225.97.0/24');
+		$mainblocks[] = [22, '173.225.96.0/24'];
+		$mainblocks[] = [22, '173.225.97.0/24'];
 	} else {
 		// 173.225.96.0/24
 		$reserved = [2917228544, 2917228799];
@@ -974,7 +983,7 @@ function available_ipblocks($blocksize, $location = 1) {
 				if ($found) {
 					$found_count++;
 					if ($found_count == $ipcount) {
-						$available[] = array($found, $ipblock_id);
+						$available[] = [$found, $ipblock_id];
 						$found = FALSE;
 						$found_count = 0;
 					}

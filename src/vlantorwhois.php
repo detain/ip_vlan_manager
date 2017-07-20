@@ -68,9 +68,9 @@ function put_extra($extra)
 		$total += trim(`/usr/local/bin/ipcalc -n $ipAddress/$size | grep Hosts | cut -d" " -f2`);
 		$cmds = '';
 		$server = trim(str_replace(
-array('(FIXME Port Unknown)', 'FIXME PORT WRONG', 'FIX ME PORT WRONG', 'reuse', 'append', '[ip transit]'),
-array('', '', '', '', '', ''),
-ereg_replace('\(.*\)', '', strtolower($db->Record['vlans_comment']))));
+			               ['(FIXME Port Unknown)', 'FIXME PORT WRONG', 'FIX ME PORT WRONG', 'reuse', 'append', '[ip transit]'],
+			               ['', '', '', '', '', ''],
+			               ereg_replace('\(.*\)', '', strtolower($db->Record['vlans_comment']))));
 //echo "\nServer: $server :";
 		echo "echo \"VLAN $vlan SERVER $server\";\n";
 		if (preg_match("/^mb(\d)*$/", $server))
@@ -345,7 +345,7 @@ select * from users where id=2311;
 						}
 					}
 							$data = $GLOBALS['tf']->accounts->read($group);
-							$data['url'] = str_replace(array(' ', ','), array('_', ''), $data['url']);
+							$data['url'] = str_replace([' ', ','], ['_', ''], $data['url']);
 							if ($data['address'] == '')
 							{
 								$data['address'] = 'na';

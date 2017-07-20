@@ -25,11 +25,12 @@ function switch_manager() {
 	if (isset($GLOBALS['tf']->variables->request['name']) && isset($GLOBALS['tf']->variables->request['ports'])) {
 		$name = $GLOBALS['tf']->variables->request['name'];
 		$ports = $GLOBALS['tf']->variables->request['ports'];
-		$db->query(make_insert_query('switchmanager', array(
+		$db->query(make_insert_query('switchmanager', [
 			'id' => NULL,
 			'name' => $name,
 			'ports' => $ports,
-		)), __LINE__, __FILE__);
+		]
+		           ), __LINE__, __FILE__);
 	}
 	$table = new TFTable;
 	$table->set_title('Switches');
