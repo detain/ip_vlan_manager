@@ -24,8 +24,7 @@ function update_switch_ports($verbose = FALSE) {
 	foreach ($lines as $line)
 	{
 		if (trim($line) != '') {
-			$parts = explode(',', $line);
-			list($graph, $switch, $port, $comment) = $parts;
+			list($graph, $switch, $port, $comment) = explode(',', $line);
 			if ($switch != '')
 			{
 				$switches[$switch][$port] = $graph;
