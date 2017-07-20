@@ -236,10 +236,10 @@ function vlan_manager() {
 	$table->add_field('Total IPs '.$total_ips, 'l');
 	$table->add_row();
 	$table->set_colspan(4);
-	$table->add_field('Used IPs '.$used_ips.' ('.number_format((($used_ips / $total_ips) * 100), 2).'%) (Rough Estimate, I can get better numbers if you want)', 'l');
+	$table->add_field('Used IPs '.$used_ips.' ('.number_format(($used_ips / $total_ips) * 100, 2).'%) (Rough Estimate, I can get better numbers if you want)', 'l');
 	$table->add_row();
 	$table->set_colspan(4);
-	$table->add_field('Free IPs '.($total_ips - $used_ips).' ('.number_format(((($total_ips - $used_ips) / $total_ips) * 100), 2).'%)', 'l');
+	$table->add_field('Free IPs '.($total_ips - $used_ips).' ('.number_format((($total_ips - $used_ips) / $total_ips) * 100, 2).'%)', 'l');
 	$table->add_row();
 	$table->set_colspan(4);
 	$table->add_field($table->make_link('choice=ip.add_vlan', 'Add New VLAN').'   '.$table->make_link('choice=ip.portless_vlans', 'List Of VLAN Without Port Assignments ').'   '.$table->make_link('choice=ip.vlan_port_server_manager', 'VLAN Port <-> Server Mapper'));
