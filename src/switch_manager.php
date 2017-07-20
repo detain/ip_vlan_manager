@@ -28,8 +28,8 @@ function switch_manager() {
 		$db->query(make_insert_query('switchmanager', [
 			'id' => NULL,
 			'name' => $name,
-			'ports' => $ports,
-		]
+			'ports' => $ports
+		                                            ]
 		           ), __LINE__, __FILE__);
 	}
 	$table = new TFTable;
