@@ -58,11 +58,12 @@ function add_ips() {
 				if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
 					add_output('No Updates In Demo Mode');
 				} else {
-					$db->query(make_insert_query('ips', array(
+					$db->query(make_insert_query('ips', [
 						'ips_ip' => $ipAddress,
 						'ips_serverid' => 0,
 						'ips_group' => $groupinfo['account_id'],
-					)), __LINE__, __FILE__);
+					]
+					           ), __LINE__, __FILE__);
 					$new_ips++;
 					add_output('+');
 				}

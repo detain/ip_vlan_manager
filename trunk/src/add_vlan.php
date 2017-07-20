@@ -154,13 +154,14 @@ function add_vlan() {
 				}
 				$comment = $GLOBALS['tf']->variables->request['comment'];
 				$ports = ':'.implode(':', $ports).':';
-				$db->query(make_insert_query('vlans', array(
+				$db->query(make_insert_query('vlans', [
 					'vlans_id' => NULL,
 					'vlans_block' => $block,
 					'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
 					'vlans_ports' => $ports,
 					'vlans_comment' => $comment,
-				)), __LINE__, __FILE__);
+				]
+				           ), __LINE__, __FILE__);
 				$vlan = $db->get_last_insert_id('vlans', 'vlans_id');
 				$query = "select ips_ip from ips where ips_ip in ('" . implode("', '", $ips) . "')";
 				$db->query($query, __LINE__, __FILE__);
@@ -177,13 +178,14 @@ function add_vlan() {
 					if (in_array($ips[$x], $ips2)) {
 						$query = "update ips set ips_vlan='$vlan', ips_serverid=0, ips_group=0, ips_reserved='$reserved' where ips_ip='$ips[$x]'";
 					} else {
-						$query = make_insert_query('ips', array(
+						$query = make_insert_query('ips', [
 							'ips_ip' => $ips[$x],
 							'ips_vlan' => $vlan,
 							'ips_serverid' => 0,
 							'ips_group' => 0,
 							'ips_reserved' => $reserved,
-						));
+						]
+						);
 					}
 					$db->query($query, __LINE__, __FILE__);
 				}
