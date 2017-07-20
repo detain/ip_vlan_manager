@@ -12,15 +12,26 @@ namespace Detain\IpVlanManager;
 
 use Symfony\Component\EventDispatcher\GenericEvent;
 
+/**
+ * Class Plugin
+ *
+ * @package Detain\IpVlanManager
+ */
 class Plugin {
 
 	public static $name = 'IP Management';
 	public static $description = 'Enables management and allocation of IPs';
 	public static $type = 'functionality';
 
+	/**
+	 * Plugin constructor.
+	 */
 	public function __construct() {
 	}
 
+	/**
+	 * @return array
+	 */
 	public static function getHooks() {
 		return [
 			'function.requirements' => [__CLASS__, 'getRequirements'],
@@ -28,12 +39,18 @@ class Plugin {
 		];
 	}
 
+	/**
+	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
+	 */
 	public static function getMenu(GenericEvent $event) {
 		$menu = $event->getSubject();
 		if ($GLOBALS['tf']->ima == 'admin') {
 		}
 	}
 
+	/**
+	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
+	 */
 	public static function getRequirements(GenericEvent $event) {
 		$loader = $event->getSubject();
 		$loader->add_requirement('add_ips', '/../vendor/detain/ip_vlan_manager/src/add_ips.php');
