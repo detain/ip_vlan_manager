@@ -34,7 +34,7 @@ function vlan_edit_port() {
 	$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'");
 	$db->next_record();
 	$networks = get_networks($db->Record['vlans_networks'], $db->Record['vlans_id'], $db->Record['vlans_comment'], $db->Record['vlans_ports']);
-	$networksize = sizeof($networks);
+	$networksize = count($networks);
 	$rows = [];
 	for ($x = 0; $x < $networksize; $x++) {
 		$row = [];
@@ -49,7 +49,7 @@ function vlan_edit_port() {
 		$ports = [];
 		$searchs = [];
 		$servers = [];
-		$portdatasize = sizeof($portdata);
+		$portdatasize = count($portdata);
 		for ($y = 0; $y < $portdatasize; $y++) {
 			if ($portdata[$y] != '') {
 				list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);

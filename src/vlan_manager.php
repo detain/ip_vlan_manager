@@ -79,7 +79,7 @@ function vlan_manager() {
 	$db->query('select count(*) from ips where ips_vlan > 0');
 	$db->next_record();
 	$used_ips = $db->f(0);
-	$networksize = sizeof($networks);
+	$networksize = count($networks);
 	$rows = [];
 	//_debug_array($networks);
 	for ($x = 0; $x < $networksize; $x++) {
@@ -95,7 +95,7 @@ function vlan_manager() {
 		$ports = [];
 		$searches = [];
 		$servers = [];
-		$portdatasize = sizeof($portdata);
+		$portdatasize = count($portdata);
 		for ($y = 0; $y < $portdatasize; $y++) {
 			if ($portdata[$y] != '') {
 				list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
@@ -103,7 +103,7 @@ function vlan_manager() {
 				$searches[] = "(switch='{$switch}' and slot='{$port}')";
 			}
 		}
-		if (!is_null($vlans[$vlan]['server_hostname']))
+		if (null !== $vlans[$vlan]['server_hostname'])
 			$servers[] = $vlans[$vlan]['server_hostname'];
 		/* commented out 3/11/2017 by joe to get things wworking for the moment
 		if (sizeof($searches)) {
@@ -149,11 +149,11 @@ function vlan_manager() {
 				}
 			}
 		}
-		if (sizeof($ports) == 0) {
+		if (count($ports) == 0) {
 			$ports[] = '--';
 		}
 		if (!$editport) {
-			$portsize = sizeof($ports);
+			$portsize = count($ports);
 			for ($y = 0; $y < $portsize; $y++) {
 				if (!(mb_strpos($ports[$y], '/') === FALSE)) {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
@@ -171,8 +171,8 @@ function vlan_manager() {
 				if ($ports[0] != '--') {
 					if (!isset($GLOBALS['tf']->variables->request['port_0'])) {
 						$out = '';
-						for ($y = 0, $yMax = sizeof($ports); $y < $yMax; $y++) {
-							if (sizeof($ports) > 1) {
+						for ($y = 0, $yMax = count($ports); $y < $yMax; $y++) {
+							if (count($ports) > 1) {
 								$out .= 'Port '.$ports[$y].': ';
 							}
 							list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
@@ -185,7 +185,7 @@ function vlan_manager() {
 								$server = 0;
 							}
 							$out .= select_server($server, 'port_'.$y, TRUE);
-							if ($y < (sizeof($ports) - 1)) {
+							if ($y < (count($ports) - 1)) {
 								$out .= '<br>';
 							}
 						}
@@ -196,7 +196,7 @@ function vlan_manager() {
 						$editserver = TRUE;
 					} else {
 						$servers = [];
-						for ($y = 0, $yMax = sizeof($ports); $y < $yMax; $y++) {
+						for ($y = 0, $yMax = count($ports); $y < $yMax; $y++) {
 							$server = $GLOBALS['tf']->variables->request['port_'.$y];
 							if ($server != '0') {
 								$servers[] = $server;
@@ -215,7 +215,7 @@ function vlan_manager() {
 				}
 			}
 		}
-		if (sizeof($servers) == 0) {
+		if (count($servers) == 0) {
 			$servers[] = '--';
 		}
 		if (!$editserver) {

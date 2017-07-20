@@ -11,7 +11,7 @@
 	define('DEBUG', FALSE);
 
 	// Load Various Functions & Connect to mysql database
-	require_once dirname(__FILE__).'/../../../include/functions.inc.php';
+	require_once __DIR__ .'/../../../include/functions.inc.php';
 
 	function_requirements('update_switch_ports');
 	update_switch_ports(true);

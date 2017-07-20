@@ -48,7 +48,7 @@ function update_switch_ports($verbose = FALSE) {
 			$db->query(make_insert_query('switchmanager', array(
 				'id' => NULL,
 				'name' => $switch,
-				'ports' => sizeof($ports),
+				'ports' => count($ports),
 			)), __LINE__, __FILE__);
 			$db->query("select * from switchmanager where name='{$switch}'");
 			$db->next_record();
@@ -120,10 +120,10 @@ function update_switch_ports($verbose = FALSE) {
 			{
 				$vlans[] = $db->Record['vlans_id'];
 			}
-			if (sizeof($vlans) > 0)
+			if (count($vlans) > 0)
 			{
 				if ($verbose == TRUE)
-					add_output('('.sizeof($vlans).' Vlans)');
+					add_output('('.count($vlans).' Vlans)');
 				$vlantext = implode(',', $vlans);
 				$db->query("update switchports set vlans='' where vlans='{$vlantext}'");
 				$db->query("update switchports set vlans='{$vlantext}' where switch='{$id}' and port='{$port}'");
@@ -252,7 +252,7 @@ function get_ipcount_from_netmask($netmask) {
 function ipcalc_array($networks) {
 	$cmd = "function a() {\n";
 	$path = INCLUDE_ROOT.'/../scripts/licenses';
-	for ($x = 0, $x_max = sizeof($networks); $x < $x_max; $x++) {
+	for ($x = 0, $x_max = count($networks); $x < $x_max; $x++) {
 		//error_log("Calling ipcalc here");
 		$cmd .= 'LANG=C $path/ipcalc -nb '.$networks[$x]['network'].';echo :-----;';
 	}
@@ -260,7 +260,7 @@ function ipcalc_array($networks) {
 	$cmd .= 'a | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1;';
 	$result = trim(`$cmd`);
 	$results = explode('-----', $result);
-	for ($x = 0, $x_max = sizeof($networks); $x < $x_max; $x++) {
+	for ($x = 0, $x_max = count($networks); $x < $x_max; $x++) {
 		$ipinfo = [];
 		$lines = explode("\n", trim($results[$x]));
 		$netparts = explode('/', $lines[3]);
@@ -319,7 +319,7 @@ if (!function_exists('ipcalc')) {
 		if (trim($network) == '')
 			return FALSE;
 		$parts = explode('/', $network);
-		if (sizeof($parts) > 1) {
+		if (count($parts) > 1) {
 			list($block, $bitmask) = $parts;
 		} else {
 			$block = $parts[0];
@@ -398,7 +398,7 @@ if (!function_exists('ipcalc')) {
 function get_networks($text, $vlan = 0, $comment = '', $ports = '') {
 	$networks = [];
 	$parts = explode(':', $text);
-	for ($x = 0, $x_max = sizeof($parts); $x < $x_max; $x++) {
+	for ($x = 0, $x_max = count($parts); $x < $x_max; $x++) {
 		if ($parts[$x] != '') {
 			$networks[] = array(
 				'network' => $parts[$x],
@@ -938,7 +938,7 @@ function available_ipblocks($blocksize, $location = 1) {
 		// get ips from the main block
 		$ips = get_ips2($mainblock, TRUE);
 		// next loop through all available ips
-		$ipsize = sizeof($ips);
+		$ipsize = count($ips);
 		$found = FALSE;
 		$found_count = 0;
 		$found_c = '';
@@ -1007,7 +1007,7 @@ function ips_hostname($hostname) {
 		while ($db->next_record(MYSQL_ASSOC)) {
 			//		$db->Record['vlans_id'];
 			$parts = explode(':', $db->Record['vlans_ports']);
-			for ($x = 0, $x_max = sizeof($parts); $x < $x_max; $x++) {
+			for ($x = 0, $x_max = count($parts); $x < $x_max; $x++) {
 				if (mb_strpos($parts[$x], '/')) {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
 					$parts[$x] = get_switch_name($switch, TRUE).'/'.$port;
