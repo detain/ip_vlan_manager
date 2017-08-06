@@ -8,9 +8,10 @@
  * @package IP-VLAN-Manager
  * @category IPs
  */
-
 /**
  * @return bool
+ * @throws \Exception
+ * @throws \SmartyException
  */
 function delete_vlan() {
 	function_requirements('has_acl');

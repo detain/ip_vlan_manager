@@ -8,9 +8,10 @@
  * @package IP-VLAN-Manager
  * @category IPs
  */
-
 /**
  * @return bool
+ * @throws \Exception
+ * @throws \SmartyException
  */
 function add_ips_to_server() {
 	$ima = $GLOBALS['tf']->ima;

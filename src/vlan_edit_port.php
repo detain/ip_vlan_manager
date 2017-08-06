@@ -8,9 +8,10 @@
  * @package IP-VLAN-Manager
  * @category IPs
  */
-
 /**
  * @return bool
+ * @throws \Exception
+ * @throws \SmartyException
  */
 function vlan_edit_port() {
 	function_requirements('has_acl');

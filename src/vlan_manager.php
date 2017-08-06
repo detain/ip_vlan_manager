@@ -8,11 +8,12 @@
  * @package IP-VLAN-Manager
  * @category IPs
  */
-
 /**
  * VLAN Manager
  *
  * @return bool
+ * @throws \Exception
+ * @throws \SmartyException
  */
 function vlan_manager() {
 	function_requirements('has_acl');
