@@ -21,7 +21,7 @@ function portless_vlans() {
 	}
 	$db = get_module_db(IPS_MODULE);
 	$db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);
-	$table = new TFTable;
+	$table = new \TFTable;
 	$table->set_title('Port-less VLAN List'.pdf_link('choice=ip.portless_vlans'));
 	if ($db->num_rows() > 0) {
 		$table->add_field('VLAN');

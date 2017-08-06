@@ -33,7 +33,7 @@ function switch_manager() {
 		                                            ]
 		           ), __LINE__, __FILE__);
 	}
-	$table = new TFTable;
+	$table = new \TFTable;
 	$table->set_title('Switches');
 	$table->add_field('Internal ID');
 	$table->add_field('Switch ID');

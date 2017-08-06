@@ -28,7 +28,7 @@ function add_ips_to_server() {
 		while ($db->next_record()) {
 			$ipinfo = ipcalc($ipblock);
 			$ips = get_ips($ipblock);
-			$table = new TFTable;
+			$table = new \TFTable;
 			$table->add_hidden('ipblock', $ipblock);
 			$table->set_title('Add IP(s) To Server');
 			$table->add_field('Please Select Server To Add IP(s) To');

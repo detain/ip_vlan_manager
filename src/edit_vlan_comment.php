@@ -29,7 +29,7 @@ function edit_vlan_comment() {
 		$db->next_record();
 		$id = $db->Record['vlans_id'];
 		if (!isset($GLOBALS['tf']->variables->request['comment'])) {
-			$table = new TFTable;
+			$table = new \TFTable;
 			$table->set_title('VLAN Comment Editor');
 			$table->add_hidden('ipblock', $ipblock);
 			$table->add_field('VLAN');

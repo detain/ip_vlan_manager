@@ -25,7 +25,7 @@ function add_vlan() {
 	$db = get_module_db(IPS_MODULE);
 	$db2 = $db;
 	if (!isset($GLOBALS['tf']->variables->request['blocksize'])) {
-		$table = new TFTable;
+		$table = new \TFTable;
 		$table->set_title('Add New VLAN');
 		$table->add_field('Enter Desired Block Size (ie /24)', 'l');
 		$table->add_field('/'.$table->make_input('blocksize', '', 5), 'r');
@@ -35,7 +35,7 @@ function add_vlan() {
 		$table->add_row();
 		add_output($table->get_table()).'<br>';
 
-		$t = new TFTable;
+		$t = new \TFTable;
 		$t->set_title('VLAN Cheat Sheet');
 		$t->add_field('Block Size');
 		$t->add_field('Total IPs');
@@ -89,7 +89,7 @@ function add_vlan() {
 		if (!isset($GLOBALS['tf']->variables->request['ipaddress'])) {
 			// ok we have blocksize now need to determine what vlans are possible
 			$ipcount = get_ipcount_from_netmask($blocksize);
-			$table = new TFTable;
+			$table = new \TFTable;
 			$table->set_title('Add New VLAN');
 			$table->add_hidden('blocksize', $blocksize);
 			$table->add_field('Block Size', 'l');

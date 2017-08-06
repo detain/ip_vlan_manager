@@ -24,7 +24,7 @@ function delete_vlan() {
 	$db = get_module_db(IPS_MODULE);
 	$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 	if (!isset($GLOBALS['tf']->variables->request['sure']) || $GLOBALS['tf']->variables->request['sure'] != 'yes') {
-		$table = new TFTable;
+		$table = new \TFTable;
 		$table->set_title('Delete VLan');
 		$table->add_hidden('ipblock', $ipblock);
 		if (isset($_SERVER['HTTP_REFERER']))

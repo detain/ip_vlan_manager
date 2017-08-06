@@ -24,7 +24,7 @@ function vlan_port_server_manager() {
 		return FALSE;
 	}
 	$db->query('select * from vlans order by vlans_ports, vlans_networks', __LINE__, __FILE__);
-	$table = new TFTable;
+	$table = new \TFTable;
 	$table->set_title('VLAN Port <-> Server Mapping Setup');
 	$table->add_field('VLAN');
 	$table->set_bgcolor(2);

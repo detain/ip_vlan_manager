@@ -22,7 +22,7 @@ function vlan_manager() {
 		return FALSE;
 	}
 	function_requirements('update_switch_ports');
-	//			$smarty = new TFSmarty;
+	//			$smarty = new \TFSmarty;
 	//			$smarty->debugging = TRUE;
 	//			$smarty->assign('sortcol', 1);
 	//			$smarty->assign('sortdir', 0);
@@ -36,7 +36,7 @@ function vlan_manager() {
 		$order = 'vlans_id';
 	else
 		$order = 'vlans_networks';
-	$table = new TFTable;
+	$table = new \TFTable;
 	$table->set_title('VLan Manager '.pdf_link('choice='.$choice.'&order='.$order));
 	$table->set_options('width="100%"');
 	/*			$title = array(

@@ -39,7 +39,7 @@ function alt_ip_manager() {
 			$db->query($query, __LINE__, __FILE__);
 		}
 		$db->query("select *, INET_ATON(ips_ip) as aton from ips where ips_ip like '{$ipblock}.%' order by aton", __LINE__, __FILE__);
-		$table = new TFTable;
+		$table = new \TFTable;
 		$table->set_title('IP Manager');
 		$table->add_field('IP Block');
 		$table->set_colspan(2);
@@ -64,7 +64,7 @@ function alt_ip_manager() {
 		}
 		add_output($table->get_table());
 	} else {
-		$table = new TFTable;
+		$table = new \TFTable;
 		$table->set_title('IP Block Selection');
 		$table->add_field('Select IP Block');
 		$db->query('select * from ips order by ips_ip', __LINE__, __FILE__);

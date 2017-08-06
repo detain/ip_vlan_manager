@@ -33,7 +33,7 @@ function vlan_port_manager() {
 		if (!isset($GLOBALS['tf']->variables->request['ports'])) {
 			$ports = explode(':', $db->Record['vlans_ports']);
 			$select = get_select_ports($ports);
-			$table = new TFTable;
+			$table = new \TFTable;
 			$table->set_title('VLan Port Manager');
 			$table->add_hidden('ipblock', $ipblock);
 			$table->add_field('IP Block', 'l');

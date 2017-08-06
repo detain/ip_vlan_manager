@@ -25,7 +25,7 @@ function vlan_edit_port() {
 	$GLOBALS['tf']->add_html_head_js('<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>');
 	$db = get_module_db(IPS_MODULE);
 	$db2 = $db;
-	$table = new TFTable;
+	$table = new \TFTable;
 	$table->set_title('VLAN Edit Port Assignments');
 	$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 	$table->add_hidden('ipblock', $ipblock);
