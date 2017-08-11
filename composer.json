@@ -21,7 +21,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Detain\\IpVlanManager\\": "src\/"
+            "Detain\\IpVlanManager\\": "src/"
         }
     }
 }
