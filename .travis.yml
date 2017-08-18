@@ -29,8 +29,6 @@ before_script:
   - mkdir -p build/logs
   - phpenv config-rm xdebug.ini
   - echo -e "\n\n\n\n\n\n\n\n\n"|pecl install -f -a ssh2
-  - echo "extension=ssh2.so" > ssh2.ini
-  - phpenv config-add ssh2.ini
   - phpenv rehash
   - travis_retry composer self-update
   - travis_retry composer update --with-dependencies --no-interaction --dev --prefer-source
