@@ -8,7 +8,7 @@ addons:
     apt:
         packages:
         - libssh2-php
-msudo: false
+sudo: false
 php:
   - 5.4
   - 5.5
