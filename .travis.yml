@@ -24,7 +24,8 @@ addons:
     repo_token: $CODECLIMATE_REPO_TOKEN
 
 before_script:
-  - travis_retry sudo apt-get install libssh2 libssh2-devel -y -qq
+  - travis_retry sudo apt-get update
+  - travis_retry sudo apt-get install autoconf automake autotools-dev libgcrypt11-dev libgpg-error-dev libssh2-1-dev libssl-dev libtool php5-dev shtool zlib1g-dev -y -qq
   - mkdir -p build/logs
   - phpenv config-rm xdebug.ini
   - pecl install ssh2 -a
