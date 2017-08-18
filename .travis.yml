@@ -28,7 +28,7 @@ before_script:
   - travis_retry sudo apt-get install autoconf automake autotools-dev libgcrypt11-dev libgpg-error-dev libssh2-1-dev libssl-dev libtool php5-dev shtool zlib1g-dev -y -qq
   - mkdir -p build/logs
   - phpenv config-rm xdebug.ini
-  - pecl install ssh2 -a
+  - echo -e "\n\n\n\n\n\n\n\n\n"|pecl install -f -a ssh2
   - echo "extension=ssh2.so" > ssh2.ini
   - phpenv config-add ssh2.ini
   - phpenv rehash
