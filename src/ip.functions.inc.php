@@ -19,7 +19,7 @@ function update_switch_ports($verbose = FALSE) {
 	$db = get_module_db(IPS_MODULE);
 	$db2 = clone $db;
 
-	$lines = explode("\n", getcurlpage('http://nms.interserver.net/cac/servermap.php'));
+	$lines = explode("\n", getcurlpage('http://nms.is.cc/cacti/servermap.php'));
 	$switches = [];
 	foreach ($lines as $line)
 	{
