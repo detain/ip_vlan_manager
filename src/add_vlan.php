@@ -162,7 +162,7 @@ function add_vlan() {
 					'vlans_comment' => $comment
 				                                    ]
 				           ), __LINE__, __FILE__);
-				$vlan = $db->get_last_insert_id('vlans', 'vlans_id');
+				$vlan = $db->getLastInsertId('vlans', 'vlans_id');
 				$query = "select ips_ip from ips where ips_ip in ('" . implode("', '", $ips) . "')";
 				$db->query($query, __LINE__, __FILE__);
 				$ips2 = [];
