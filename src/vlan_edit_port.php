@@ -21,7 +21,7 @@ function vlan_edit_port() {
 	$GLOBALS['tf']->add_html_head_css('<link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" />
 <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />');
-	$GLOBALS['tf']->add_html_head_js('<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js"></script>');
+	$GLOBALS['tf']->add_html_head_js_file('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js');
 	$db = get_module_db(IPS_MODULE);
 	$db2 = $db;
 	$table = new \TFTable;
