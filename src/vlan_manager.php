@@ -109,9 +109,8 @@ function vlan_manager() {
 		if (sizeof($searches)) {
 			$query = 'select server_hostname from servers where '.implode(' or ', $searches);
 			$db2->query($query, __LINE__, __FILE__);
-			while ($db2->next_record()) {
+			while ($db2->next_record())
 				$servers[] = $db2->Record['server_hostname'];
-			}
 		}*/
 		//					$network_info = $networks_info[$network];
 		/*
@@ -149,9 +148,8 @@ function vlan_manager() {
 				}
 			}
 		}
-		if (count($ports) == 0) {
+		if (count($ports) == 0)
 			$ports[] = '--';
-		}
 		if (!$editport) {
 			$portsize = count($ports);
 			for ($y = 0; $y < $portsize; $y++) {
@@ -172,9 +170,8 @@ function vlan_manager() {
 					if (!isset($GLOBALS['tf']->variables->request['port_0'])) {
 						$out = '';
 						for ($y = 0, $yMax = count($ports); $y < $yMax; $y++) {
-							if (count($ports) > 1) {
+							if (count($ports) > 1)
 								$out .= 'Port '.$ports[$y].': ';
-							}
 							list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
 							$query = "select id, server_hostname from servers where switch='{$switch}' and slot='{$port}'";
 							$db2->query($query, __LINE__, __FILE__);
@@ -185,9 +182,8 @@ function vlan_manager() {
 								$server = 0;
 							}
 							$out .= select_server($server, 'port_'.$y, TRUE);
-							if ($y < (count($ports) - 1)) {
+							if ($y < (count($ports) - 1))
 								$out .= '<br>';
-							}
 						}
 						$table->add_hidden('edit_server', 1);
 						$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
@@ -215,9 +211,8 @@ function vlan_manager() {
 				}
 			}
 		}
-		if (count($servers) == 0) {
+		if (count($servers) == 0)
 			$servers[] = '--';
-		}
 		if (!$editserver) {
 			//						$row[] = $table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock='.$network, implode(', ', $servers));
 			//						$table->add_field($table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock='.$network, implode(', ', $servers)));
@@ -247,9 +242,8 @@ function vlan_manager() {
 
 	//			add_output($smarty->fetch('tablesorter/tablesorter.tpl'));
 	add_output($table->get_table());
-	if (isset($GLOBALS['tf']->variables->request['pdf']) && $GLOBALS['tf']->variables->request['pdf'] == 1) {
+	if (isset($GLOBALS['tf']->variables->request['pdf']) && $GLOBALS['tf']->variables->request['pdf'] == 1)
 		$table->get_pdf();
-	}
 }
 
 

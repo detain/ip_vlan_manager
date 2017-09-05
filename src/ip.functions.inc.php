@@ -215,9 +215,8 @@ function get_switch_name($index, $short = FALSE) {
  */
 function get_select_ports($ports = FALSE, $size = 5) {
 	$db = get_module_db(IPS_MODULE);
-	if ($ports === FALSE) {
+	if ($ports === FALSE)
 		$ports = [];
-	}
 	$select = '<select multiple="multiple" size='.$size.' name="ports[]">';
 	$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by id desc');
 	while ($db->next_record()) {
@@ -507,9 +506,8 @@ function get_client_ipblocks() {
 function get_client_ips($include_unusable = FALSE) {
 	$ipblocks = get_client_ipblocks();
 	$client_ips = [];
-	foreach ($ipblocks as $ipblock) {
+	foreach ($ipblocks as $ipblock)
 		$client_ips = array_merge($client_ips, get_ips($ipblock, $include_unusable));
-	}
 	return $client_ips;
 }
 
@@ -642,9 +640,8 @@ function available_ipblocks($blocksize, $location = 1) {
 	if ($location == 1) {
 		// get the main ipblocks we have routed
 		$db->query('select * from ipblocks', __LINE__, __FILE__);
-		while ($db->next_record()) {
+		while ($db->next_record())
 			$mainblocks[] = [$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
-		}
 	}
 	if ($location == 2) {
 		$mainblocks[] = [7, '173.214.160.0/23'];
@@ -936,9 +933,8 @@ function available_ipblocks($blocksize, $location = 1) {
 	*/
 	$db->query('select ips_ip from ips where ips_vlan > 0', __LINE__, __FILE__);
 	if ($db->num_rows()) {
-		while ($db->next_record()) {
+		while ($db->next_record())
 			$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
-		}
 	}
 	foreach ($mainblocks as $maindata) {
 		$ipblock_id = $maindata[0];

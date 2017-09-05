@@ -41,9 +41,8 @@ function portless_vlans() {
 		$table->add_field('No VLANs without ports assigned to them');
 		$table->add_row();
 	}
-	if ($GLOBALS['tf']->variables->request['pdf'] == 1) {
+	if ($GLOBALS['tf']->variables->request['pdf'] == 1)
 		$table->get_pdf();
-	}
 	add_output($table->get_table());
 }
 

@@ -103,9 +103,8 @@ function add_vlan() {
 			if (count($blocks) > 0) {
 				$table->add_field('Enter Desired IP Block', 'l');
 				$sel = '<select name=ipaddress>';
-				for ($x = 0, $x_max = count($blocks); $x < $x_max; $x++) {
+				for ($x = 0, $x_max = count($blocks); $x < $x_max; $x++)
 					$sel .= '<option value='.$blocks[$x][0].'>'.$blocks[$x][0].'/'.$blocksize.'</option>';
-				}
 				$sel .= '</select>';
 				$table->add_field($sel, 'r');
 				//$table->add_field($table->make_input('ipaddress', '', 20), 'r');
@@ -144,9 +143,8 @@ function add_vlan() {
 				$db->query("select * from ips left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ips) . "') and vlans_id is not NULL");
 				if ($db->num_rows() > 0) {
 					$found = FALSE;
-					while ($db->next_record()) {
+					while ($db->next_record())
 						echo 'Conflicting IP: '.$db->Record['ips_ip'].'<br>';
-					}
 				}
 				if (!$found) {
 					echo 'I think this vlan already exists';
@@ -166,9 +164,8 @@ function add_vlan() {
 				$query = "select ips_ip from ips where ips_ip in ('" . implode("', '", $ips) . "')";
 				$db->query($query, __LINE__, __FILE__);
 				$ips2 = [];
-				while ($db->next_record()) {
+				while ($db->next_record())
 					$ips2[] = $db->Record['ips_ip'];
-				}
 				for ($x = 0, $x_max = count($ips); $x < $x_max; $x++) {
 					if (($x == 0) || ($x == (count($ips) - 1))) {
 						$reserved = 1;

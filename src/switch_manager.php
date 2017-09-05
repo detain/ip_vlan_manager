@@ -43,9 +43,8 @@ function switch_manager() {
 	$db->query('select * from switchmanager order by id');
 	$table->alternate_rows();
 	while ($db->next_record()) {
-		if ($nextid <= (int)$db->Record['name']) {
+		if ($nextid <= (int)$db->Record['name'])
 			$nextid = $db->Record['name'] + 1;
-		}
 		$table->add_field($db->Record['id']);
 		$table->add_field($db->Record['name']);
 		$table->add_field($db->Record['ports']);
