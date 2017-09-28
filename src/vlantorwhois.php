@@ -51,9 +51,7 @@ function put_extra($extra)
 		{
 			error_log("Skipping VLAN {$db->Record['vlans_id']}, probably not our IPS");
 			continue;
-		}
-		else
-		{
+		} else {
 			$ipblock = $ipblocks[$db->Record['vlans_block']];
 		}
 		$ipblockdata = explode('/', $ipblock);
@@ -105,9 +103,7 @@ select * from users where id=2311;
 				if (trim($data['company']) == '')
 				{
 					$org = $data['name'];
-				}
-				else
-				{
+				} else {
 					$org = $data['company'];
 				}
 				if (trim($org) == '')
@@ -146,9 +142,7 @@ select * from users where id=2311;
 				. 'Created: 20050101\n'
 				. 'Updated: '.date('Ymd').'\n'
 				. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
-		}
-		else
-		{
+		} else {
 				$query = "select id, username, date from servers where server_hostname like '%$server%' or server_hostname='$server'";
 				$db->query($query);
 //echo $db->num_rows() . "|";
@@ -211,9 +205,7 @@ select * from users where id=2311;
 						if (trim($data['client_company']) == '')
 						{
 							$org = $data['client_fname'].' '.$data['client_lname'];
-						}
-						else
-						{
+						} else {
 							$org = $data['client_company'];
 						}
 						if (trim($org) == '')
@@ -252,9 +244,7 @@ select * from users where id=2311;
 						. 'Created: '.date('Ymd', $serverinfo['date']).'\n'
 						. 'Updated: '.date('Ymd').'\n'
 						. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
-					}
-					else
-					{
+					} else {
 						$dbInnertell->query("select * from users where username='" . $serverinfo['username'] . "'");
 						if ($dbInnertell->num_rows() == 0)
 						{
@@ -282,9 +272,7 @@ select * from users where id=2311;
 						if (trim($data['company']) == '')
 						{
 							$org = $data['name'];
-						}
-						else
-						{
+						} else {
 							$org = $data['company'];
 						}
 						if (trim($org) == '')
@@ -324,17 +312,13 @@ select * from users where id=2311;
 						. 'Updated: '.date('Ymd').'\n'
 						. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
 					}
-				}
-				else
-				{
+				} else {
 					$query = "select * from servers where servers_hostname like '%$server%' or servers_hostname='$server'";
 					$db4->query($query);
 					if ($db4->num_rows() == 0)
 					{
 						$group = 162;
-					}
-					else
-					{
+					} else {
 						$db4->next_record();
 						$serverinfo = $db4->Record;
 						$groups = explode(':', $serverinfo['servers_group']);
@@ -365,9 +349,7 @@ select * from users where id=2311;
 							if (trim($data['url']) == '')
 							{
 								$org = $data['account_lid'];
-							}
-							else
-							{
+							} else {
 								$org = $data['url'];
 							}
 							if (trim($org) == '')
@@ -401,14 +383,10 @@ select * from users where id=2311;
 							. 'Updated: '.date('Ymd').'\n'
 							. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
 /*
-						}
-						else
-						{
+						} else {
 							//echo "Couldn't Find Group For Comment/Server/Group $server/" . $serverinfo['servers_hostname'] . "/$group\n";
 						}
-					}
-					else
-					{
+					} else {
 						//echo "Cant Find Server $server\n";
 					}
 */

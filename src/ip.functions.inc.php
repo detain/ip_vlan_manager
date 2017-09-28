@@ -18,38 +18,28 @@ define('IPS_MODULE', 'default');
 function update_switch_ports($verbose = FALSE) {
 	$db = get_module_db(IPS_MODULE);
 	$db2 = clone $db;
-
 	$lines = explode("\n", getcurlpage('http://nms.is.cc/cacti/servermap.php'));
 	$switches = [];
 	foreach ($lines as $line)
-	{
 		if (trim($line) != '') {
 			list($graph, $switch, $port, $comment) = explode(',', $line);
 			if ($switch != '')
-			{
 				$switches[$switch][$port] = $graph;
-			}
 		}
-	}
-	foreach ($switches as $switch => $ports)
-	{
+	foreach ($switches as $switch => $ports) {
 		$foundports = [];
 		$db->query("select * from switchmanager where name='{$switch}'");
-		if ($db->num_rows() > 0)
-		{
+		if ($db->num_rows() > 0) {
 			$db->next_record();
 			$row = $db->Record;
 			if ($verbose == TRUE)
 				add_output("Loaded Switch $switch - ");
-		}
-		else
-		{
+		} else {
 			$db->query(make_insert_query('switchmanager', [
 				'id' => NULL,
 				'name' => $switch,
 				'ports' => count($ports)
-			                                            ]
-			           ), __LINE__, __FILE__);
+			]), __LINE__, __FILE__);
 			$db->query("select * from switchmanager where name='{$switch}'");
 			$db->next_record();
 			$row = $db->Record;
@@ -57,26 +47,19 @@ function update_switch_ports($verbose = FALSE) {
 				add_output("Created New Switch {$switch} - ");
 		}
 		$id = $row['id'];
-		foreach ($ports as $port => $graph)
-		{
+		foreach ($ports as $port => $graph) {
 			$blade = '';
 			$justport = $port;
-			if (mb_strrpos($port, '/') > 0)
-			{
+			if (mb_strrpos($port, '/') > 0) {
 				$blade = mb_substr($port, 0, mb_strrpos($port, '/'));
 				$justport = mb_substr($port, mb_strlen($blade) + 1);
 			}
 			if (isset($foundports[$justport]))
-			{
 				$justport = '';
-			}
 			else
-			{
 				$foundports[$justport] = TRUE;
-			}
 			$db->query("select * from switchports where switch='{$id}' and port='{$port}'");
-			if ($db->num_rows() == 0)
-			{
+			if ($db->num_rows() == 0) {
 				if ($verbose == TRUE)
 					add_output("{$port} +");
 				$db->query(make_insert_query('switchports', [
@@ -86,14 +69,10 @@ function update_switch_ports($verbose = FALSE) {
 					'port' => $port,
 					'graph_id' => $graph,
 					'vlans' => ''
-				                                          ]
-				           ), __LINE__, __FILE__);
-			}
-			else
-			{
+				]), __LINE__, __FILE__);
+			} else {
 				$db->next_record();
-				if (($db->Record['blade'] != $blade) || ($db->Record['justport'] != $justport))
-				{
+				if (($db->Record['blade'] != $blade) || ($db->Record['justport'] != $justport)) {
 					if ($verbose == TRUE)
 						add_output("\nUpdate BladePort");
 					$query = "update switchports set blade='{$blade}', justport='{$justport}' where switch='{$id}' and port='{$port}'";
@@ -102,8 +81,7 @@ function update_switch_ports($verbose = FALSE) {
 				}
 				if ($verbose == TRUE)
 					add_output("$port ");
-				if ($db->Record['graph_id'] != $graph)
-				{
+				if ($db->Record['graph_id'] != $graph) {
 					if ($verbose == TRUE)
 						add_output("\nUpdate Graph");
 					$query = "update switchports set graph_id='{$graph}' where switch='{$id}' and port='{$port}'";
@@ -118,11 +96,8 @@ function update_switch_ports($verbose = FALSE) {
 			$db->query($query);
 			$vlans = [];
 			while ($db->next_record())
-			{
 				$vlans[] = $db->Record['vlans_id'];
-			}
-			if (count($vlans) > 0)
-			{
+			if (count($vlans) > 0) {
 				if ($verbose == TRUE)
 					add_output('('.count($vlans).' Vlans)');
 				$vlantext = implode(',', $vlans);
