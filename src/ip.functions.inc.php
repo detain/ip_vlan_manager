@@ -316,7 +316,6 @@ if (!function_exists('ipcalc')) {
 		require_once 'Net/IPv4.php';
 		$network_object = new Net_IPv4();
 		$net = $network_object->parseAddress($network);
-		//billingd_log("|$network|", __LINE__, __FILE__);
 		$ipAddress_info = [
 			'network' => $net->network.'/'.$net->bitmask,
 			'network_ip' => $net->network,
