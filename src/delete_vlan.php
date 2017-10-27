@@ -27,7 +27,7 @@ function delete_vlan() {
 		$table->set_title('Delete VLan');
 		$table->add_hidden('ipblock', $ipblock);
 		if (isset($_SERVER['HTTP_REFERER']))
-			$table->add_hidden('httpreferer', $_SERVER['HTTP_REFERER']);
+			$table->add_hidden('httpreferrer', $_SERVER['HTTP_REFERER']);
 		$table->set_colspan(2);
 		$table->add_field(nl2br(wordwrap('<b>WARNING: THIS WILL NOT REMOVE IPS FROM ROUTER. DO NOT USE THIS FEATURE UNLESS YOU HAVE ALREADY REMOVED THE IPS FROM ROUTER.</b>')));
 		$table->add_row();
@@ -52,8 +52,8 @@ function delete_vlan() {
 		$db->query($query, __LINE__, __FILE__);
 		function_requirements('update_switch_ports');
 		update_switch_ports();
-		if (isset($_REQUEST['httpreferer']))
-			$GLOBALS['tf']->redirect($_REQUEST['httpreferer']);
+		if (isset($_REQUEST['httpreferrer']))
+			$GLOBALS['tf']->redirect($_REQUEST['httpreferrer']);
 		else
 			$GLOBALS['tf']->redirect($table->make_link('index.php', 'choice=none.vlan_manager'));
 	}
