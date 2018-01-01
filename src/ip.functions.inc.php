@@ -1012,7 +1012,7 @@ function ips_hostname($hostname) {
 				}
 			}
 			$db->Record['vlans_ports'] = implode(':', $parts);
-			$out .= $db->Record['vlans_comment'] . "\n{$db->Record['vlans_networks']}\n{$db->Record['vlans_ports']}\n" . $graph_id . "\n";
+			$out .= $db->Record['vlans_comment'] . "\n{$db->Record['vlans_networks']}\n{$db->Record['vlans_ports']}\n" . $graph_id.PHP_EOL;
 		}
 	} else {
 		$out .= "No vlans found\n";
