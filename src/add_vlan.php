@@ -173,7 +173,7 @@ function add_vlan() {
 						$reserved = 0;
 					}
 					if (in_array($ips[$x], $ips2)) {
-						$query = "update ips set ips_vlan='$vlan', ips_serverid=0, ips_group=0, ips_reserved='$reserved' where ips_ip='$ips[$x]'";
+						$query = "update ips set ips_vlan='{$vlan}', ips_serverid=0, ips_group=0, ips_reserved='{$reserved}' where ips_ip='$ips[$x]'";
 					} else {
 						$query = make_insert_query('ips', [
 							'ips_ip' => $ips[$x],

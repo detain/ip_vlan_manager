@@ -143,7 +143,7 @@ select * from users where id=2311;
 				. 'Updated: '.date('Ymd').'\n'
 				. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
 		} else {
-				$query = "select id, username, date from servers where server_hostname like '%$server%' or server_hostname='$server'";
+				$query = "select id, username, date from servers where server_hostname like '%$server%' or server_hostname='{$server}'";
 				$db->query($query);
 //echo $db->num_rows() . "|";
 				$dparts = explode('.', $server);
@@ -152,7 +152,7 @@ select * from users where id=2311;
 				if (($db->num_rows() == 0) && ($dsize > 2))
 				{
 					$server = $dparts[$dsize - 2].'.'.$dparts[$dsize - 1];
-					$db->query("select id, username, date from servers where server_hostname like '%$server%' or server_hostname='$server'");
+					$db->query("select id, username, date from servers where server_hostname like '%$server%' or server_hostname='{$server}'");
 					$drows = $db->num_rows();
 //					`echo "$server:$drows" >&2`;
 				}
@@ -313,7 +313,7 @@ select * from users where id=2311;
 						. 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
 					}
 				} else {
-					$query = "select * from servers where servers_hostname like '%$server%' or servers_hostname='$server'";
+					$query = "select * from servers where servers_hostname like '%$server%' or servers_hostname='{$server}'";
 					$db4->query($query);
 					if ($db4->num_rows() == 0)
 					{

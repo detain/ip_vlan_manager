@@ -67,7 +67,7 @@ function vlan_edit_port() {
 		$editport = TRUE;
 	} else {
 		$ports = ':'.implode(':', $GLOBALS['tf']->variables->request['ports']).':';
-		$query = "update vlans set vlans_ports='$ports' where vlans_networks like '%:$network:%' and vlans_id='$vlan'";
+		$query = "update vlans set vlans_ports='{$ports}' where vlans_networks like '%:$network:%' and vlans_id='{$vlan}'";
 		$db2->query($query, __LINE__, __FILE__);
 		//function_requirements('update_switch_ports');
 		//update_switch_ports();

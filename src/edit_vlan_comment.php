@@ -46,7 +46,7 @@ function edit_vlan_comment() {
 			add_output($table->get_table());
 		} else {
 			$comment = $GLOBALS['tf']->variables->request['comment'];
-			$db->query("update vlans set vlans_comment='$comment' where vlans_id='$id'", __LINE__, __FILE__);
+			$db->query("update vlans set vlans_comment='{$comment}' where vlans_id='{$id}'", __LINE__, __FILE__);
 			function_requirements('update_switch_ports');
 			update_switch_ports();
 			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
