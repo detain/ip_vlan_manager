@@ -24,5 +24,5 @@ composer require detain/ip_vlan_manager
 
 ## License
 
-The IP/VLAN Management System class is licensed under the LGPL-v2 license.
+The IP/VLAN Management System class is licensed under the LGPL-v2.1 license.
 
