@@ -68,7 +68,8 @@ function update_switch_ports($verbose = FALSE) {
 					'justport' => $justport,
 					'port' => $port,
 					'graph_id' => $graph,
-					'vlans' => ''
+					'vlans' => '',
+					'location_id' => 0
 				]), __LINE__, __FILE__);
 			} else {
 				$db->next_record();
@@ -95,14 +96,22 @@ function update_switch_ports($verbose = FALSE) {
 			//echo "$query\n";
 			$db->query($query);
 			$vlans = [];
-			while ($db->next_record())
+			$location_id = 0;
+			while ($db->next_record()) {
 				$vlans[] = $db->Record['vlans_id'];
+				$hostname = str_replace('append ','', $db->Record['vlans_comment']);
+				$db2->query("select * from location where hostname='{$hostname}'");
+				if ($db2->num_rows() > 0) {
+					$db2->next_record();
+					$location_id = $db2->Record['id'];
+				}
+			}
 			if (count($vlans) > 0) {
 				if ($verbose == TRUE)
 					add_output('('.count($vlans).' Vlans)');
 				$vlantext = implode(',', $vlans);
 				$db->query("update switchports set vlans='' where vlans='{$vlantext}'");
-				$db->query("update switchports set vlans='{$vlantext}' where switch='{$id}' and port='{$port}'");
+				$db->query("update switchports set vlans='{$vlantext}', location_id='{$location_id}' where switch='{$id}' and port='{$port}'");
 				if ($db->affected_rows())
 					if ($verbose == TRUE)
 						add_output("\nUpdate Vlan");
