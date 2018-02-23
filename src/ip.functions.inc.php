@@ -100,16 +100,16 @@ function update_switch_ports($verbose = FALSE) {
 			while ($db->next_record()) {
 				$vlans[] = $db->Record['vlans_id'];
 				$hostname = str_replace('append ','', $db->Record['vlans_comment']);
-				$db2->query("select * from location where hostname='{$hostname}'");
+				$db2->query("select * from assets where hostname='{$hostname}'");
 				if ($db2->num_rows() > 0) {
 					$db2->next_record();
-					echo "Got location {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
+					echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
 					$location_id = $db2->Record['id'];
 				}
-				$db2->query("select location.id from location, servers  where server_id=location.order_id and server_hostname='{$hostname}'");
+				$db2->query("select assets.id from assets, servers  where server_id=assets.order_id and server_hostname='{$hostname}'");
 				if ($db2->num_rows() > 0) {
 					$db2->next_record();
-					echo "Got location {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
+					echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
 					$location_id = $db2->Record['id'];
 				}
 			}
