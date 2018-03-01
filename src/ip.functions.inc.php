@@ -11,131 +11,6 @@
 define('IPS_MODULE', 'default');
 
 /**
- * updates the switch ports
- *
- * @param bool $verbose wether or not to enable verbose output.
- */
-function update_switch_ports($verbose = FALSE) {
-	$db = get_module_db(IPS_MODULE);
-	$db2 = clone $db;
-	$lines = explode("\n", getcurlpage('http://nms.is.cc/cacti/servermap.php'));
-	$switches = [];
-	foreach ($lines as $line)
-		if (trim($line) != '') {
-			list($graph, $switch, $port, $comment) = explode(',', $line);
-			if ($switch != '')
-				$switches[$switch][$port] = $graph;
-		}
-	foreach ($switches as $switch => $ports) {
-		$foundports = [];
-		$db->query("select * from switchmanager where name='{$switch}'");
-		if ($db->num_rows() > 0) {
-			$db->next_record();
-			$row = $db->Record;
-			if ($verbose == TRUE)
-				add_output("Loaded Switch $switch - ");
-		} else {
-			$db->query(make_insert_query('switchmanager', [
-				'id' => NULL,
-				'name' => $switch,
-				'ports' => count($ports)
-			]), __LINE__, __FILE__);
-			$db->query("select * from switchmanager where name='{$switch}'");
-			$db->next_record();
-			$row = $db->Record;
-			if ($verbose == TRUE)
-				add_output("Created New Switch {$switch} - ");
-		}
-		$id = $row['id'];
-		foreach ($ports as $port => $graph) {
-			$blade = '';
-			$justport = $port;
-			if (mb_strrpos($port, '/') > 0) {
-				$blade = mb_substr($port, 0, mb_strrpos($port, '/'));
-				$justport = mb_substr($port, mb_strlen($blade) + 1);
-			}
-			if (isset($foundports[$justport]))
-				$justport = '';
-			else
-				$foundports[$justport] = TRUE;
-			$db->query("select * from switchports where switch='{$id}' and port='{$port}'");
-			if ($db->num_rows() == 0) {
-				if ($verbose == TRUE)
-					add_output("{$port} +");
-				$db->query(make_insert_query('switchports', [
-					'switch' => $id,
-					'blade' => $blade,
-					'justport' => $justport,
-					'port' => $port,
-					'graph_id' => $graph,
-					'vlans' => '',
-					'location_id' => 0,
-				]), __LINE__, __FILE__);
-			} else {
-				$db->next_record();
-				if (($db->Record['blade'] != $blade) || ($db->Record['justport'] != $justport)) {
-					if ($verbose == TRUE)
-						add_output("\nUpdate BladePort");
-					$query = "update switchports set blade='{$blade}', justport='{$justport}' where switch='{$id}' and port='{$port}'";
-					//echo $query;
-					$db->query($query);
-				}
-				if ($verbose == TRUE)
-					add_output("$port ");
-				if ($db->Record['graph_id'] != $graph) {
-					if ($verbose == TRUE)
-						add_output("\nUpdate Graph");
-					$query = "update switchports set graph_id='{$graph}' where switch='{$id}' and port='{$port}'";
-					//echo $query;
-					$db->query($query);
-				}
-				if ($verbose == TRUE)
-					add_output("$graph ");
-			}
-			$query = "select * from vlans where vlans_ports like '%:{$row['id']}/{$justport}:%' or vlans_ports like '%:{$row['id']}/{$port}:%'";
-			//echo "$query\n";
-			$db->query($query);
-			$vlans = [];
-			$location_id = 0;
-			while ($db->next_record()) {
-				$vlans[] = $db->Record['vlans_id'];
-				$hostname = str_replace('append ','', $db->Record['vlans_comment']);
-				$db2->query("select * from assets where hostname='{$hostname}'");
-				if ($db2->num_rows() > 0) {
-					$db2->next_record();
-					echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
-					$location_id = $db2->Record['id'];
-				}
-				$db2->query("select assets.id from assets, servers  where server_id=assets.order_id and server_hostname='{$hostname}'");
-				if ($db2->num_rows() > 0) {
-					$db2->next_record();
-					echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
-					$location_id = $db2->Record['id'];
-				}
-			}
-			if (count($vlans) > 0) {
-				if ($verbose == TRUE)
-					add_output('('.count($vlans).' Vlans)');
-				$vlantext = implode(',', $vlans);
-				$db->query("update switchports set vlans='',location_id=0 where vlans='{$vlantext}'");
-				$db->query("update switchports set vlans='{$vlantext}', location_id='{$location_id}' where switch='{$id}' and port='{$port}'");
-				if ($db->affected_rows())
-					if ($verbose == TRUE)
-						add_output("\nUpdate Vlan");
-			}
-			if ($verbose == TRUE)
-				add_output(',');
-		}
-		if ($verbose == TRUE)
-			add_output("\n");
-	}
-	//print_r($switches);
-	global $output;
-	echo str_replace("\n", "<br>\n", $output);
-	$output = '';
-}
-
-/**
 * converts a network like say 66.45.228.0/24 into a gateway address
 * @param string $network returns a gateway address from a network address in the format of  [network ip]/[subnet] ie  192.168.1.128/23
 * @return string gateway address ie 192.168.1.129 or 66.45.228.1
@@ -165,8 +40,8 @@ function subnet2netmask($subnet) {
 }
 
 /**
- * @param $data
- * @return array
+ * @param string $data vlan ports like 171/4 or 171/Ethernet1/7 etc..
+ * @return array array of switch / port information
  */
 function parse_vlan_ports($data) {
 	$parts2 = explode('/', $data);

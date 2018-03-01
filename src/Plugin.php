@@ -87,7 +87,7 @@ class Plugin {
 		$loader->add_requirement('network2gateway', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('parse_vlan_ports', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('subnet2netmask', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
-		$loader->add_page_requirement('update_switch_ports', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
+		$loader->add_page_requirement('update_switch_ports', '/../vendor/detain/ip_vlan_manager/src/update_switch_ports.php');
 		$loader->add_requirement('validIp', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 	}
 }
