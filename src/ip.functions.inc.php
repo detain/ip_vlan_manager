@@ -69,7 +69,7 @@ function update_switch_ports($verbose = FALSE) {
 					'port' => $port,
 					'graph_id' => $graph,
 					'vlans' => '',
-					'location_id' => 0
+					'location_id' => 0,
 				]), __LINE__, __FILE__);
 			} else {
 				$db->next_record();
@@ -117,7 +117,7 @@ function update_switch_ports($verbose = FALSE) {
 				if ($verbose == TRUE)
 					add_output('('.count($vlans).' Vlans)');
 				$vlantext = implode(',', $vlans);
-				$db->query("update switchports set vlans='' where vlans='{$vlantext}'");
+				$db->query("update switchports set vlans='',location_id=0 where vlans='{$vlantext}'");
 				$db->query("update switchports set vlans='{$vlantext}', location_id='{$location_id}' where switch='{$id}' and port='{$port}'");
 				if ($db->affected_rows())
 					if ($verbose == TRUE)
