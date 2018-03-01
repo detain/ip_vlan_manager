@@ -9,6 +9,7 @@ function update_switch_ports($verbose = FALSE) {
 	$db = get_module_db('default');
 	$db2 = clone $db;
 	$vlan_ids = [];
+	$switch_ids = [];
 	$db->query("select vlans_id from vlans");
 	while ($db->next_record(MYSQL_ASSOC))
 		$vlan_ids[$db->Record['vlans_id']] = TRUE;
@@ -34,6 +35,7 @@ function update_switch_ports($verbose = FALSE) {
 		}
 		$db->next_record(MYSQL_ASSOC);
 		$switchManager = $db->Record;
+		$switch_ids[] = $switchManager['id'];
 		if ($verbose == TRUE)
 			add_output("Loaded Switch {$switch} - ");
 		foreach ($ports as $port => $graph_id) {
@@ -82,7 +84,7 @@ function update_switch_ports($verbose = FALSE) {
 					add_output("$graph_id ");
 			}
 			$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$justport}:%' or vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
-			//echo "$query\n";
+			echo "$query\n";
 			$db->query($query, __LINE__, __FILE__);
 			$vlans = [];
 			$location_id = 0;
@@ -121,7 +123,7 @@ function update_switch_ports($verbose = FALSE) {
 				$db->query("update switchports set vlans='{$vlantext}', location_id='{$location_id}' where switch='{$switchManager['id']}' and port='{$port}'", __LINE__, __FILE__);
 				if ($db->affected_rows())
 					if ($verbose == TRUE)
-						add_output(", Update Vlan");
+						add_output(", Update Vlan".PHP_EOL."update switchports set vlans='{$vlantext}', location_id='{$location_id}' where switch='{$switchManager['id']}' and port='{$port}'".PHP_EOL);
 			}
 			if ($verbose == TRUE)
 				add_output(',');
@@ -151,7 +153,7 @@ function update_switch_ports($verbose = FALSE) {
 					if ($db2->Record['name'] == $switch && $db2->Record['id'] != $switch) {
 						$new = str_replace(':'.$switch.'/', ':'.$db2->Record['id'].'/', $db->Record['vlans_ports']);
 						add_output("Fixing Record '{$db->Record['vlans_ports']}' to '{$new}'".PHP_EOL);
-						$db2->query("update vlans set vlans_ports='{$new}' where vlans_id='{$db->Record['vlans_id']}", __LINE__, __FILE__);
+						$db2->query("update vlans set vlans_ports='{$new}' where vlans_id={$db->Record['vlans_id']}", __LINE__, __FILE__);
 					}
 				} else {
 					add_output("Found No Match".PHP_EOL);
@@ -160,6 +162,10 @@ function update_switch_ports($verbose = FALSE) {
 		}
 	} else {
 		add_output("No Unmatched Vlans\n");
+	}
+	$db->query("select * from switchmanager where id not in (". implode(',',$switch_ids).")");
+	while ($db->next_record(MYSQL_ASSOC)) {
+		add_output(json_encode($db->Record).PHP_EOL);
 	}
 	//print_r($switches);
 	global $output;
