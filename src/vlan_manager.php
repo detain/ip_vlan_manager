@@ -21,6 +21,7 @@ function vlan_manager() {
 		return FALSE;
 	}
 	function_requirements('update_switch_ports');
+	function_requirements('get_networks');
 	//			$smarty = new \TFSmarty;
 	//			$smarty->debugging = TRUE;
 	//			$smarty->assign('sortcol', 1);
@@ -29,8 +30,8 @@ function vlan_manager() {
 	$ima = $GLOBALS['tf']->ima;
 	$choice = $GLOBALS['tf']->variables->request['choice'];
 	global $groupinfo;
-	$db = get_module_db(IPS_MODULE);
-	$db2 = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
+	$db2 = get_module_db('default');
 	if (isset($GLOBALS['tf']->variables->request['order']) && $GLOBALS['tf']->variables->request['order'] == 'id')
 		$order = 'vlans_id';
 	else
