@@ -2,13 +2,9 @@
 /************************************************************************************\
 * MyAdmin VLAN Manager                                                               *
 * (c)2002-2017 Interserver                                                           *
-*
 * ---------------------------------------------------------------------------------- *
 * Description: IP functions                                                          *
 \************************************************************************************/
-
-//define('IPS_MODULE', 'innertell');
-define('IPS_MODULE', 'default');
 
 /**
 * converts a network like say 66.45.228.0/24 into a gateway address
@@ -63,7 +59,7 @@ function parse_vlan_ports($data) {
  * @return string
  */
 function get_switch_name($index, $short = FALSE) {
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	$db->query("select * from switchmanager where id='{$index}'");
 	$db->next_record();
 	$switch = $db->Record['name'];
@@ -80,7 +76,7 @@ function get_switch_name($index, $short = FALSE) {
  * @return string
  */
 function get_select_ports($ports = FALSE, $size = 5) {
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	if ($ports === FALSE)
 		$ports = [];
 	$select = '<select multiple="multiple" size='.$size.' name="ports[]">';
@@ -341,7 +337,7 @@ function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE) {
  * @return array
  */
 function get_all_ipblocks() {
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	$db->query('select ipblocks_network from ipblocks');
 	$all_blocks = [];
 	while ($db->next_record(MYSQL_ASSOC))
@@ -496,7 +492,7 @@ function get_ips2($network, $include_unusable = FALSE) {
 function available_ipblocks($blocksize, $location = 1) {
 	// array of available blocks
 	$available = [];
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	// first we gotta get how many ips are in the blocksize they requested
 	$ipcount = get_ipcount_from_netmask($blocksize) + 2;
 	// get the ips in use
@@ -862,7 +858,7 @@ function available_ipblocks($blocksize, $location = 1) {
  * @return string
  */
 function ips_hostname($hostname) {
-	$db = clone get_module_db(IPS_MODULE);
+	$db = clone get_module_db('default');
 	$db2 = clone $db;
 	$comment = $db->real_escape($hostname);
 	$query = "select * from vlans where vlans_comment='{$comment}'";
