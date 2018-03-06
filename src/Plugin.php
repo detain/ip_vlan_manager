@@ -64,6 +64,7 @@ class Plugin {
 		$loader->add_page_requirement('switch_manager', '/../vendor/detain/ip_vlan_manager/src/switch_manager.php');
 		$loader->add_page_requirement('vlan_edit_port', '/../vendor/detain/ip_vlan_manager/src/vlan_edit_port.php');
 		$loader->add_page_requirement('vlan_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_manager.php');
+		$loader->add_page_requirement('vlan_manager2', '/../vendor/detain/ip_vlan_manager/src/vlan_manager2.php');
 		$loader->add_page_requirement('vlan_port_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_port_manager.php');
 		$loader->add_page_requirement('vlan_port_server_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_port_server_manager.php');
 		$loader->add_page_requirement('available_ipblocks', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
