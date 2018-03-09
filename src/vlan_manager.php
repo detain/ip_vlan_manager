@@ -69,7 +69,7 @@ function vlan_manager() {
 		$ipinfo = ipcalc($db->Record['ipblocks_network']);
 		$network_id = $db->Record['ipblocks_id'];
 		$total_ips += $ipinfo['hosts'];
-		$db2->query("select vlans.*,server_id,server_hostname,switch,port,graph_id from vlans left join vlan_locations on vlan_id=vlans_id left join switchports on switchport_id=vlan_switchport left join assets on assets.id=vlan_location left join servers on order_id=server_id where vlans_block='{$network_id}' order by {$order};", __LINE__, __FILE__);
+		$db2->query("select vlans.*,servers.server_id,server_hostname,switch,port,graph_id from vlans left join vlan_locations on vlan_id=vlans_id left join switchports on switchport_id=vlan_switchport left join assets on assets.id=vlan_location left join servers on order_id=servers.server_id where vlans_block='{$network_id}' order by {$order};", __LINE__, __FILE__);
 		while ($db2->next_record(MYSQL_ASSOC)) {
 			$vlans[$db2->Record['vlans_id']] = $db2->Record;
 			$network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], $db2->Record['vlans_comment'], $db2->Record['vlans_ports']);
