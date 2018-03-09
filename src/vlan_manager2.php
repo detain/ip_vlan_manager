@@ -63,15 +63,26 @@ function vlan_manager2() {
 	$used_ips = 0;
 	// get ip block(s)
 	$networks = [];
+	$vlanPorts = [];
+	$db->query('select vlans, switch, port, graph_id, servers.server_id, server_hostname from switchports left join servers using (server_id) where vlans != ""');
+	while ($db->next_record(MYSQL_ASSOC)) {
+		$vlans = explode(',', $db->Record['vlans']);
+		unset($db->Record['vlans']);
+		foreach ($vlans as $vlan) {
+			$vlanPorts[$vlan] = $db->Record;
+		}
+	}
 	$db->query('select * from ipblocks order by ipblocks_network', __LINE__, __FILE__);
 	$vlans = [];
-	while ($db->next_record()) {
+	while ($db->next_record(MYSQL_ASSOC)) {
 		$ipinfo = ipcalc($db->Record['ipblocks_network']);
 		$network_id = $db->Record['ipblocks_id'];
 		$total_ips += $ipinfo['hosts'];
-		$db2->query("select vlans.*,server_id,server_hostname,switch,port,graph_id from vlans left join switchports on (vlans=vlans_id or vlans like concat('%,',vlans_id,',%') or vlans like concat('%,',vlans_id) or vlans like concat (vlans_id, ',%') ) left join assets on assets.id=asset_id left join servers on order_id=server_id  where vlans_block='{$network_id}' order by {$order};", __LINE__, __FILE__);
+		$db2->query("select * from vlans where vlans_block='{$network_id}' order by {$order};", __LINE__, __FILE__);
 //		$db2->query("select vlans.*,server_id,server_hostname,switch,port,graph_id from vlans left join vlan_locations on vlan_id=vlans_id left join switchports on switchport_id=vlan_switchport left join assets on assets.id=vlan_location left join servers on order_id=server_id where vlans_block='{$network_id}' order by {$order};", __LINE__, __FILE__);
 		while ($db2->next_record(MYSQL_ASSOC)) {
+			if (isset($vlanPorts[$db2->Record['vlans_id']]))
+				$db2->Record = array_merge($db2->Record, $vlanPorts[$db2->Record['vlans_id']]);
 			$vlans[$db2->Record['vlans_id']] = $db2->Record;
 			$network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], $db2->Record['vlans_comment'], $db2->Record['vlans_ports']);
 			//_debug_array($network);
@@ -105,7 +116,7 @@ function vlan_manager2() {
 				$searches[] = "(switch='{$switch}' and slot='{$port}')";
 			}
 		}
-		if (null !== $vlans[$vlan]['server_hostname'])
+		if (isset($vlans[$vlan]['server_hostname']) && null !== $vlans[$vlan]['server_hostname'])
 			$servers[] = $vlans[$vlan]['server_hostname'];
 		/* commented out 3/11/2017 by joe to get things wworking for the moment
 		if (sizeof($searches)) {
