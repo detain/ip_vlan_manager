@@ -4,7 +4,7 @@ require_once __DIR__.'/../../include/functions.inc.php';
 $db = get_module_db('innertell');
 $db2 = clone $db;
 $switchport_vlans = [];
-$db->query("select assets.id as location_id, order_id, server_hostname from servers, assets where servers.status='active' and assets.order_id=servers.server_id");
+$db->query("select assets.id as asset_id, order_id, server_hostname from servers, assets where servers.status='active' and assets.order_id=servers.server_id");
 while ($db->next_record(MYSQL_ASSOC)) {
 	$order = $db->Record;
 	$ip = gethostbyname($db->Record['server_hostname']);
@@ -95,7 +95,7 @@ while ($db->next_record(MYSQL_ASSOC)) {
 	}
 	if ($db2->num_rows() > 0) {
 		$db2->next_record(MYSQL_ASSOC);
-		$found['location_id'] = $db2->Record['id'];
+		$found['asset_id'] = $db2->Record['id'];
 		//echo "Found server {$server} in assets for vlan {$db->Record['vlans_networks']}\n";
 	} else {
 		$db2->query("select * from servers where server_hostname='{$server}'");
@@ -149,11 +149,11 @@ while ($db->next_record(MYSQL_ASSOC)) {
 foreach ($vlans as $vlan_id => $vlan_data) {
 	$update_fields = [];
 	$fields = [
-		'vlan_location_id' => ['null'],
+		'vlan_asset_id' => ['null'],
 		'vlan_id' => $vlan_id
 	];
-	if (isset($vlan_data['location_id'])) {
-		$fields['vlan_location'] = $vlan_data['location_id'];
+	if (isset($vlan_data['asset_id'])) {
+		$fields['vlan_location'] = $vlan_data['asset_id'];
 		if (isset($vlan_data['switchport_id'])) {
 			$fields['vlan_switchport'] = $vlan_data['switchport_id'];
 			$update_fields['vlan_switchport'] = $vlan_data['switchport_id'];

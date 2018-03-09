@@ -64,7 +64,7 @@ function update_switch_ports($verbose = FALSE, $pullServerMap = TRUE) {
 						'port' => $port,
 						'graph_id' => $graph_id,
 						'vlans' => '',
-						'location_id' => 0,
+						'asset_id' => 0,
 						'updated' => mysql_now(),
 					]), __LINE__, __FILE__);
 				} else {
@@ -93,7 +93,7 @@ function update_switch_ports($verbose = FALSE, $pullServerMap = TRUE) {
 				//echo "$query\n";
 				$db->query($query, __LINE__, __FILE__);
 				$vlans = [];
-				$location_id = 0;
+				$asset_id = 0;
 				while ($db->next_record(MYSQL_ASSOC)) {
 					$vlans[] = $db->Record['vlans_id'];
 					unset($vlan_ids[$db->Record['vlans_id']]);
@@ -102,13 +102,13 @@ function update_switch_ports($verbose = FALSE, $pullServerMap = TRUE) {
 					if ($db2->num_rows() > 0) {
 						$db2->next_record();
 						//echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
-						$location_id = $db2->Record['id'];
+						$asset_id = $db2->Record['id'];
 					} else {
 						$db2->query("select * from assets where hostname='{$hostname}'");
 						if ($db2->num_rows() > 0) {
 							$db2->next_record();
 							//echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
-							$location_id = $db2->Record['id'];
+							$asset_id = $db2->Record['id'];
 						}
 					}
 				}
@@ -120,13 +120,13 @@ function update_switch_ports($verbose = FALSE, $pullServerMap = TRUE) {
 					if ($db->affected_rows())
 						if ($verbose == TRUE)
 							add_output(", Clear Old Vlan");
-					if ($location_id > 0) {
-						$db->query("update switchports set location_id=0 where location_id='{$location_id}' and not (switch='{$switchManager['id']}' and port='{$port}')", __LINE__, __FILE__);
+					if ($asset_id > 0) {
+						$db->query("update switchports set asset_id=0 where asset_id='{$asset_id}' and not (switch='{$switchManager['id']}' and port='{$port}')", __LINE__, __FILE__);
 						if ($db->affected_rows())
 							if ($verbose == TRUE)
 								add_output(", Clear Old Vlan");
 					}
-					$db->query("update switchports set vlans='{$vlantext}', location_id='{$location_id}' where switch='{$switchManager['id']}' and port='{$port}'", __LINE__, __FILE__);
+					$db->query("update switchports set vlans='{$vlantext}', asset_id='{$asset_id}' where switch='{$switchManager['id']}' and port='{$port}'", __LINE__, __FILE__);
 					if ($db->affected_rows())
 						if ($verbose == TRUE)
 							add_output(", Update Vlan".PHP_EOL);
@@ -255,8 +255,8 @@ function update_switch_ports($verbose = FALSE, $pullServerMap = TRUE) {
 		$db->query("select * from switchports where switchport_id={$switchport_id}");
 		$db->next_record(MYSQL_ASSOC);
 		$updates = [];
-		if ($db->Record['location_id'] != $assetData[$switchport_id])
-			$updates[] = 'location_id='.(is_null($assetData[$switchport_id]) ? 'NULL' : $assetData[$switchport_id]);
+		if ($db->Record['asset_id'] != $assetData[$switchport_id])
+			$updates[] = 'asset_id='.(is_null($assetData[$switchport_id]) ? 'NULL' : $assetData[$switchport_id]);
 		if ($db->Record['server_id'] != $serverData[$switchport_id])
 			$updates[] = 'server_id='.(is_null($serverData[$switchport_id]) ? 'NULL' : $serverData[$switchport_id]);
 		if ($db->Record['vlans'] != $vlanText)
