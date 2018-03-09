@@ -5,7 +5,6 @@
 	$db = get_module_db('default');
 	$db4 = $db;
 	$dbInnertell = get_module_db('innertell');
-	$db_mb            = get_module_db('mb');
 	ob_end_flush();
 
 
@@ -170,17 +169,6 @@ select * from users where id=2311;
 						$data = $dbInnertell->Record;
 						$extra = get_extra($data['extra']);
 
-					$query = "select * from client_info where client_email='" . $serverinfo['username'] . "'";
-					$db_mb->query($query);
-					if ($server['username'] == 'services@expressvpn.com')
-					{
-						echo $query;
-					}
-					echo "echo \"Query: $query (Rows: " . $db_mb->num_rows() . ")\";\n";
-					if ($db_mb->num_rows() > 0)
-					{
-						$db_mb->next_record();
-						$data = $db_mb->Record;
 					if ($server['username'] == 'services@expressvpn.com')
 					{
 						echo $query;
