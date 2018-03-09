@@ -20,6 +20,7 @@ function vlan_manager2() {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 		return FALSE;
 	}
+	page_title('VLAN Manager');
 	function_requirements('update_switch_ports');
 	function_requirements('get_networks');
 	//			$smarty = new \TFSmarty;
