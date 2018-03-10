@@ -18,10 +18,10 @@ function vlan_edit_port() {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 		return FALSE;
 	}
-	$GLOBALS['tf']->add_html_head_css('<link href="//netdna.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.6.3/css/bootstrap-select.min.css" />
-<link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />');
-	$GLOBALS['tf']->add_html_head_js_file('https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js');
+	add_js('bootstrap');
+	add_js('select2');
+	$GLOBALS['tf']->add_html_head_css_file('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css');
+	$GLOBALS['tf']->add_html_head_js_file('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js');
 	$db = get_module_db(IPS_MODULE);
 	$db2 = $db;
 	$table = new \TFTable;
@@ -60,7 +60,7 @@ function vlan_edit_port() {
 		}
 	}
 	if (!isset($GLOBALS['tf']->variables->request['ports'])) {
-		$select = get_select_ports($ports, 40);
+		$select = get_select_ports($ports, 20);
 		$table->add_hidden('edit_port', 1);
 		$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 		$table->set_colspan(2);
@@ -85,6 +85,5 @@ function vlan_edit_port() {
 	} else {
 		add_output($table->get_table());
 	}
-
 }
 

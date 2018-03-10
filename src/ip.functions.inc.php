@@ -75,12 +75,12 @@ function get_switch_name($index, $short = FALSE) {
  * @param int  $size
  * @return string
  */
-function get_select_ports($ports = FALSE, $size = 5) {
+function get_select_ports($ports = FALSE, $size = 5, $extra = '') {
 	$db = get_module_db('default');
 	if ($ports === FALSE)
 		$ports = [];
-	$select = '<select multiple="multiple" size='.$size.' name="ports[]">';
-	$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by id desc');
+	$select = '<select multiple="multiple" size='.$size.' name="ports[]" '.$extra.'>';
+	$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by name, port desc');
 	while ($db->next_record()) {
 		$switch = $db->Record['id'];
 		$port = $db->Record['port'];
