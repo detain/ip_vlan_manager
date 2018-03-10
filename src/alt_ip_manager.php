@@ -20,8 +20,8 @@ function alt_ip_manager() {
 	}
 	global $groupinfo;
 	$ima = $GLOBALS['tf']->ima;
-	$db = get_module_db(IPS_MODULE);
-	$db2 = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
+	$db2 = get_module_db('default');
 	if (isset($GLOBALS['tf']->variables->request['ipblock'])) {
 		$db->query('select id, server_hostname from servers', __LINE__, __FILE__);
 		$serverids = [];

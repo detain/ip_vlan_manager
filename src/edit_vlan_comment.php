@@ -15,7 +15,7 @@
 function edit_vlan_comment() {
 	function_requirements('update_switch_ports');
 	$ima = $GLOBALS['tf']->ima;
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');

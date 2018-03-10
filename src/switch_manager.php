@@ -19,8 +19,8 @@ function switch_manager() {
 		return FALSE;
 	}
 	global $groupinfo;
-	$db = get_module_db(IPS_MODULE);
-	$db2 = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
+	$db2 = get_module_db('default');
 	$ima = $GLOBALS['tf']->ima;
 	if (isset($GLOBALS['tf']->variables->request['name']) && isset($GLOBALS['tf']->variables->request['ports'])) {
 		$name = $GLOBALS['tf']->variables->request['name'];
@@ -29,8 +29,8 @@ function switch_manager() {
 			'id' => NULL,
 			'name' => $name,
 			'ports' => $ports
-		                                            ]
-		           ), __LINE__, __FILE__);
+													]
+				   ), __LINE__, __FILE__);
 	}
 	$table = new \TFTable;
 	$table->set_title('Switches');

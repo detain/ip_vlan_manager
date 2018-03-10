@@ -18,7 +18,7 @@ function add_ips() {
 		return FALSE;
 	}
 	global $groupinfo;
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	$color1 = COLOR1;
 	$color3 = COLOR2;
 	$color2 = COLOR3;
@@ -61,8 +61,8 @@ function add_ips() {
 						'ips_ip' => $ipAddress,
 						'ips_serverid' => 0,
 						'ips_group' => $groupinfo['account_id']
-					                                  ]
-					           ), __LINE__, __FILE__);
+													  ]
+							   ), __LINE__, __FILE__);
 					$new_ips++;
 					add_output('+');
 				}
