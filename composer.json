@@ -1,30 +1,31 @@
 {
-    "name": "detain/ip_vlan_manager",
-    "type": "library",
-    "description": "IP\/VLAN Management System",
-    "keywords": [
-        "ip",
-        "vlan",
-        "network"
-    ],
-    "license": "LGPL-2.1-or-later",
-    "authors": [
-        {
-            "name": "Joe Huss",
-            "homepage": "https:\/\/my.interserver.net\/"
-        }
-    ],
-    "require": {
-        "php": ">=5.3.0",
-        "ext-ssh2": "*",
-        "roave/security-advisories": "dev-master"
-    },
-    "require-dev": {
-        "phpunit/phpunit": ">=4.8.35, <6.0.0"
-    },
-    "autoload": {
-        "psr-4": {
-            "Detain\\IpVlanManager\\": "src/"
-        }
-    }
+	"name": "detain/ip_vlan_manager",
+	"type": "library",
+	"description": "IP\/VLAN Management System",
+	"keywords": [
+		"ip",
+		"vlan",
+		"network"
+	],
+	"license": "LGPL-2.1-or-later",
+	"authors": [
+		{
+			"name": "Joe Huss",
+			"homepage": "https:\/\/my.interserver.net\/"
+		}
+	],
+	"require": {
+		"php": ">=5.3.0",
+		"ext-ssh2": "*",
+		"roave/security-advisories": "dev-master"
+	},
+	"require-dev": {
+		"phpunit/phpunit": ">=4.8.35, <6.0.0",
+		"phpunit/phpunit-mock-objects": "*"
+	},
+	"autoload": {
+		"psr-4": {
+			"Detain\\IpVlanManager\\": "src/"
+		}
+	}
 }
