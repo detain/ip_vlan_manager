@@ -21,7 +21,7 @@ function add_vlan() {
 	//_debug_array(get_ips2('68.168.208.0/20',TRUE));
 	$ima = $GLOBALS['tf']->ima;
 	global $groupinfo;
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	$db2 = $db;
 	if (!isset($GLOBALS['tf']->variables->request['blocksize'])) {
 		$table = new \TFTable;

@@ -15,7 +15,7 @@
 function vlan_port_manager() {
 	function_requirements('update_switch_ports');
 	$ima = $GLOBALS['tf']->ima;
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	$db2 = $db;
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {

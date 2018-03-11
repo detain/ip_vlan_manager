@@ -20,7 +20,7 @@ function delete_vlan() {
 	}
 	$ima = $GLOBALS['tf']->ima;
 	global $groupinfo;
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 	if (!isset($GLOBALS['tf']->variables->request['sure']) || $GLOBALS['tf']->variables->request['sure'] != 'yes') {
 		$table = new \TFTable;

@@ -18,7 +18,7 @@ function portless_vlans() {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 		return FALSE;
 	}
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	$db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);
 	$table = new \TFTable;
 	$table->set_title('Port-less VLAN List'.pdf_link('choice=ip.portless_vlans'));

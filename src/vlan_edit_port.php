@@ -22,7 +22,7 @@ function vlan_edit_port() {
 	add_js('select2');
 	$GLOBALS['tf']->add_html_head_css_file('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css');
 	$GLOBALS['tf']->add_html_head_js_file('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js');
-	$db = get_module_db(IPS_MODULE);
+	$db = get_module_db('default');
 	$db2 = $db;
 	$table = new \TFTable;
 	$table->set_title('VLAN Edit Port Assignments');
