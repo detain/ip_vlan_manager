@@ -27,5 +27,6 @@
 		"psr-4": {
 			"Detain\\IpVlanManager\\": "src/"
 		}
-	}
+	},
+	"minimum-stability": "dev"
 }
