@@ -172,81 +172,48 @@ if (!function_exists('validIp')) {
 	}
 }
 
-if (!function_exists('ipcalc')) {
-	/**
-	 * @param $network
-	 * @return array|bool
-	 */
-	function ipcalc($network) {
-		if (trim($network) == '')
-			return FALSE;
-		$parts = explode('/', $network);
-		if (count($parts) > 1) {
-			list($block, $bitmask) = $parts;
-		} else {
-			$block = $parts[0];
-			$bitmask = '32';
-			$network = $block.'/'.$bitmask;
-		}
-		if (!validIp($block, FALSE) || !is_numeric($bitmask))
-			return FALSE;
-		if (preg_match('/^(.*)\/32$/', $network, $matches))
-			return [
-				'network' => $matches[1],
-				'network_ip' => $matches[1],
-				'netmask' => '255.255.255.255',
-				'broadcast' => '',
-				'hostmin' => $matches[1],
-				'hostmax' => $matches[1],
-				'hosts' => 1
-			];
-		require_once 'Net/IPv4.php';
-		$network_object = new Net_IPv4();
-		$net = $network_object->parseAddress($network);
-		$ipAddress_info = [
-			'network' => $net->network.'/'.$net->bitmask,
-			'network_ip' => $net->network,
-			'netmask' => $net->netmask,
-			'broadcast' => $net->broadcast,
-			'hostmin' => long2ip($net->ip2double($net->network) + 1),
-			'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
-			'hosts' => $net->ip2double($net->broadcast) - $net->ip2double($net->network) - 1
+ /**
+ * Gets the Network information from a network address
+ *
+ * @param $network string Network address in 1.2.3.4/24 format
+ * @return array|bool false on error or returns an array containing the network info
+ */
+function ipcalc($network) {
+	if (trim($network) == '')
+		return FALSE;
+	$parts = explode('/', $network);
+	if (count($parts) > 1) {
+		list($block, $bitmask) = $parts;
+	} else {
+		$block = $parts[0];
+		$bitmask = '32';
+		$network = $block.'/'.$bitmask;
+	}
+	if (!validIp($block, FALSE) || !is_numeric($bitmask))
+		return FALSE;
+	if (preg_match('/^(.*)\/32$/', $network, $matches))
+		return [
+			'network' => $matches[1],
+			'network_ip' => $matches[1],
+			'netmask' => '255.255.255.255',
+			'broadcast' => '',
+			'hostmin' => $matches[1],
+			'hostmax' => $matches[1],
+			'hosts' => 1
 		];
-		return $ipAddress_info;
-	}
-
-	/**
-	 * @param $network
-	 * @return array
-	 */
-	function ipcalc_old($network) {
-		/* Sample Output from ipcalc
-		0	Address:66.45.224.0
-		1	Netmask:255.255.240.0
-		2	Wildcard:0.0.15.255
-		3	Network:66.45.224.0/20
-		4	Broadcast:66.45.239.255
-		5	HostMin:66.45.224.1
-		6	HostMax:66.45.239.254
-		7	Hosts/Net:4094
-		*/
-		$path = INCLUDE_ROOT.'/../scripts/licenses';
-		$ipinfo = [];
-		//error_log("Calling ipcalc here");
-		$result = trim(`LANG=C $path/ipcalc -nb $network | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1`);
-		$lines = explode("\n", $result);
-		$netparts = explode('/', $lines[3]);
-		$ipinfo['network'] = $lines[3];
-		$ipinfo['network_ip'] = $netparts[0];
-		$ipinfo['netmask'] = $lines[1];
-		$ipinfo['wildcard'] = $lines[2];
-		$ipinfo['broadcast'] = $lines[6];
-		$ipinfo['hostmin'] = $lines[4];
-		$ipinfo['hostmax'] = $lines[5];
-		$ipinfo['hosts'] = $lines[7];
-		//_debug_array($ipinfo);
-		return $ipinfo;
-	}
+	require_once 'Net/IPv4.php';
+	$network_object = new Net_IPv4();
+	$net = $network_object->parseAddress($network);
+	$ipAddress_info = [
+		'network' => $net->network.'/'.$net->bitmask,
+		'network_ip' => $net->network,
+		'netmask' => $net->netmask,
+		'broadcast' => $net->broadcast,
+		'hostmin' => long2ip($net->ip2double($net->network) + 1),
+		'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
+		'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
+	];
+	return $ipAddress_info;
 }
 
 /**
