@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1dd95ca1c2b8debf37ad18b6556ac71c",
+    "content-hash": "b258cda899792f8fcc6f5de946960f4e",
     "packages": [
         {
             "name": "pear/net_ipv4",
@@ -1596,8 +1596,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.3.0",
-        "ext-ssh2": "*"
+        "php": ">=5.3.0"
     },
     "platform-dev": []
 }
