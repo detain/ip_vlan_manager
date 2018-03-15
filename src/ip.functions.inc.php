@@ -140,8 +140,19 @@ if (!function_exists('validIp')) {
 }
 
  /**
- * Gets the Network information from a network address.  returnms the following fields: network network_ip netmask broadcast hostmin hostmax hosts
- *
+ * Gets the Network information from a network address.
+ * Example Response: [
+ *   'network'      => '66.45.233.160/28',
+ *   'network_ip'   => '66.45.233.160',
+ *   'bitmask'      => '28',
+ *   'netmask'      => '255.255.255.240',
+ *   'broadcast'    => '66.45.233.175',
+ *   'hostmin'      => '66.45.233.161',
+ *   'hostmax'      => '66.45.233.174',
+ *   'first_usable' => '66.45.233.162',
+ *   'gateway'      => '66.45.233.161',
+ *   'hosts'        => 14
+ * ];
  * @param $network string Network address in 1.2.3.4/24 format
  * @return array|bool false on error or returns an array containing the network info
  */
@@ -162,10 +173,13 @@ function ipcalc($network) {
 		return [
 			'network' => $matches[1],
 			'network_ip' => $matches[1],
+			'bitmask' => 32,
 			'netmask' => '255.255.255.255',
 			'broadcast' => '',
 			'hostmin' => $matches[1],
 			'hostmax' => $matches[1],
+			'first_usable' => $matches[1],
+			'gateway' => '',
 			'hosts' => 1
 		];
 	require_once 'Net/IPv4.php';
@@ -174,10 +188,13 @@ function ipcalc($network) {
 	$ipAddress_info = [
 		'network' => $net->network.'/'.$net->bitmask,
 		'network_ip' => $net->network,
+		'bitmask' => $net->bitmask,
 		'netmask' => $net->netmask,
 		'broadcast' => $net->broadcast,
 		'hostmin' => long2ip($net->ip2double($net->network) + 1),
 		'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
+		'first_usable' => long2ip($net->ip2double($net->network) + 2),
+		'gateway' => long2ip($net->ip2double($net->network) + 1),
 		'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
 	];
 	return $ipAddress_info;
