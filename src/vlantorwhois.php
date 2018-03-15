@@ -62,7 +62,7 @@ function put_extra($extra)
 		$maxip = $network_info['broadcast'];
 		$ipAddress = $vlandata[0];
 		$size = $vlandata[1];
-		$total += trim(`/usr/local/bin/ipcalc -n $ipAddress/$size | grep Hosts | cut -d" " -f2`);
+		$total += $network_info['hosts'];
 		$cmds = '';
 		$server = trim(str_replace(
 			               ['(FIXME Port Unknown)', 'FIXME PORT WRONG', 'FIX ME PORT WRONG', 'reuse', 'append', '[ip transit]'],
