@@ -95,15 +95,28 @@ function get_select_ports($ports = FALSE, $size = 5, $extra = '') {
 }
 
 /**
- * @param $netmask
- * @return int
+ * gets the number of ips for a given netmask or bitmask.  can pass it a blocksize (ie 24) or netmask (ie 255.255.255.0)
+ *
+ * @param $netmask a netmask or block size
+ * @return int the number of ips in within a range using this netmask or blocksize
  */
 function get_ipcount_from_netmask($netmask) {
 	$ipinfo = [];
-	//error_log("Calling ipcalc here");
-	$path = INCLUDE_ROOT.'/../scripts/licenses';
-	$result = trim(`LANG=C $path/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
-	return (int)$result;
+	require_once 'Net/IPv4.php';
+	$network_object = new Net_IPv4();
+	$validNM = Net_IPv4::$Net_IPv4_Netmask_Map;
+	if (in_array($netmask, $validNM)) {
+		$validNM_rev = array_flip($validNM);
+		$blocksize = $validNM_rev[$netmask];
+	} else {
+		$blocksize = $netmask;
+		$netmask = $validNM[$blocksize];
+	}
+	$ip = '0.0.0.0';
+	$network = long2ip(ip2long($ip) & ip2long($netmask));
+	$broadcast = long2ip(ip2long($ip) |	(ip2long($netmask) ^ ip2long("255.255.255.255")));
+	$hosts = (int)(ip2long($broadcast) - ip2long($network) - 1);
+	return $hosts;
 }
 
 if (!function_exists('validIp')) {
@@ -353,10 +366,8 @@ function get_all_ips2_from_ipblocks($include_unusable = FALSE) {
  * @return array
  */
 function get_ips($network, $include_unusable = FALSE) {
-	//echo "$network|$include_unusable|<br>";
 	$ips = [];
 	$network_info = ipcalc($network);
-	//_debug_array($network_info);
 	if ($include_unusable) {
 		$minip = $network_info['network_ip'];
 		$maxip = $network_info['broadcast'];
@@ -367,24 +378,11 @@ function get_ips($network, $include_unusable = FALSE) {
 	$minparts = explode('.', $minip);
 	$maxparts = explode('.', $maxip);
 	$ips = [];
-	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++) {
-		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++) {
-			for ($c = $minparts[2]; check_ip_part(3, [
-				$a,
-				$b,
-				$c
-			], $maxparts, $include_unusable); $c++) {
-				for ($d = $minparts[3]; check_ip_part(4, [
-					$a,
-					$b,
-					$c,
-					$d
-				], $maxparts, $include_unusable); $d++) {
+	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++)
+		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++)
+			for ($c = $minparts[2]; check_ip_part(3, [$a,$b,$c], $maxparts, $include_unusable); $c++)
+				for ($d = $minparts[3]; check_ip_part(4, [$a,$b,$c,$d], $maxparts, $include_unusable); $d++)
 					$ips[] = $a.'.'.$b.'.'.$c.'.'.$d;
-				}
-			}
-		}
-	}
 	return $ips;
 }
 
@@ -394,10 +392,8 @@ function get_ips($network, $include_unusable = FALSE) {
  * @return array
  */
 function get_ips2($network, $include_unusable = FALSE) {
-	//echo "$network|$include_unusable|<br>";
 	$ips = [];
 	$network_info = ipcalc($network);
-	//_debug_array($network_info);
 	if ($include_unusable) {
 		$minip = $network_info['network_ip'];
 		$maxip = $network_info['broadcast'];
@@ -408,30 +404,11 @@ function get_ips2($network, $include_unusable = FALSE) {
 	$minparts = explode('.', $minip);
 	$maxparts = explode('.', $maxip);
 	$ips = [];
-	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++) {
-		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++) {
-			for ($c = $minparts[2]; check_ip_part(3, [
-				$a,
-				$b,
-				$c
-			], $maxparts, $include_unusable); $c++) {
-				for ($d = $minparts[3]; check_ip_part(4, [
-					$a,
-					$b,
-					$c,
-					$d
-				], $maxparts, $include_unusable); $d++) {
-					$ips[] = [
-						$a.'.'.$b.'.'.$c.'.'.$d,
-						$a,
-						$b,
-						$c,
-						$d
-					];
-				}
-			}
-		}
-	}
+	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++)
+		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++)
+			for ($c = $minparts[2]; check_ip_part(3, [$a,$b,$c], $maxparts, $include_unusable); $c++)
+				for ($d = $minparts[3]; check_ip_part(4, [$a,$b,$c,$d], $maxparts, $include_unusable); $d++)
+					$ips[] = [$a.'.'.$b.'.'.$c.'.'.$d,$a,$b,$c,$d];
 	return $ips;
 }
 
@@ -773,9 +750,8 @@ function available_ipblocks($blocksize, $location = 1) {
 				if (!$found) {
 					if ($blocksize <= 24) {
 						if ($ips[$x][4] == 0) {
-							//error_log("Calling ipcalc here");
-							$cmd = 'LANG=C '.$path.'/ipcalc -n -b '.$ips[$x][0].'/'.$blocksize.' | grep Network: | cut -d: -f2';
-							if (trim(`$cmd`) == $ips[$x][0].'/'.$blocksize) {
+							$ipcalc = ipcalc($ips[$x][0].'/'.$blocksize);
+							if ($ipcalc['network'] == $ips[$x][0].'/'.$blocksize) {
 								$found = $ips[$x][0];
 								$found_c = $c;
 							}
