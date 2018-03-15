@@ -94,7 +94,6 @@ function get_select_ports($ports = FALSE, $size = 5, $extra = '') {
 	return $select;
 }
 
-
 /**
  * @param $netmask
  * @return int
@@ -105,38 +104,6 @@ function get_ipcount_from_netmask($netmask) {
 	$path = INCLUDE_ROOT.'/../scripts/licenses';
 	$result = trim(`LANG=C $path/ipcalc -nb 192.168.0.0/$netmask | grep Hosts | cut -d" " -f2`);
 	return (int)$result;
-}
-
-/**
- * @param $networks
- * @return mixed
- */
-function ipcalc_array($networks) {
-	$cmd = "function a() {\n";
-	$path = INCLUDE_ROOT.'/../scripts/licenses';
-	for ($x = 0, $x_max = count($networks); $x < $x_max; $x++) {
-		//error_log("Calling ipcalc here");
-		$cmd .= 'LANG=C $path/ipcalc -nb '.$networks[$x]['network'].';echo :-----;';
-	}
-	$cmd .= "}\n";
-	$cmd .= 'a | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1;';
-	$result = trim(`$cmd`);
-	$results = explode('-----', $result);
-	for ($x = 0, $x_max = count($networks); $x < $x_max; $x++) {
-		$ipinfo = [];
-		$lines = explode("\n", trim($results[$x]));
-		$netparts = explode('/', $lines[3]);
-		$ipinfo['network'] = $lines[3];
-		$ipinfo['network_ip'] = $netparts[0];
-		$ipinfo['netmask'] = $lines[1];
-		$ipinfo['wildcard'] = $lines[2];
-		$ipinfo['broadcast'] = $lines[6];
-		$ipinfo['hostmin'] = $lines[4];
-		$ipinfo['hostmax'] = $lines[5];
-		$ipinfo['hosts'] = $lines[7];
-		$network_info[$networks[$x]['network']] = $ipinfo;
-	}
-	return $network_info;
 }
 
 if (!function_exists('validIp')) {
@@ -173,7 +140,7 @@ if (!function_exists('validIp')) {
 }
 
  /**
- * Gets the Network information from a network address
+ * Gets the Network information from a network address.  returnms the following fields: network network_ip netmask broadcast hostmin hostmax hosts
  *
  * @param $network string Network address in 1.2.3.4/24 format
  * @return array|bool false on error or returns an array containing the network info

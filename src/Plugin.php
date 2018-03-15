@@ -81,8 +81,6 @@ class Plugin {
 		$loader->add_requirement('get_select_ports', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('get_switch_name', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('ipcalc', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
-		$loader->add_requirement('ipcalc_array', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
-		$loader->add_requirement('ipcalc_old', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('ipnetmask2gateway', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('ips_hostname', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
 		$loader->add_requirement('network2gateway', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
