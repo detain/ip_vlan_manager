@@ -437,7 +437,6 @@ function available_ipblocks($blocksize, $location = 1) {
 		$mainblocks[] = [8, '206.72.192.0/24'];
 		$mainblocks[] = [12, '162.220.160.0/24'];
 		$mainblocks[] = [15, '104.37.184.0/24'];
-
 	} else {
 		$reserved = [
 			[1747302400, 1747302655], // 104.37.184.0/24 LA reserved
@@ -601,7 +600,6 @@ function available_ipblocks($blocksize, $location = 1) {
 		$found = FALSE;
 		$found_count = 0;
 		$found_c = '';
-		$path = INCLUDE_ROOT.'/../scripts/licenses';
 		for ($x = 0; $x < $ipsize; $x++) {
 			// check if the ips in use already
 			if (isset($usedips[$ips[$x][0]])) {
