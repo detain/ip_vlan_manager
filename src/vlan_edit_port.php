@@ -90,7 +90,10 @@ function vlan_edit_port() {
 				$db2->next_record(MYSQL_ASSOC);
 				$orig_switchports[$db2->Record['switchport_id']] = $db2->Record;
 				if (!in_array($db2->Record['switchport_id'], array_keys($switchports))) {
-					$vlans = explode(',', $db2->Record['vlans']);
+					if (trim($db2->Record['vlans']) != '')
+						$vlans = explode(',', trim($db2->Record['vlans']));
+					else
+						$vlans = [];
 					if (($key = array_search($vlanInfo['vlans_id'], $vlans)) !== false)
 						unset($vlans[$key]);
 					$vlans = implode(',', $vlans);
@@ -103,7 +106,10 @@ function vlan_edit_port() {
 		}
 		foreach ($switchports as $switchport_id => $switchportData) {
 			if (!in_array($switchport_id, array_keys($orig_switchports)) || !is_null($server_id)) {
-				$vlans = explode(',', $switchportData['vlans']);
+				if (trim($switchportData['vlans']) != '')
+					$vlans = explode(',', trim($switchportData['vlans']));
+				else
+					$vlans = [];
 				if (!in_array($vlanInfo['vlans_id'], $vlans))
 					$vlans[] = $vlanInfo['vlans_id'];
 				$vlans = implode(',', $vlans);
