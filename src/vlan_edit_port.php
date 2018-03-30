@@ -125,7 +125,7 @@ function vlan_edit_port() {
 
 		//function_requirements('update_switch_ports');
 		//update_switch_ports();
-		if(isset($GLOBALS['tf']->variables->request['source']) && $GLOBALS['tf']->variables->request['source'] == 'popup_order') {
+		if(isset($GLOBALS['tf']->variables->request['pop_order_id'])) {
 			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=none.view_server_order&id='.$GLOBALS['tf']->variables->request['pop_order_id']));
 			return TRUE;
 		} else {
