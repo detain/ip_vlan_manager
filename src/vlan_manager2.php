@@ -177,7 +177,10 @@ function vlan_manager2() {
 			//						$row[] = $table->make_link('choice=ip.vlan_manager&amp;edit_port=1&amp;ipblock='.$network, implode(', ', $ports));
 			//						$table->add_field($table->make_link('choice=ip.vlan_manager&amp;edit_port=1&amp;ipblock='.$network, implode(', ', $ports)));
 		}
-		$table->add_field($table->make_link('choice=ip.ipblock_viewer&amp;ipblock='.$network, '(?)') . $table->make_link('choice=ip.add_ips_to_server&amp;ipblock='.$network, '(+IP)') . $table->make_link('choice=ip.delete_vlan&amp;ipblock='.$network, '(-)'), 'c');
+		$table->add_field(
+			$table->make_link('choice=ip.ipblock_viewer&amp;ipblock='.$network, '<i class="icon-analyze" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-analyze"></use></svg></i>', false, 'title="View"')
+			. $table->make_link('choice=ip.add_ips_to_server&amp;ipblock='.$network, '<i class="icon-plus" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-plus"></use></svg></i>', false, 'title="Add IPs"')
+			. $table->make_link('choice=ip.delete_vlan&amp;ipblock='.$network, '<i class="icon-delete" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-delete"></use></svg></i>', false, 'title="Delete"'), 'c');
 		if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network) {
 			if (isset($GLOBALS['tf']->variables->request['edit_server'])) {
 				if ($ports[0] != '--') {
