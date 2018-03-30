@@ -89,7 +89,7 @@ function vlan_edit_port() {
 			if ($db2->num_rows() > 0) {
 				$db2->next_record(MYSQL_ASSOC);
 				$orig_switchports[$db2->Record['switchport_id']] = $db2->Record;
-				if (!in_array($db2->Record['switchport_id'], array_keys($switchports)) || !is_null($server_id))) {
+				if (!in_array($db2->Record['switchport_id'], array_keys($switchports)) || !is_null($server_id)) {
 					if (trim($db2->Record['vlans']) != '')
 						$vlans = explode(',', trim($db2->Record['vlans']));
 					else
