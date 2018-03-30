@@ -114,9 +114,9 @@ function vlan_edit_port() {
 					$vlans[] = $vlanInfo['vlans_id'];
 				$vlans = implode(',', $vlans);
 				if (!is_null($server_id))
-					$db2->query("update switchports set vlans='{$vlans}',server_id={$server_id} where switchport_id={$db2->Record['switchport_id']}", __LINE__, __FILE__);
+					$db2->query("update switchports set vlans='{$vlans}',server_id={$server_id} where switchport_id={$switchport_id}", __LINE__, __FILE__);
 				else
-					$db2->query("update switchports set vlans='{$vlans}' where switchport_id={$db2->Record['switchport_id']}", __LINE__, __FILE__);
+					$db2->query("update switchports set vlans='{$vlans}' where switchport_id={$switchport_id}", __LINE__, __FILE__);
 			}
 		}
 		$db2->query("update vlans set vlans_ports=':".implode(':', $new_ports).":' where vlans_networks like '%:{$network}:%' and vlans_id='{$vlan}'", __LINE__, __FILE__);
