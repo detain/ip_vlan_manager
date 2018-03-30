@@ -28,6 +28,8 @@ function vlan_edit_port() {
 	$table->set_title('VLAN Edit Port Assignments');
 	$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 	$table->add_hidden('ipblock', $ipblock);
+	if (isset($GLOBALS['tf']->variables->request['pop_order_id']))
+		$table->add_hidden('pop_order_id', $GLOBALS['tf']->variables->request['pop_order_id']);
 	$table->add_field('IP Block');
 	$table->add_field($ipblock);
 	$table->add_row();
