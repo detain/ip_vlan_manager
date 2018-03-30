@@ -28,11 +28,21 @@ function vlan_edit_port() {
 	$table->set_title('VLAN Edit Port Assignments');
 	$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 	$table->add_hidden('ipblock', $ipblock);
-	if (isset($GLOBALS['tf']->variables->request['pop_order_id']))
-		$table->add_hidden('pop_order_id', $GLOBALS['tf']->variables->request['pop_order_id']);
 	$table->add_field('IP Block');
 	$table->add_field($ipblock);
 	$table->add_row();
+	$server_id = NULL;
+	if (isset($GLOBALS['tf']->variables->request['pop_order_id'])) {
+		$server_id = $GLOBALS['tf']->variables->request['pop_order_id'];
+		$table->add_hidden('pop_order_id', $server_id);
+		$table->add_field('Server ID');
+		$table->add_field($server_id);
+		$table->add_row();
+	} else {
+		$table->add_field('Update Server');
+		$table->add_field($table->make_checkbox('update_server', 1, true));
+		$table->add_row();
+	}
 	$db->query("select * from vlans where vlans_networks like '%:{$ipblock}:%'");
 	$db->next_record();
 	$vlanInfo = $db->Record;
@@ -73,10 +83,6 @@ function vlan_edit_port() {
 		$orig_switchports = [];
 		$switchports = [];
 		$new_ports = $GLOBALS['tf']->variables->request['ports'];
-		$asset_id = null;
-		$server_id = null;
-		if (isset($GLOBALS['tf']->variables->request['pop_order_id']))
-			$server_id = $GLOBALS['tf']->variables->request['pop_order_id'];
 		foreach ($new_ports as $switchport) {
 			list($switch, $port, $blade, $justport) = parse_vlan_ports($switchport);
 			$db2->query("select * from switchports where switch='{$switch}' and port='{$port}'", __LINE__, __FILE__);
@@ -100,9 +106,12 @@ function vlan_edit_port() {
 						unset($vlans[$key]);
 					$vlans = implode(',', $vlans);
 					if (!is_null($server_id))
-						$db2->query("update switchports set vlans='{$vlans}', server_id=null, asset_id=null where switchport_id={$db2->Record['switchport_id']}", __LINE__, __FILE__);
+						$db2->query("update switchports set vlans='{$vlans}', server_id=null where switchport_id={$db2->Record['switchport_id']}", __LINE__, __FILE__);
 					else
 						$db2->query("update switchports set vlans='{$vlans}' where switchport_id={$db2->Record['switchport_id']}", __LINE__, __FILE__);
+				} else {
+					if (is_null($server_id) && isset($GLOBALS['tf']->variables->request['update_server']) && $GLOBALS['tf']->variables->request['update_server'] == '1' && !is_null($db2->Record['server_id']))
+						$server_id = $db2->Record['server_id'];
 				}
 			}
 		}
