@@ -50,8 +50,8 @@ function delete_vlan() {
 		$db->query($query, __LINE__, __FILE__);
 		$query = "update ips set ips_vlan=0 where ips_vlan='{$id}'";
 		$db->query($query, __LINE__, __FILE__);
-		function_requirements('update_switch_ports');
-		update_switch_ports();
+		/*function_requirements('update_switch_ports');
+		update_switch_ports();*/
 		if (isset($_REQUEST['httpreferrer']))
 			$GLOBALS['tf']->redirect($_REQUEST['httpreferrer']);
 		else
