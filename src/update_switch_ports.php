@@ -89,7 +89,8 @@ function update_switch_ports($verbose = FALSE, $pullServerMap = TRUE) {
 					if ($verbose == TRUE)
 						add_output("$graph_id ");
 				}
-				$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$justport}:%' or vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
+				//$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$justport}:%' or vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
+				$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
 				//echo "$query\n";
 				$db->query($query, __LINE__, __FILE__);
 				$vlans = [];
@@ -116,16 +117,6 @@ function update_switch_ports($verbose = FALSE, $pullServerMap = TRUE) {
 					if ($verbose == TRUE)
 						add_output('('.count($vlans).' Vlans)');
 					$vlantext = implode(',', $vlans);
-					$db->query("update switchports set vlans='' where vlans='{$vlantext}' and not (switch='{$switchManager['id']}' and port='{$port}')", __LINE__, __FILE__);
-					if ($db->affected_rows())
-						if ($verbose == TRUE)
-							add_output(", Clear Old Vlan");
-					if ($asset_id > 0) {
-						$db->query("update switchports set asset_id=0 where asset_id='{$asset_id}' and not (switch='{$switchManager['id']}' and port='{$port}')", __LINE__, __FILE__);
-						if ($db->affected_rows())
-							if ($verbose == TRUE)
-								add_output(", Clear Old Vlan");
-					}
 					$db->query("update switchports set vlans='{$vlantext}', asset_id='{$asset_id}' where switch='{$switchManager['id']}' and port='{$port}'", __LINE__, __FILE__);
 					if ($db->affected_rows())
 						if ($verbose == TRUE)
