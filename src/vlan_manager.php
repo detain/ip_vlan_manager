@@ -89,7 +89,7 @@ function vlan_manager() {
 			$networks = array_merge($networks, $network);
 		}
 	}
-	$db->query('select count(*) from ips where ips_vlan > 0');
+	$db->query('select count(*) from ips where ips_vlan is not null');
 	$db->next_record();
 	$used_ips = $db->f(0);
 	$networksize = count($networks);

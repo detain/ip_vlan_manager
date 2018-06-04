@@ -585,7 +585,7 @@ function available_ipblocks($blocksize, $location = 1) {
 		$usedips[$ipAddress] = $ipAddress;
 	}
 	*/
-	$db->query('select ips_ip from ips where ips_vlan > 0', __LINE__, __FILE__);
+	$db->query('select ips_ip from ips where ips_vlan is not null', __LINE__, __FILE__);
 	if ($db->num_rows()) {
 		while ($db->next_record())
 			$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
