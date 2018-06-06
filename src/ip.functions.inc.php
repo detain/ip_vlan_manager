@@ -549,7 +549,7 @@ function available_ipblocks($blocksize, $location = 1) {
 			}
 	}
 	// Switch Subnets
-	if ($location == 7) { Switch Subnets
+	if ($location == 7) { // Switch Subnets
 		$mainblocks[] = [22, '173.225.96.0/24'];
 		$mainblocks[] = [22, '173.225.97.0/24'];
 		$mainblocks[] = [22, '66.45.224.0/24'];
