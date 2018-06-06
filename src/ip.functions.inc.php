@@ -426,13 +426,13 @@ function available_ipblocks($blocksize, $location = 1) {
 	// get the ips in use
 	$usedips = [];
 	$mainblocks = [];
-	if ($location == 1) {
+	if ($location == 1) { // Secaucus, NJ
 		// get the main ipblocks we have routed
 		$db->query('select * from ipblocks', __LINE__, __FILE__);
 		while ($db->next_record())
 			$mainblocks[] = [$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
 	}
-	if ($location == 2) {
+	if ($location == 2) { // Los Angeles, CA
 		$mainblocks[] = [7, '173.214.160.0/23'];
 		$mainblocks[] = [8, '206.72.192.0/24'];
 		$mainblocks[] = [12, '162.220.160.0/24'];
@@ -451,7 +451,7 @@ function available_ipblocks($blocksize, $location = 1) {
 				$usedips[$ipAddress] = $ipAddress;
 			}
 	}
-	if ($location == 3) {
+	if ($location == 3) { // Equinix, NY4
 		$mainblocks[] = [12, '162.220.161.0/24'];
 	} else {
 		$reserved = [
@@ -463,7 +463,7 @@ function available_ipblocks($blocksize, $location = 1) {
 				$usedips[$ipAddress] = $ipAddress;
 			}
 	}
-	if ($location == 4) {
+	if ($location == 4) { // Hone Live
 		$mainblocks[] = [179, '66.45.241.16/28'];
 		$mainblocks[] = [1281, '69.10.38.128/25'];
 		$mainblocks[] = [2047, '69.10.60.192/26'];
@@ -505,7 +505,7 @@ function available_ipblocks($blocksize, $location = 1) {
 				$usedips[$ipAddress] = $ipAddress;
 			}
 	}
-	if ($location == 5) {
+	if ($location == 5) { // Vianim.in
 		$mainblocks[] = [16, '103.237.44.0/22'];
 		$mainblocks[] = [17, '43.243.84.0/22'];
 		$mainblocks[] = [16, '103.48.176.0/22'];
@@ -528,7 +528,7 @@ function available_ipblocks($blocksize, $location = 1) {
 			}
 	}
 	// la 3
-	if ($location == 6) {
+	if ($location == 6) { // Equinix LA3
 		$mainblocks[] = [3, '69.10.50.0/24'];
 		$mainblocks[] = [18, '208.73.200.0/24'];
 		$mainblocks[] = [18, '208.73.201.0/24'];
@@ -549,13 +549,15 @@ function available_ipblocks($blocksize, $location = 1) {
 			}
 	}
 	// Switch Subnets
-	if ($location == 7) {
+	if ($location == 7) { Switch Subnets
 		$mainblocks[] = [22, '173.225.96.0/24'];
 		$mainblocks[] = [22, '173.225.97.0/24'];
+		$mainblocks[] = [22, '66.45.224.0/24'];
 	} else {
 		$reserved = [
 			[2917228544, 2917228799], // 173.225.96.0/24
 			[2917228800, 2917229055], // 173.225.97.0/24
+			[1110302720, 1110302975], // 66.45.224.0/24
 		];
 		foreach ($reserved as $idx => $reserve)
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
