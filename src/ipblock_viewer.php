@@ -24,6 +24,7 @@ function ipblock_viewer() {
 	}
 	$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 	$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'", __LINE__, __FILE__);
+	function_requirements('ipcalc');
 	while ($db->next_record()) {
 		$ipinfo = ipcalc($ipblock);
 		$ips = get_ips($ipblock);
