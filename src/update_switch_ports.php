@@ -118,7 +118,7 @@ function update_switch_ports($verbose = FALSE, $pullServerMap = TRUE) {
 						add_output('('.count($vlans).' Vlans)');
 					$vlantext = implode(',', $vlans);
 					$db->query("update switchports set vlans='{$vlantext}', asset_id='{$asset_id}' where switch='{$switchManager['id']}' and port='{$port}'", __LINE__, __FILE__);
-					if ($db->affected_rows())
+					if ($db->affectedRows())
 						if ($verbose == TRUE)
 							add_output(", Update Vlan".PHP_EOL);
 				}
