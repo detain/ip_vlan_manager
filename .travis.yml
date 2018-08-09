@@ -18,6 +18,7 @@ cache:
     - $HOME/.composer/cache/files
     - tmp/pear/download/
     - vendor/
+    - composer.lock
 
 addons:
   code_climate:
