@@ -12,7 +12,8 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function vlan_port_server_manager() {
+function vlan_port_server_manager()
+{
 	function_requirements('update_switch_ports');
 	$ima = $GLOBALS['tf']->ima;
 	$db = get_module_db('default');
@@ -20,7 +21,7 @@ function vlan_port_server_manager() {
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	$db->query('select * from vlans order by vlans_ports, vlans_networks', __LINE__, __FILE__);
 	$table = new \TFTable;
@@ -64,7 +65,7 @@ function vlan_port_server_manager() {
 			$table->add_field($comment);
 			$table->add_field(get_switch_name($switch));
 			$table->add_field($port);
-			$table->add_field(select_server($server, 'vlan_'.$db->Record['vlans_id'], TRUE));
+			$table->add_field(select_server($server, 'vlan_'.$db->Record['vlans_id'], true));
 			$table->add_row();
 		}
 	}
@@ -73,4 +74,3 @@ function vlan_port_server_manager() {
 	$table->add_row();
 	add_output($table->get_table());
 }
-

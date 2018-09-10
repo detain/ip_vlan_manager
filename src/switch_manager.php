@@ -12,11 +12,12 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function switch_manager() {
+function switch_manager()
+{
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	global $groupinfo;
 	$db = get_module_db('default');
@@ -26,7 +27,7 @@ function switch_manager() {
 		$name = $GLOBALS['tf']->variables->request['name'];
 		$ports = $GLOBALS['tf']->variables->request['ports'];
 		$db->query(make_insert_query('switchmanager', [
-			'id' => NULL,
+			'id' => null,
 			'name' => $name,
 			'ports' => $ports
 													]
@@ -43,8 +44,9 @@ function switch_manager() {
 	$db->query('select * from switchmanager order by id');
 	$table->alternate_rows();
 	while ($db->next_record()) {
-		if ($nextid <= (int)$db->Record['name'])
+		if ($nextid <= (int)$db->Record['name']) {
 			$nextid = $db->Record['name'] + 1;
+		}
 		$table->add_field($db->Record['id']);
 		$table->add_field($db->Record['name']);
 		$table->add_field($db->Record['ports']);
@@ -58,4 +60,3 @@ function switch_manager() {
 	$table->add_row();
 	add_output($table->get_table());
 }
-

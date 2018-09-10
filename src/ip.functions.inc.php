@@ -11,7 +11,8 @@
 * @param string $network returns a gateway address from a network address in the format of  [network ip]/[subnet] ie  192.168.1.128/23
 * @return string gateway address ie 192.168.1.129 or 66.45.228.1
 */
-function network2gateway($network) {
+function network2gateway($network)
+{
 	list($ipAddress, $subnet) = explode('/', $network);
 	return ipnetmask2gateway($ipAddress, subnet2netmask($subnet));
 }
@@ -22,7 +23,8 @@ function network2gateway($network) {
 * @param string $netmask the netmask for the network ie 255.255.255.0
 * @return string gateway address ie 192.168.1.129 or 66.45.228.1
 */
-function ipnetmask2gateway($ipAddress, $netmask) {
+function ipnetmask2gateway($ipAddress, $netmask)
+{
 	return long2ip((ip2long($ipAddress) & ip2long($netmask))+1);
 }
 
@@ -31,7 +33,8 @@ function ipnetmask2gateway($ipAddress, $netmask) {
 * @param string $subnet the network size
 * @return string the netmask for the ip block
 */
-function subnet2netmask($subnet) {
+function subnet2netmask($subnet)
+{
 	return long2ip(-1 << (32 - (int)$ipAddress_subnet));
 }
 
@@ -39,7 +42,8 @@ function subnet2netmask($subnet) {
  * @param string $data vlan ports like 171/4 or 171/Ethernet1/7 etc..
  * @return array array of switch / port information
  */
-function parse_vlan_ports($data) {
+function parse_vlan_ports($data)
+{
 	$parts2 = explode('/', $data);
 	$switch = $parts2[0];
 	$port = mb_substr($data, mb_strlen($switch) + 1);
@@ -58,12 +62,13 @@ function parse_vlan_ports($data) {
  * @param bool $short
  * @return string
  */
-function get_switch_name($index, $short = FALSE) {
+function get_switch_name($index, $short = false)
+{
 	$db = get_module_db('default');
 	$db->query("select * from switchmanager where id='{$index}'");
 	$db->next_record();
 	$switch = $db->Record['name'];
-	if ($short == FALSE) {
+	if ($short == false) {
 		return 'Switch '.$switch;
 	} else {
 		return $switch;
@@ -75,10 +80,12 @@ function get_switch_name($index, $short = FALSE) {
  * @param int  $size
  * @return string
  */
-function get_select_ports($ports = FALSE, $size = 5, $extra = '') {
+function get_select_ports($ports = false, $size = 5, $extra = '')
+{
 	$db = get_module_db('default');
-	if ($ports === FALSE)
+	if ($ports === false) {
 		$ports = [];
+	}
 	$select = '<select multiple="multiple" size='.$size.' name="ports[]" '.$extra.'>';
 	$db->query('select * from switchmanager as sm, switchports as sp where switch=id order by name, port desc');
 	while ($db->next_record()) {
@@ -100,7 +107,8 @@ function get_select_ports($ports = FALSE, $size = 5, $extra = '') {
  * @param $netmask a netmask or block size
  * @return int the number of ips in within a range using this netmask or blocksize
  */
-function get_ipcount_from_netmask($netmask) {
+function get_ipcount_from_netmask($netmask)
+{
 	$ipinfo = [];
 	require_once 'Net/IPv4.php';
 	$network_object = new Net_IPv4();
@@ -128,27 +136,30 @@ if (!function_exists('validIp')) {
 	 * @param bool $display_errors whether or not errors are displayed. defaults to TRUE
 	 * @return bool whether or not its a valid ip
 	 */
-	function validIp($ipAddress, $display_errors = TRUE) {
+	function validIp($ipAddress, $display_errors = true)
+	{
 		if (!preg_match("/^[0-9\.]{7,15}$/", $ipAddress)) {
 			// don't display errors cuz this gets called w/ a blank entry when people didn't even submit anything yet
 			//add_output('<font class="error">IP '.$ipAddress.' Too short/long</font>');
-			return FALSE;
+			return false;
 		}
 		$quads = explode('.', $ipAddress);
 		$num_quads = count($quads);
 		if ($num_quads != 4) {
-			if ($display_errors)
+			if ($display_errors) {
 				add_output('<font class="error">IP '.$ipAddress.' Too many quads</font>');
-			return FALSE;
+			}
+			return false;
 		}
 		for ($i = 0; $i < 4; $i++) {
 			if ($quads[$i] > 255) {
-				if ($display_errors)
+				if ($display_errors) {
 					add_output('<font class="error">IP '.$ipAddress.' number '.$quads[$i].' too high</font>');
-				return FALSE;
+				}
+				return false;
 			}
 		}
-		return TRUE;
+		return true;
 	}
 }
 
@@ -169,9 +180,11 @@ if (!function_exists('validIp')) {
  * @param $network string Network address in 1.2.3.4/24 format
  * @return array|bool false on error or returns an array containing the network info
  */
-function ipcalc($network) {
-	if (trim($network) == '')
-		return FALSE;
+function ipcalc($network)
+{
+	if (trim($network) == '') {
+		return false;
+	}
 	$parts = explode('/', $network);
 	if (count($parts) > 1) {
 		list($block, $bitmask) = $parts;
@@ -180,9 +193,10 @@ function ipcalc($network) {
 		$bitmask = '32';
 		$network = $block.'/'.$bitmask;
 	}
-	if (!validIp($block, FALSE) || !is_numeric($bitmask))
-		return FALSE;
-	if (preg_match('/^(.*)\/32$/', $network, $matches))
+	if (!validIp($block, false) || !is_numeric($bitmask)) {
+		return false;
+	}
+	if (preg_match('/^(.*)\/32$/', $network, $matches)) {
 		return [
 			'network' => $matches[1],
 			'network_ip' => $matches[1],
@@ -195,6 +209,7 @@ function ipcalc($network) {
 			'gateway' => '',
 			'hosts' => 1
 		];
+	}
 	require_once 'Net/IPv4.php';
 	$network_object = new Net_IPv4();
 	$net = $network_object->parseAddress($network);
@@ -220,7 +235,8 @@ function ipcalc($network) {
  * @param string $ports
  * @return array
  */
-function get_networks($text, $vlan = 0, $comment = '', $ports = '') {
+function get_networks($text, $vlan = 0, $comment = '', $ports = '')
+{
 	$networks = [];
 	$parts = explode(':', $text);
 	for ($x = 0, $x_max = count($parts); $x < $x_max; $x++) {
@@ -243,7 +259,8 @@ function get_networks($text, $vlan = 0, $comment = '', $ports = '') {
  * @param bool $include_unusable
  * @return bool
  */
-function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE) {
+function check_ip_part($part, $ipparts, $maxparts, $include_unusable = false)
+{
 	if ($include_unusable) {
 		$maxip = 256;
 	} else {
@@ -253,45 +270,45 @@ function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE) {
 		case 1:
 			if ($ipparts[0] < $maxip) {
 				if ($ipparts[0] <= $maxparts[0]) {
-					return TRUE;
+					return true;
 				} else {
-					return FALSE;
+					return false;
 				}
 			} else {
-				return FALSE;
+				return false;
 			}
 			break;
 		case 2:
 			if ($ipparts[1] < $maxip) {
 				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1])) {
-					return TRUE;
+					return true;
 				} else {
-					return FALSE;
+					return false;
 				}
 			} else {
-				return FALSE;
+				return false;
 			}
 			break;
 		case 3:
 			if ($ipparts[2] < $maxip) {
 				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2])) {
-					return TRUE;
+					return true;
 				} else {
-					return FALSE;
+					return false;
 				}
 			} else {
-				return FALSE;
+				return false;
 			}
 			break;
 		case 4:
 			if ($ipparts[3] < $maxip) {
 				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2]) && ($ipparts[3] <= $maxparts[3])) {
-					return TRUE;
+					return true;
 				} else {
-					return FALSE;
+					return false;
 				}
 			} else {
-				return FALSE;
+				return false;
 			}
 			break;
 	}
@@ -300,19 +317,22 @@ function check_ip_part($part, $ipparts, $maxparts, $include_unusable = FALSE) {
 /**
  * @return array
  */
-function get_all_ipblocks() {
+function get_all_ipblocks()
+{
 	$db = get_module_db('default');
 	$db->query('select ipblocks_network from ipblocks');
 	$all_blocks = [];
-	while ($db->next_record(MYSQL_ASSOC))
+	while ($db->next_record(MYSQL_ASSOC)) {
 		$all_blocks[] = $db->Record['ipblocks_network'];
+	}
 	return $all_blocks;
 }
 
 /**
  * @return array
  */
-function get_client_ipblocks() {
+function get_client_ipblocks()
+{
 	$ipblocks = [
 		'67.217.48.0/20',
 		'69.164.240.0/20',
@@ -328,11 +348,13 @@ function get_client_ipblocks() {
  * @param bool $include_unusable
  * @return array
  */
-function get_client_ips($include_unusable = FALSE) {
+function get_client_ips($include_unusable = false)
+{
 	$ipblocks = get_client_ipblocks();
 	$client_ips = [];
-	foreach ($ipblocks as $ipblock)
+	foreach ($ipblocks as $ipblock) {
 		$client_ips = array_merge($client_ips, get_ips($ipblock, $include_unusable));
+	}
 	return $client_ips;
 }
 
@@ -340,11 +362,13 @@ function get_client_ips($include_unusable = FALSE) {
  * @param bool $include_unusable
  * @return array
  */
-function get_all_ips_from_ipblocks($include_unusable = FALSE) {
+function get_all_ips_from_ipblocks($include_unusable = false)
+{
 	$all_blocks = get_all_ipblocks();
 	$all_ips = [];
-	foreach ($all_blocks as $ipblock)
+	foreach ($all_blocks as $ipblock) {
 		$all_ips = array_merge($all_ips, get_ips($ipblock, $include_unusable));
+	}
 	return $all_ips;
 }
 
@@ -352,11 +376,13 @@ function get_all_ips_from_ipblocks($include_unusable = FALSE) {
  * @param bool $include_unusable
  * @return array
  */
-function get_all_ips2_from_ipblocks($include_unusable = FALSE) {
+function get_all_ips2_from_ipblocks($include_unusable = false)
+{
 	$all_blocks = get_all_ipblocks();
 	$all_ips = [];
-	foreach ($all_blocks as $ipblock)
+	foreach ($all_blocks as $ipblock) {
 		$all_ips = array_merge($all_ips, get_ips2($ipblock, $include_unusable));
+	}
 	return $all_ips;
 }
 
@@ -365,7 +391,8 @@ function get_all_ips2_from_ipblocks($include_unusable = FALSE) {
  * @param bool $include_unusable
  * @return array
  */
-function get_ips($network, $include_unusable = FALSE) {
+function get_ips($network, $include_unusable = false)
+{
 	$ips = [];
 	$network_info = ipcalc($network);
 	if ($include_unusable) {
@@ -378,11 +405,15 @@ function get_ips($network, $include_unusable = FALSE) {
 	$minparts = explode('.', $minip);
 	$maxparts = explode('.', $maxip);
 	$ips = [];
-	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++)
-		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++)
-			for ($c = $minparts[2]; check_ip_part(3, [$a,$b,$c], $maxparts, $include_unusable); $c++)
-				for ($d = $minparts[3]; check_ip_part(4, [$a,$b,$c,$d], $maxparts, $include_unusable); $d++)
+	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++) {
+		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++) {
+			for ($c = $minparts[2]; check_ip_part(3, [$a,$b,$c], $maxparts, $include_unusable); $c++) {
+				for ($d = $minparts[3]; check_ip_part(4, [$a,$b,$c,$d], $maxparts, $include_unusable); $d++) {
 					$ips[] = $a.'.'.$b.'.'.$c.'.'.$d;
+				}
+			}
+		}
+	}
 	return $ips;
 }
 
@@ -391,7 +422,8 @@ function get_ips($network, $include_unusable = FALSE) {
  * @param bool $include_unusable
  * @return array
  */
-function get_ips2($network, $include_unusable = FALSE) {
+function get_ips2($network, $include_unusable = false)
+{
 	$ips = [];
 	$network_info = ipcalc($network);
 	if ($include_unusable) {
@@ -404,11 +436,15 @@ function get_ips2($network, $include_unusable = FALSE) {
 	$minparts = explode('.', $minip);
 	$maxparts = explode('.', $maxip);
 	$ips = [];
-	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++)
-		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++)
-			for ($c = $minparts[2]; check_ip_part(3, [$a,$b,$c], $maxparts, $include_unusable); $c++)
-				for ($d = $minparts[3]; check_ip_part(4, [$a,$b,$c,$d], $maxparts, $include_unusable); $d++)
+	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++) {
+		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++) {
+			for ($c = $minparts[2]; check_ip_part(3, [$a,$b,$c], $maxparts, $include_unusable); $c++) {
+				for ($d = $minparts[3]; check_ip_part(4, [$a,$b,$c,$d], $maxparts, $include_unusable); $d++) {
 					$ips[] = [$a.'.'.$b.'.'.$c.'.'.$d,$a,$b,$c,$d];
+				}
+			}
+		}
+	}
 	return $ips;
 }
 
@@ -417,7 +453,8 @@ function get_ips2($network, $include_unusable = FALSE) {
  * @param int $location
  * @return array
  */
-function available_ipblocks($blocksize, $location = 1) {
+function available_ipblocks($blocksize, $location = 1)
+{
 	// array of available blocks
 	$available = [];
 	$db = get_module_db('default');
@@ -429,8 +466,9 @@ function available_ipblocks($blocksize, $location = 1) {
 	if ($location == 1) { // Secaucus, NJ
 		// get the main ipblocks we have routed
 		$db->query('select * from ipblocks', __LINE__, __FILE__);
-		while ($db->next_record())
+		while ($db->next_record()) {
 			$mainblocks[] = [$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
+		}
 	}
 	if ($location == 2) { // Los Angeles, CA
 		$mainblocks[] = [7, '173.214.160.0/23'];
@@ -445,11 +483,12 @@ function available_ipblocks($blocksize, $location = 1) {
 			[2732367872, 2732368127], // 162.220.160.0/24 LA
 			[2732093440, 2732093695], // 162.216.112.0/24   LA
 		];
-		foreach ($reserved as $idx => $reserve)
+		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
 				$usedips[$ipAddress] = $ipAddress;
 			}
+		}
 	}
 	if ($location == 3) { // Equinix, NY4
 		$mainblocks[] = [12, '162.220.161.0/24'];
@@ -457,11 +496,12 @@ function available_ipblocks($blocksize, $location = 1) {
 		$reserved = [
 			[2732368128, 2732368383], // 162.220.161.0/24 NY4
 		];
-		foreach ($reserved as $idx => $reserve)
+		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
 				$usedips[$ipAddress] = $ipAddress;
 			}
+		}
 	}
 	if ($location == 4) { // Hone Live
 		$mainblocks[] = [179, '66.45.241.16/28'];
@@ -499,11 +539,12 @@ function available_ipblocks($blocksize, $location = 1) {
 			[3516899072, 3516899327], // 209.159.159.0/24 reserved
 			[1108860928, 1108861183], // 66.23.224.0/24 reserved
 		];
-		foreach ($reserved as $idx => $reserve)
+		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
 				$usedips[$ipAddress] = $ipAddress;
 			}
+		}
 	}
 	if ($location == 5) { // Vianim.in
 		$mainblocks[] = [16, '103.237.44.0/22'];
@@ -521,11 +562,12 @@ function available_ipblocks($blocksize, $location = 1) {
 			[763241472, 763242495], /* 45.126.36.0/22 */
 			[1740967936, 1740968959], /* 103.197.16.0/22 */
 		];
-		foreach ($reserved as $idx => $reserve)
+		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
 				$usedips[$ipAddress] = $ipAddress;
 			}
+		}
 	}
 	// la 3
 	if ($location == 6) { // Equinix LA3
@@ -542,11 +584,12 @@ function available_ipblocks($blocksize, $location = 1) {
 			[3634290688, 3634291199], // 216.158.224.0/23
 			[1137954816, 1137955071], // 67.211.208.0/24
 		];
-		foreach ($reserved as $idx => $reserve)
+		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
 				$usedips[$ipAddress] = $ipAddress;
 			}
+		}
 	}
 	// Switch Subnets
 	if ($location == 7) { // Switch Subnets
@@ -559,19 +602,20 @@ function available_ipblocks($blocksize, $location = 1) {
 			[2917228800, 2917229055], // 173.225.97.0/24
 			[1110302720, 1110302975], // 66.45.224.0/24
 		];
-		foreach ($reserved as $idx => $reserve)
+		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
 				$usedips[$ipAddress] = $ipAddress;
 			}
+		}
 	}
 	/* 45.126.36.0/22 */
-/*		$reserved = array(763241472, 763242495);
-	for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-		$ipAddress = long2ip($x);
-		$usedips[$ipAddress] = $ipAddress;
-	}
-*/
+	/*		$reserved = array(763241472, 763242495);
+		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
+			$ipAddress = long2ip($x);
+			$usedips[$ipAddress] = $ipAddress;
+		}
+	*/
 	/* 199.231.191.0/24 reserved */
 	/* mike says ok to remove 2/24/2017
 	$reserved = array(3353853696, 3353853951);
@@ -589,28 +633,29 @@ function available_ipblocks($blocksize, $location = 1) {
 	*/
 	$db->query('select ips_ip from ips where ips_vlan is not null', __LINE__, __FILE__);
 	if ($db->num_rows()) {
-		while ($db->next_record())
+		while ($db->next_record()) {
 			$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
+		}
 	}
 	foreach ($mainblocks as $maindata) {
 		$ipblock_id = $maindata[0];
 		$mainblock = $maindata[1];
 		// get ips from the main block
-		$ips = get_ips2($mainblock, TRUE);
+		$ips = get_ips2($mainblock, true);
 		// next loop through all available ips
 		$ipsize = count($ips);
-		$found = FALSE;
+		$found = false;
 		$found_count = 0;
 		$found_c = '';
 		for ($x = 0; $x < $ipsize; $x++) {
 			// check if the ips in use already
 			if (isset($usedips[$ips[$x][0]])) {
-				$found = FALSE;
+				$found = false;
 				$found_count = 0;
 			} else {
 				$c = $ips[$x][3];
 				if ($found && ($blocksize >= 24) && ($found_c != $c)) {
-					$found = FALSE;
+					$found = false;
 					$found_count = 0;
 				}
 				if (!$found) {
@@ -633,7 +678,7 @@ function available_ipblocks($blocksize, $location = 1) {
 					$found_count++;
 					if ($found_count == $ipcount) {
 						$available[] = [$found, $ipblock_id];
-						$found = FALSE;
+						$found = false;
 						$found_count = 0;
 					}
 				}
@@ -650,7 +695,8 @@ function available_ipblocks($blocksize, $location = 1) {
  * @param $hostname
  * @return string
  */
-function ips_hostname($hostname) {
+function ips_hostname($hostname)
+{
 	$db = clone get_module_db('default');
 	$db2 = clone $db;
 	$comment = $db->real_escape($hostname);
@@ -668,7 +714,7 @@ function ips_hostname($hostname) {
 			for ($x = 0, $x_max = count($parts); $x < $x_max; $x++) {
 				if (mb_strpos($parts[$x], '/')) {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($parts[$x]);
-					$parts[$x] = get_switch_name($switch, TRUE).'/'.$port;
+					$parts[$x] = get_switch_name($switch, true).'/'.$port;
 				}
 			}
 			$vlan = $db->Record['vlans_id'];

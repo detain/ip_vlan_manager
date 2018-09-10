@@ -12,14 +12,15 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function edit_vlan_comment() {
+function edit_vlan_comment()
+{
 	function_requirements('update_switch_ports');
 	$ima = $GLOBALS['tf']->ima;
 	$db = get_module_db('default');
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 	// get ip block(s)
@@ -53,5 +54,3 @@ function edit_vlan_comment() {
 		}
 	}
 }
-
-

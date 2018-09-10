@@ -12,11 +12,12 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function delete_vlan() {
+function delete_vlan()
+{
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	$ima = $GLOBALS['tf']->ima;
 	global $groupinfo;
@@ -26,8 +27,9 @@ function delete_vlan() {
 		$table = new \TFTable;
 		$table->set_title('Delete VLan');
 		$table->add_hidden('ipblock', $ipblock);
-		if (isset($_SERVER['HTTP_REFERER']))
+		if (isset($_SERVER['HTTP_REFERER'])) {
 			$table->add_hidden('httpreferrer', $_SERVER['HTTP_REFERER']);
+		}
 		$table->set_colspan(2);
 		$table->add_field(nl2br(wordwrap('<b>WARNING: THIS WILL NOT REMOVE IPS FROM ROUTER. DO NOT USE THIS FEATURE UNLESS YOU HAVE ALREADY REMOVED THE IPS FROM ROUTER.</b>')));
 		$table->add_row();
@@ -52,10 +54,10 @@ function delete_vlan() {
 		$db->query($query, __LINE__, __FILE__);
 		/*function_requirements('update_switch_ports');
 		update_switch_ports();*/
-		if (isset($_REQUEST['httpreferrer']))
+		if (isset($_REQUEST['httpreferrer'])) {
 			$GLOBALS['tf']->redirect($_REQUEST['httpreferrer']);
-		else
+		} else {
 			$GLOBALS['tf']->redirect($table->make_link('index.php', 'choice=none.vlan_manager'));
+		}
 	}
 }
-

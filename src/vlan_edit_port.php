@@ -12,11 +12,12 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function vlan_edit_port() {
+function vlan_edit_port()
+{
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	add_js('bootstrap');
 	add_js('select2');
@@ -31,7 +32,7 @@ function vlan_edit_port() {
 	$table->add_field('IP Block');
 	$table->add_field($ipblock);
 	$table->add_row();
-	$server_id = NULL;
+	$server_id = null;
 	if (isset($GLOBALS['tf']->variables->request['pop_order_id'])) {
 		$server_id = $GLOBALS['tf']->variables->request['pop_order_id'];
 		$table->add_hidden('pop_order_id', $server_id);
@@ -78,7 +79,7 @@ function vlan_edit_port() {
 		$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 		$table->set_colspan(2);
 		$table->add_field($select.'<br>'.$table->make_submit('Set Port(s)'));
-		$editport = TRUE;
+		$editport = true;
 	} else {
 		$orig_switchports = [];
 		$switchports = [];
@@ -98,54 +99,60 @@ function vlan_edit_port() {
 				$db2->next_record(MYSQL_ASSOC);
 				$orig_switchports[$db2->Record['switchport_id']] = $db2->Record;
 				if (!in_array($db2->Record['switchport_id'], array_keys($switchports)) || !is_null($server_id)) {
-					if (trim($db2->Record['vlans']) != '')
+					if (trim($db2->Record['vlans']) != '') {
 						$vlans = explode(',', trim($db2->Record['vlans']));
-					else
+					} else {
 						$vlans = [];
-					if (($key = array_search($vlanInfo['vlans_id'], $vlans)) !== false)
+					}
+					if (($key = array_search($vlanInfo['vlans_id'], $vlans)) !== false) {
 						unset($vlans[$key]);
+					}
 					$vlans = implode(',', $vlans);
-					if (!is_null($server_id))
+					if (!is_null($server_id)) {
 						$db2->query("update switchports set vlans='{$vlans}', server_id=null where switchport_id={$db2->Record['switchport_id']}", __LINE__, __FILE__);
-					else
+					} else {
 						$db2->query("update switchports set vlans='{$vlans}' where switchport_id={$db2->Record['switchport_id']}", __LINE__, __FILE__);
+					}
 				} else {
-					if (is_null($server_id) && isset($GLOBALS['tf']->variables->request['update_server']) && $GLOBALS['tf']->variables->request['update_server'] == '1' && !is_null($db2->Record['server_id']))
+					if (is_null($server_id) && isset($GLOBALS['tf']->variables->request['update_server']) && $GLOBALS['tf']->variables->request['update_server'] == '1' && !is_null($db2->Record['server_id'])) {
 						$server_id = $db2->Record['server_id'];
+					}
 				}
 			}
 		}
 		foreach ($switchports as $switchport_id => $switchportData) {
 			if (!in_array($switchport_id, array_keys($orig_switchports)) || !is_null($server_id)) {
-				if (trim($switchportData['vlans']) != '')
+				if (trim($switchportData['vlans']) != '') {
 					$vlans = explode(',', trim($switchportData['vlans']));
-				else
+				} else {
 					$vlans = [];
-				if (!in_array($vlanInfo['vlans_id'], $vlans))
+				}
+				if (!in_array($vlanInfo['vlans_id'], $vlans)) {
 					$vlans[] = $vlanInfo['vlans_id'];
+				}
 				$vlans = implode(',', $vlans);
-				if (!is_null($server_id))
+				if (!is_null($server_id)) {
 					$db2->query("update switchports set vlans='{$vlans}',server_id={$server_id} where switchport_id={$switchport_id}", __LINE__, __FILE__);
-				else
+				} else {
 					$db2->query("update switchports set vlans='{$vlans}' where switchport_id={$switchport_id}", __LINE__, __FILE__);
+				}
 			}
 		}
 		$db2->query("update vlans set vlans_ports=':".implode(':', $new_ports).":' where vlans_networks like '%:{$network}:%' and vlans_id='{$vlan}'", __LINE__, __FILE__);
 
 		//function_requirements('update_switch_ports');
 		//update_switch_ports();
-		if(isset($GLOBALS['tf']->variables->request['pop_order_id'])) {
+		if (isset($GLOBALS['tf']->variables->request['pop_order_id'])) {
 			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=none.view_server_order&id='.$GLOBALS['tf']->variables->request['pop_order_id']));
-			return TRUE;
+			return true;
 		} else {
 			$GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
 		}
 	}
 	$table->add_row();
-	if(isset($GLOBALS['tf']->variables->request['source']) && $GLOBALS['tf']->variables->request['source'] == 'popup_order') {
-		return TRUE;
+	if (isset($GLOBALS['tf']->variables->request['source']) && $GLOBALS['tf']->variables->request['source'] == 'popup_order') {
+		return true;
 	} else {
 		add_output($table->get_table());
 	}
 }
-

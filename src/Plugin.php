@@ -16,8 +16,8 @@ use Symfony\Component\EventDispatcher\GenericEvent;
  *
  * @package Detain\IpVlanManager
  */
-class Plugin {
-
+class Plugin
+{
 	public static $name = 'IP Management';
 	public static $description = 'Enables management and allocation of IPs';
 	public static $type = 'functionality';
@@ -25,13 +25,15 @@ class Plugin {
 	/**
 	 * Plugin constructor.
 	 */
-	public function __construct() {
+	public function __construct()
+	{
 	}
 
 	/**
 	 * @return array
 	 */
-	public static function getHooks() {
+	public static function getHooks()
+	{
 		return [
 			'function.requirements' => [__CLASS__, 'getRequirements'],
 			/* 'ui.menu' => [__CLASS__, 'getMenu'] */
@@ -41,7 +43,8 @@ class Plugin {
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
 	 */
-	public static function getMenu(GenericEvent $event) {
+	public static function getMenu(GenericEvent $event)
+	{
 		$menu = $event->getSubject();
 		if ($GLOBALS['tf']->ima == 'admin') {
 		}
@@ -50,7 +53,8 @@ class Plugin {
 	/**
 	 * @param \Symfony\Component\EventDispatcher\GenericEvent $event
 	 */
-	public static function getRequirements(GenericEvent $event) {
+	public static function getRequirements(GenericEvent $event)
+	{
 		$loader = $event->getSubject();
 		$loader->add_page_requirement('add_ips', '/../vendor/detain/ip_vlan_manager/src/add_ips.php');
 		$loader->add_page_requirement('add_ips_to_server', '/../vendor/detain/ip_vlan_manager/src/add_ips_to_server.php');

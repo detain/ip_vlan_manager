@@ -12,11 +12,12 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function add_vlan() {
+function add_vlan()
+{
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	//_debug_array(get_ips2('68.168.208.0/20',TRUE));
 	$ima = $GLOBALS['tf']->ima;
@@ -103,8 +104,9 @@ function add_vlan() {
 			if (count($blocks) > 0) {
 				$table->add_field('Enter Desired IP Block', 'l');
 				$sel = '<select name=ipaddress>';
-				for ($x = 0, $x_max = count($blocks); $x < $x_max; $x++)
+				for ($x = 0, $x_max = count($blocks); $x < $x_max; $x++) {
 					$sel .= '<option value='.$blocks[$x][0].'>'.$blocks[$x][0].'/'.$blocksize.'</option>';
+				}
 				$sel .= '</select>';
 				$table->add_field($sel, 'r');
 				//$table->add_field($table->make_input('ipaddress', '', 20), 'r');
@@ -132,19 +134,20 @@ function add_vlan() {
 			$ports = $GLOBALS['tf']->variables->request['ports'];
 			if (count($ports) > 0) {
 				$ipaddress = $GLOBALS['tf']->variables->request['ipaddress'];
-				$found = FALSE;
+				$found = false;
 				for ($x = 0, $x_max = count($blocks); $x < $x_max; $x++) {
 					if ($blocks[$x][0] == $ipaddress) {
 						$block = $blocks[$x][1];
-						$found = TRUE;
+						$found = true;
 					}
 				}
-				$ips = get_ips($ipaddress.'/'.$blocksize, TRUE);
+				$ips = get_ips($ipaddress.'/'.$blocksize, true);
 				$db->query("select * from ips left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ips) . "') and vlans_id is not NULL");
 				if ($db->num_rows() > 0) {
-					$found = FALSE;
-					while ($db->next_record())
+					$found = false;
+					while ($db->next_record()) {
 						echo 'Conflicting IP: '.$db->Record['ips_ip'].'<br>';
+					}
 				}
 				if (!$found) {
 					echo 'I think this vlan already exists';
@@ -153,19 +156,20 @@ function add_vlan() {
 				$comment = $GLOBALS['tf']->variables->request['comment'];
 				$ports = ':'.implode(':', $ports).':';
 				$db->query(make_insert_query('vlans', [
-					'vlans_id' => NULL,
+					'vlans_id' => null,
 					'vlans_block' => $block,
 					'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
 					'vlans_ports' => $ports,
 					'vlans_comment' => $comment
-				                                    ]
-				           ), __LINE__, __FILE__);
+													]
+						   ), __LINE__, __FILE__);
 				$vlan = $db->getLastInsertId('vlans', 'vlans_id');
 				$query = "select ips_ip from ips where ips_ip in ('" . implode("', '", $ips) . "')";
 				$db->query($query, __LINE__, __FILE__);
 				$ips2 = [];
-				while ($db->next_record())
+				while ($db->next_record()) {
 					$ips2[] = $db->Record['ips_ip'];
+				}
 				for ($x = 0, $x_max = count($ips); $x < $x_max; $x++) {
 					if (($x == 0) || ($x == (count($ips) - 1))) {
 						$reserved = 1;
@@ -181,7 +185,7 @@ function add_vlan() {
 							'ips_serverid' => 0,
 							'ips_group' => 0,
 							'ips_reserved' => $reserved
-						                                ]
+														]
 						);
 					}
 					$db->query($query, __LINE__, __FILE__);
@@ -196,4 +200,3 @@ function add_vlan() {
 		}
 	}
 }
-

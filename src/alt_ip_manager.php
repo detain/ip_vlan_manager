@@ -12,11 +12,12 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function alt_ip_manager() {
+function alt_ip_manager()
+{
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	global $groupinfo;
 	$ima = $GLOBALS['tf']->ima;
@@ -81,7 +82,5 @@ function alt_ip_manager() {
 		$table->add_field($table->make_submit('Edit This IP Block'));
 		$table->add_row();
 		add_output($table->get_table());
-
 	}
 }
-

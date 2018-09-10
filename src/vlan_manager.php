@@ -14,11 +14,12 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function vlan_manager() {
+function vlan_manager()
+{
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	page_title('VLAN Manager');
 	function_requirements('update_switch_ports');
@@ -33,10 +34,11 @@ function vlan_manager() {
 	global $groupinfo;
 	$db = get_module_db('default');
 	$db2 = get_module_db('default');
-	if (isset($GLOBALS['tf']->variables->request['order']) && $GLOBALS['tf']->variables->request['order'] == 'id')
+	if (isset($GLOBALS['tf']->variables->request['order']) && $GLOBALS['tf']->variables->request['order'] == 'id') {
 		$order = 'vlans_id';
-	else
+	} else {
 		$order = 'vlans_networks';
+	}
 	$table = new \TFTable;
 	$table->set_title('VLan Manager '.pdf_link('choice='.$choice.'&order='.$order));
 	$table->set_options('width="100%"');
@@ -81,8 +83,9 @@ function vlan_manager() {
 		$total_ips += $ipinfo['hosts'];
 		$db2->query("select * from vlans where vlans_block='{$network_id}' order by {$order};", __LINE__, __FILE__);
 		while ($db2->next_record(MYSQL_ASSOC)) {
-			if (isset($vlanPorts[$db2->Record['vlans_id']]))
+			if (isset($vlanPorts[$db2->Record['vlans_id']])) {
 				$db2->Record = array_merge($db2->Record, $vlanPorts[$db2->Record['vlans_id']]);
+			}
 			$vlans[$db2->Record['vlans_id']] = $db2->Record;
 			$network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], $db2->Record['vlans_comment'], $db2->Record['vlans_ports']);
 			//_debug_array($network);
@@ -116,8 +119,9 @@ function vlan_manager() {
 				$searches[] = "(switch='{$switch}' and slot='{$port}')";
 			}
 		}
-		if (isset($vlans[$vlan]['server_hostname']) && null !== $vlans[$vlan]['server_hostname'])
+		if (isset($vlans[$vlan]['server_hostname']) && null !== $vlans[$vlan]['server_hostname']) {
 			$servers[] = $vlans[$vlan]['server_hostname'];
+		}
 		/* commented out 3/11/2017 by joe to get things wworking for the moment
 		if (sizeof($searches)) {
 			$query = 'select server_hostname from servers where '.implode(' or ', $searches);
@@ -141,8 +145,8 @@ function vlan_manager() {
 		$table->add_field($network, 'l');
 		$table->add_field($table->make_link('choice=ip.edit_vlan_comment&amp;ipblock='.$network, $comment), 'c');
 
-		$editport = FALSE;
-		$editserver = FALSE;
+		$editport = false;
+		$editserver = false;
 		if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network) {
 			if (isset($GLOBALS['tf']->variables->request['edit_port'])) {
 				if (!isset($GLOBALS['tf']->variables->request['ports'])) {
@@ -151,7 +155,7 @@ function vlan_manager() {
 					$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 					//								$row[] = $select.'<br>'.$table->make_submit('Set Port(s)');
 					$table->add_field($select.'<br>'.$table->make_submit('Set Port(s)'));
-					$editport = TRUE;
+					$editport = true;
 				} else {
 					$ports = ':'.implode(':', $GLOBALS['tf']->variables->request['ports']).':';
 					$db2->query("update vlans set vlans_ports='{$ports}' where vlans_networks like '%:{$network}:%' and vlans_id='{$vlan}'", __LINE__, __FILE__);
@@ -161,14 +165,15 @@ function vlan_manager() {
 				}
 			}
 		}
-		if (count($ports) == 0)
+		if (count($ports) == 0) {
 			$ports[] = '--';
+		}
 		if (!$editport) {
 			$portsize = count($ports);
 			for ($y = 0; $y < $portsize; $y++) {
-				if (!(mb_strpos($ports[$y], '/') === FALSE)) {
+				if (!(mb_strpos($ports[$y], '/') === false)) {
 					list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
-					$ports[$y] = get_switch_name($switch, TRUE).'/'.$port;
+					$ports[$y] = get_switch_name($switch, true).'/'.$port;
 				}
 			}
 			$table->add_field($table->make_link('choice=ip.vlan_edit_port&amp;ipblock='.$network, implode(', ', $ports)), 'l');
@@ -186,8 +191,9 @@ function vlan_manager() {
 					if (!isset($GLOBALS['tf']->variables->request['port_0'])) {
 						$out = '';
 						for ($y = 0, $yMax = count($ports); $y < $yMax; $y++) {
-							if (count($ports) > 1)
+							if (count($ports) > 1) {
 								$out .= 'Port '.$ports[$y].': ';
+							}
 							list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
 							$query = "select id, server_hostname from servers where switch='{$switch}' and slot='{$port}'";
 							$db2->query($query, __LINE__, __FILE__);
@@ -197,15 +203,16 @@ function vlan_manager() {
 							} else {
 								$server = 0;
 							}
-							$out .= select_server($server, 'port_'.$y, TRUE);
-							if ($y < (count($ports) - 1))
+							$out .= select_server($server, 'port_'.$y, true);
+							if ($y < (count($ports) - 1)) {
 								$out .= '<br>';
+							}
 						}
 						$table->add_hidden('edit_server', 1);
 						$table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
 						//									$row[] = $out.'<br>'.$table->make_submit('Set Server(s)');
 						$table->add_field($out.'<br>'.$table->make_submit('Set Server(s)'));
-						$editserver = TRUE;
+						$editserver = true;
 					} else {
 						$servers = [];
 						for ($y = 0, $yMax = count($ports); $y < $yMax; $y++) {
@@ -223,12 +230,13 @@ function vlan_manager() {
 				} else {
 					//								$row[] = '<b>You Must First Assign Port(s)</b>';
 					$table->add_field('<b>You Must First Assign Port(s)</b>');
-					$editserver = TRUE;
+					$editserver = true;
 				}
 			}
 		}
-		if (count($servers) == 0)
+		if (count($servers) == 0) {
 			$servers[] = '--';
+		}
 		if (!$editserver) {
 			//						$row[] = $table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock='.$network, implode(', ', $servers));
 			//						$table->add_field($table->make_link('choice=ip.vlan_manager&amp;edit_server=1&amp;ipblock='.$network, implode(', ', $servers)));
@@ -258,8 +266,7 @@ function vlan_manager() {
 
 	//			add_output($smarty->fetch('tablesorter/tablesorter.tpl'));
 	add_output($table->get_table());
-	if (isset($GLOBALS['tf']->variables->request['pdf']) && $GLOBALS['tf']->variables->request['pdf'] == 1)
+	if (isset($GLOBALS['tf']->variables->request['pdf']) && $GLOBALS['tf']->variables->request['pdf'] == 1) {
 		$table->get_pdf();
+	}
 }
-
-

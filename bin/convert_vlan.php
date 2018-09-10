@@ -4,13 +4,13 @@
 	$db = get_module_db('innertell');
 	$db->query("select vlans_networks from vlans where vlans_networks like '%{$ip}%';");
 	$vlans = [];
-	while ($db->next_record())
+	while ($db->next_record()) {
 		$vlans[] = str_replace(':', '', $db->Record['vlans_networks']);
+	}
 	$usage = [];
 	$ips = [];
 	$ipinfos = [];
-	foreach ($vlans as $block)
-	{
+	foreach ($vlans as $block) {
 		$db->query("select vlans_id from vlans where vlans_networks=':$block:'");
 		$db->next_record();
 		$vlan = $db->Record['vlans_id'];
@@ -24,7 +24,7 @@
 				$usedips[$ip] = $ip;
 			}
 ';
-//echo $vlan .', '.sprintf("%u", ip2long($vblock['network_ip'])).', '.sprintf("%u", ip2long($vblock['broadcast'])).PHP_EOL;
+		//echo $vlan .', '.sprintf("%u", ip2long($vblock['network_ip'])).', '.sprintf("%u", ip2long($vblock['broadcast'])).PHP_EOL;
 //		print_r($block);
 	}
 

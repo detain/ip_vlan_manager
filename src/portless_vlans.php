@@ -12,11 +12,12 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function portless_vlans() {
+function portless_vlans()
+{
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	$db = get_module_db('default');
 	$db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);
@@ -41,8 +42,8 @@ function portless_vlans() {
 		$table->add_field('No VLANs without ports assigned to them');
 		$table->add_row();
 	}
-	if ($GLOBALS['tf']->variables->request['pdf'] == 1)
+	if ($GLOBALS['tf']->variables->request['pdf'] == 1) {
 		$table->get_pdf();
+	}
 	add_output($table->get_table());
 }
-

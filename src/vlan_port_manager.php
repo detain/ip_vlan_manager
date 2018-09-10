@@ -12,7 +12,8 @@
  * @throws \Exception
  * @throws \SmartyException
  */
-function vlan_port_manager() {
+function vlan_port_manager()
+{
 	function_requirements('update_switch_ports');
 	$ima = $GLOBALS['tf']->ima;
 	$db = get_module_db('default');
@@ -20,7 +21,7 @@ function vlan_port_manager() {
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	$ipblock = $GLOBALS['tf']->variables->request['ipblock'];
 	$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'", __LINE__, __FILE__);
@@ -54,4 +55,3 @@ function vlan_port_manager() {
 		}
 	}
 }
-

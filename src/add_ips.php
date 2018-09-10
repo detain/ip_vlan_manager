@@ -11,11 +11,12 @@
 /**
  * @return bool
  */
-function add_ips() {
+function add_ips()
+{
 	function_requirements('has_acl');
 	if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
-		return FALSE;
+		return false;
 	}
 	global $groupinfo;
 	$db = get_module_db('default');
@@ -79,4 +80,3 @@ function add_ips() {
 		add_output('<br>');
 	}
 }
-
