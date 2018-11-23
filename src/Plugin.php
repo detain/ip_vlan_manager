@@ -2,7 +2,7 @@
 /**
  * Softaculous Related Functionality
  * @author Joe Huss <detain@interserver.net>
- * @copyright 2018
+ * @copyright 2019
  * @package IP-VLAN-Manager-Softaculous-Licensing
  * @category Licenses
  */
