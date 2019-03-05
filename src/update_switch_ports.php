@@ -100,6 +100,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
 						add_output("$graph_id ");
 					}
 				}
+/*
 				//$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$justport}:%' or vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
 				$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
 				//echo "$query\n";
@@ -136,6 +137,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
 						}
 					}
 				}
+*/
 				if ($verbose == true) {
 					add_output(',');
 				}
@@ -146,6 +148,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
 		}
 		add_output(sizeof(array_keys($vlan_ids)).' Unmatched VLANs'.PHP_EOL);
 	}
+    /*
 	function_requirements('parse_vlan_ports');
 	$db->query("select * from vlans", __LINE__, __FILE__);
 	$portData = [];
@@ -284,6 +287,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
 	}
 	echo "Updated ".sizeof($portData)." Switchports".PHP_EOL;
 	//print_r($switches);
+    */
 	global $output;
 	echo str_replace("\n", "<br>\n", $output);
 	$output = '';
