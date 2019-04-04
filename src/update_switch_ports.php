@@ -100,44 +100,44 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
 						add_output("$graph_id ");
 					}
 				}
-/*
-				//$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$justport}:%' or vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
-				$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
-				//echo "$query\n";
-				$db->query($query, __LINE__, __FILE__);
-				$vlans = [];
-				$asset_id = 0;
-				while ($db->next_record(MYSQL_ASSOC)) {
-					$vlans[] = $db->Record['vlans_id'];
-					unset($vlan_ids[$db->Record['vlans_id']]);
-					$hostname = str_replace('append ', '', $db->Record['vlans_comment']);
-					$db2->query("select assets.id from assets, servers  where server_id=assets.order_id and server_hostname='{$hostname}'", __LINE__, __FILE__);
-					if ($db2->num_rows() > 0) {
-						$db2->next_record();
-						//echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
-						$asset_id = $db2->Record['id'];
-					} else {
-						$db2->query("select * from assets where hostname='{$hostname}'");
-						if ($db2->num_rows() > 0) {
-							$db2->next_record();
-							//echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
-							$asset_id = $db2->Record['id'];
-						}
-					}
-				}
-				if (count($vlans) > 0) {
-					if ($verbose == true) {
-						add_output('('.count($vlans).' Vlans)');
-					}
-					$vlantext = implode(',', $vlans);
-					$db->query("update switchports set vlans='{$vlantext}', asset_id='{$asset_id}' where switch='{$switchManager['id']}' and port='{$port}'", __LINE__, __FILE__);
-					if ($db->affectedRows()) {
-						if ($verbose == true) {
-							add_output(", Update Vlan".PHP_EOL);
-						}
-					}
-				}
-*/
+				/*
+								//$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$justport}:%' or vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
+								$query = "select * from vlans where vlans_ports like '%:{$switchManager['id']}/{$port}:%'";
+								//echo "$query\n";
+								$db->query($query, __LINE__, __FILE__);
+								$vlans = [];
+								$asset_id = 0;
+								while ($db->next_record(MYSQL_ASSOC)) {
+									$vlans[] = $db->Record['vlans_id'];
+									unset($vlan_ids[$db->Record['vlans_id']]);
+									$hostname = str_replace('append ', '', $db->Record['vlans_comment']);
+									$db2->query("select assets.id from assets, servers  where server_id=assets.order_id and server_hostname='{$hostname}'", __LINE__, __FILE__);
+									if ($db2->num_rows() > 0) {
+										$db2->next_record();
+										//echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
+										$asset_id = $db2->Record['id'];
+									} else {
+										$db2->query("select * from assets where hostname='{$hostname}'");
+										if ($db2->num_rows() > 0) {
+											$db2->next_record();
+											//echo "Got assets {$db2->Record['id']} for vlan {$db->Record['vlans_id']}\n";
+											$asset_id = $db2->Record['id'];
+										}
+									}
+								}
+								if (count($vlans) > 0) {
+									if ($verbose == true) {
+										add_output('('.count($vlans).' Vlans)');
+									}
+									$vlantext = implode(',', $vlans);
+									$db->query("update switchports set vlans='{$vlantext}', asset_id='{$asset_id}' where switch='{$switchManager['id']}' and port='{$port}'", __LINE__, __FILE__);
+									if ($db->affectedRows()) {
+										if ($verbose == true) {
+											add_output(", Update Vlan".PHP_EOL);
+										}
+									}
+								}
+				*/
 				if ($verbose == true) {
 					add_output(',');
 				}
@@ -148,7 +148,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
 		}
 		add_output(sizeof(array_keys($vlan_ids)).' Unmatched VLANs'.PHP_EOL);
 	}
-    /*
+	/*
 	function_requirements('parse_vlan_ports');
 	$db->query("select * from vlans", __LINE__, __FILE__);
 	$portData = [];
@@ -287,7 +287,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
 	}
 	echo "Updated ".sizeof($portData)." Switchports".PHP_EOL;
 	//print_r($switches);
-    */
+	*/
 	global $output;
 	echo str_replace("\n", "<br>\n", $output);
 	$output = '';

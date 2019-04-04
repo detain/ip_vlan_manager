@@ -26,7 +26,9 @@ function switch_manager()
 	if (isset($GLOBALS['tf']->variables->request['name']) && isset($GLOBALS['tf']->variables->request['ports'])) {
 		$name = $GLOBALS['tf']->variables->request['name'];
 		$ports = $GLOBALS['tf']->variables->request['ports'];
-		$db->query(make_insert_query('switchmanager', [
+		$db->query(make_insert_query(
+			'switchmanager',
+			[
 			'id' => null,
 			'name' => $name,
 			'ports' => $ports

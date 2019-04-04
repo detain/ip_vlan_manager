@@ -55,10 +55,10 @@ class Plugin
 	 */
 	public static function getRequirements(GenericEvent $event)
 	{
-        /**
-         * @var \MyAdmin\Plugins\Loader $this->loader
-         */
-        $loader = $event->getSubject();
+		/**
+		 * @var \MyAdmin\Plugins\Loader $this->loader
+		 */
+		$loader = $event->getSubject();
 		$loader->add_page_requirement('add_ips', '/../vendor/detain/ip_vlan_manager/src/add_ips.php');
 		$loader->add_page_requirement('add_ips_to_server', '/../vendor/detain/ip_vlan_manager/src/add_ips_to_server.php');
 		$loader->add_page_requirement('add_vlan', '/../vendor/detain/ip_vlan_manager/src/add_vlan.php');

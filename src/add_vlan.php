@@ -155,7 +155,9 @@ function add_vlan()
 				}
 				$comment = $GLOBALS['tf']->variables->request['comment'];
 				$ports = ':'.implode(':', $ports).':';
-				$db->query(make_insert_query('vlans', [
+				$db->query(make_insert_query(
+					'vlans',
+					[
 					'vlans_id' => null,
 					'vlans_block' => $block,
 					'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
@@ -179,7 +181,9 @@ function add_vlan()
 					if (in_array($ips[$x], $ips2)) {
 						$query = "update ips set ips_vlan='{$vlan}', ips_serverid=0, ips_group=0, ips_reserved='{$reserved}' where ips_ip='$ips[$x]'";
 					} else {
-						$query = make_insert_query('ips', [
+						$query = make_insert_query(
+							'ips',
+							[
 							'ips_ip' => $ips[$x],
 							'ips_vlan' => $vlan,
 							'ips_serverid' => 0,
