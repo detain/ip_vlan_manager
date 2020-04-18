@@ -13,29 +13,8 @@
 */
 function network2gateway($network)
 {
-	list($ipAddress, $subnet) = explode('/', $network);
-	return ipnetmask2gateway($ipAddress, subnet2netmask($subnet));
-}
-
-/**
-* converts a ip address and netmask into a gateway address
-* @param string $ipAddress the networks ip address or any ip within the network
-* @param string $netmask the netmask for the network ie 255.255.255.0
-* @return string gateway address ie 192.168.1.129 or 66.45.228.1
-*/
-function ipnetmask2gateway($ipAddress, $netmask)
-{
-	return long2ip((ip2long($ipAddress) & ip2long($netmask))+1);
-}
-
-/**
-* converts a subnet into a netmask ie 24 to convert a /24 to 255.255.255.0
-* @param string $subnet the network size
-* @return string the netmask for the ip block
-*/
-function subnet2netmask($subnet)
-{
-	return long2ip(-1 << (32 - (int)$ipAddress_subnet));
+	$net = new \IPTools\Network::parse($network);
+	return (string)$net->getHosts()->getFirstIP();
 }
 
 /**
