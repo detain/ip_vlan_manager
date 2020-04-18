@@ -136,6 +136,55 @@ if (!function_exists('validIp')) {
 	}
 }
 
+function ipcalc($network)
+{
+	myadmin_log('myadmin', 'info', 'ipcalc('.$network.') called', __LINE__, __FILE__);
+		if (trim($network) == '') {
+				return false;
+		}
+		$parts = explode('/', $network);
+		if (count($parts) > 1) {
+				list($block, $bitmask) = $parts;
+		} else {
+				$block = $parts[0];
+				$bitmask = '32';
+				$network = $block.'/'.$bitmask;
+		}
+		if (!validIp($block, false) || !is_numeric($bitmask)) {
+				return false;
+		}
+		if (preg_match('/^(.*)\/32$/', $network, $matches)) {
+				return [
+						'network' => $matches[1],
+						'network_ip' => $matches[1],
+						'bitmask' => 32,
+						'netmask' => '255.255.255.255',
+						'broadcast' => '',
+						'hostmin' => $matches[1],
+						'hostmax' => $matches[1],
+						'first_usable' => $matches[1],
+						'gateway' => '',
+						'hosts' => 1
+				];
+		}
+		require_once 'Net/IPv4.php';
+		$network_object = new Net_IPv4();
+		$net = $network_object->parseAddress($network);
+		$ipAddress_info = [
+				'network' => $net->network.'/'.$net->bitmask,
+				'network_ip' => $net->network,
+				'bitmask' => $net->bitmask,
+				'netmask' => $net->netmask,
+				'broadcast' => $net->broadcast,
+				'hostmin' => long2ip($net->ip2double($net->network) + 1),
+				'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
+				'first_usable' => long2ip($net->ip2double($net->network) + 2),
+				'gateway' => long2ip($net->ip2double($net->network) + 1),
+				'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
+		];
+		return $ipAddress_info;
+}
+
  /**
  * Gets the Network information from a network address.
  * Example Response: [
@@ -153,7 +202,7 @@ if (!function_exists('validIp')) {
  * @param $network string Network address in 1.2.3.4/24 format
  * @return array|bool false on error or returns an array containing the network info
  */
-function ipcalc($network)
+function ipcalc_new($network)
 {
 	try {
 		$net = \IPTools\Network::parse($network);
