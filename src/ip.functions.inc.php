@@ -13,7 +13,7 @@
 */
 function network2gateway($network)
 {
-	$net = new \IPTools\Network::parse($network);
+	$net = \IPTools\Network::parse($network);
 	return (string)$net->getHosts()->getFirstIP();
 }
 
@@ -203,68 +203,6 @@ function get_networks($text, $vlan = 0, $comment = '', $ports = '')
 }
 
 /**
- * @param      $part
- * @param      $ipparts
- * @param      $maxparts
- * @param bool $include_unusable
- * @return bool
- */
-function check_ip_part($part, $ipparts, $maxparts, $include_unusable = false)
-{
-	if ($include_unusable) {
-		$maxip = 256;
-	} else {
-		$maxip = 255;
-	}
-	switch ($part) {
-		case 1:
-			if ($ipparts[0] < $maxip) {
-				if ($ipparts[0] <= $maxparts[0]) {
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				return false;
-			}
-			break;
-		case 2:
-			if ($ipparts[1] < $maxip) {
-				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1])) {
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				return false;
-			}
-			break;
-		case 3:
-			if ($ipparts[2] < $maxip) {
-				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2])) {
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				return false;
-			}
-			break;
-		case 4:
-			if ($ipparts[3] < $maxip) {
-				if (($ipparts[0] <= $maxparts[0]) && ($ipparts[1] <= $maxparts[1]) && ($ipparts[2] <= $maxparts[2]) && ($ipparts[3] <= $maxparts[3])) {
-					return true;
-				} else {
-					return false;
-				}
-			} else {
-				return false;
-			}
-			break;
-	}
-}
-
-/**
  * @return array
  */
 function get_all_ipblocks()
@@ -344,25 +282,12 @@ function get_all_ips2_from_ipblocks($include_unusable = false)
 function get_ips($network, $include_unusable = false)
 {
 	$ips = [];
-	$network_info = ipcalc($network);
-	if ($include_unusable) {
-		$minip = $network_info['network_ip'];
-		$maxip = $network_info['broadcast'];
-	} else {
-		$minip = $network_info['hostmin'];
-		$maxip = $network_info['hostmax'];
+	$net = \IPTools\Network::parse($network);
+	if (!$include_unusable) {
+		$net = $net->getHosts();
 	}
-	$minparts = explode('.', $minip);
-	$maxparts = explode('.', $maxip);
-	$ips = [];
-	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++) {
-		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++) {
-			for ($c = $minparts[2]; check_ip_part(3, [$a,$b,$c], $maxparts, $include_unusable); $c++) {
-				for ($d = $minparts[3]; check_ip_part(4, [$a,$b,$c,$d], $maxparts, $include_unusable); $d++) {
-					$ips[] = $a.'.'.$b.'.'.$c.'.'.$d;
-				}
-			}
-		}
+	foreach ($net as $ip) {
+		$ips[] = (string)$ip;
 	}
 	return $ips;
 }
@@ -374,28 +299,7 @@ function get_ips($network, $include_unusable = false)
  */
 function get_ips2($network, $include_unusable = false)
 {
-	$ips = [];
-	$network_info = ipcalc($network);
-	if ($include_unusable) {
-		$minip = $network_info['network_ip'];
-		$maxip = $network_info['broadcast'];
-	} else {
-		$minip = $network_info['hostmin'];
-		$maxip = $network_info['hostmax'];
-	}
-	$minparts = explode('.', $minip);
-	$maxparts = explode('.', $maxip);
-	$ips = [];
-	for ($a = $minparts[0]; check_ip_part(1, [$a], $maxparts, $include_unusable); $a++) {
-		for ($b = $minparts[1]; check_ip_part(2, [$a, $b], $maxparts, $include_unusable); $b++) {
-			for ($c = $minparts[2]; check_ip_part(3, [$a,$b,$c], $maxparts, $include_unusable); $c++) {
-				for ($d = $minparts[3]; check_ip_part(4, [$a,$b,$c,$d], $maxparts, $include_unusable); $d++) {
-					$ips[] = [$a.'.'.$b.'.'.$c.'.'.$d,$a,$b,$c,$d];
-				}
-			}
-		}
-	}
-	return $ips;
+	return get_ips($network, $include_unusable);
 }
 
 /**
