@@ -109,22 +109,16 @@ function get_select_ports($ports = false, $size = 5, $extra = '')
  */
 function get_ipcount_from_netmask($netmask)
 {
-	$ipinfo = [];
-	require_once 'Net/IPv4.php';
-	$network_object = new Net_IPv4();
-	$validNM = Net_IPv4::$Net_IPv4_Netmask_Map;
-	if (in_array($netmask, $validNM)) {
-		$validNM_rev = array_flip($validNM);
-		$blocksize = $validNM_rev[$netmask];
-	} else {
-		$blocksize = $netmask;
-		$netmask = $validNM[$blocksize];
+	if (is_numeric($netmask)) {
+		$netmask = (string)\IPTools\Network::prefix2netmask($netmask, \IPTools\IP::IP_V4);
 	}
-	$ip = '0.0.0.0';
-	$network = long2ip(ip2long($ip) & ip2long($netmask));
-	$broadcast = long2ip(ip2long($ip) |	(ip2long($netmask) ^ ip2long("255.255.255.255")));
-	$hosts = (int)(ip2long($broadcast) - ip2long($network) - 1);
-	return $hosts;
+	$ip = \IPTools\IP::parse($netmask);
+	if ($ip->getVersion() == \IPTools\IP::IP_V6) {
+		$net = new \IPTools\Network(new \IPTools\IP('ffff:ffff::'), $ip);        
+	} else {
+		$net = new \IPTools\Network(new \IPTools\IP('192.168.0.0'), $ip);
+	}
+	return $net->getHosts()->count();
 }
 
 if (!function_exists('validIp')) {
