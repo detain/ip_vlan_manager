@@ -182,50 +182,27 @@ if (!function_exists('validIp')) {
  */
 function ipcalc($network)
 {
-	if (trim($network) == '') {
+	try {
+		$net = \IPTools\Network::parse($network);
+	} catch (\Exception $e) {
+		myadmin_log('myadmin', 'error', 'ipcalc('.$network.') caught exception: '.$e->getMessage(), __LINE__, __FILE__);
 		return false;
 	}
-	$parts = explode('/', $network);
-	if (count($parts) > 1) {
-		list($block, $bitmask) = $parts;
-	} else {
-		$block = $parts[0];
-		$bitmask = '32';
-		$network = $block.'/'.$bitmask;
-	}
-	if (!validIp($block, false) || !is_numeric($bitmask)) {
-		return false;
-	}
-	if (preg_match('/^(.*)\/32$/', $network, $matches)) {
-		return [
-			'network' => $matches[1],
-			'network_ip' => $matches[1],
-			'bitmask' => 32,
-			'netmask' => '255.255.255.255',
-			'broadcast' => '',
-			'hostmin' => $matches[1],
-			'hostmax' => $matches[1],
-			'first_usable' => $matches[1],
-			'gateway' => '',
-			'hosts' => 1
-		];
-	}
-	require_once 'Net/IPv4.php';
-	$network_object = new Net_IPv4();
-	$net = $network_object->parseAddress($network);
-	$ipAddress_info = [
-		'network' => $net->network.'/'.$net->bitmask,
-		'network_ip' => $net->network,
-		'bitmask' => $net->bitmask,
-		'netmask' => $net->netmask,
-		'broadcast' => $net->broadcast,
-		'hostmin' => long2ip($net->ip2double($net->network) + 1),
-		'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
-		'first_usable' => long2ip($net->ip2double($net->network) + 2),
-		'gateway' => long2ip($net->ip2double($net->network) + 1),
-		'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
+	$hosts = $net->getHosts();
+	if ($net->getBlockSize() > 1)
+		$hosts->next();
+	return [
+		'network' => $net->getCIDR(),
+		'network_ip' => (string)$net->getNetwork(),
+		'bitmask' => $net->getPrefixLength(),
+		'netmask' => (string)$net->getNetmask(),
+		'broadcast' => (string)$net->getBroadcast(),
+		'hostmin' => (string)$hosts->getFirstIP(),
+		'hostmax' => (string)$hosts->getLastIP(),
+		'first_usable' => (string)$hosts->current(),
+		'gateway' => (string)$hosts->getFirstIP(),
+		'hosts' => $hosts->count(),
 	];
-	return $ipAddress_info;
 }
 
 /**
