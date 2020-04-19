@@ -102,33 +102,17 @@ function get_ipcount_from_netmask($netmask)
 
 if (!function_exists('validIp')) {
 	/**
-	 * validIp()
 	 * returns whether or not the given IP is valid
 	 *
-	 * @param string $ipAddress the ip address to validate
-	 * @param bool $display_errors whether or not errors are displayed. defaults to TRUE
+	 * @param string $ip the ip address to validate
+	 * @param bool $display_errors whether or not errors are displayed. defaults to true
+	 * @param bool $support_ipv6 optional , defaults to false, whether or not to support ipv6, only works on php >= 5.2.0
 	 * @return bool whether or not its a valid ip
 	 */
-	function validIp($ipAddress, $display_errors = true)
+	function validIp($ip, $display_errors = true, $support_ipv6 = false)
 	{
-		if (!preg_match("/^[0-9\.]{7,15}$/", $ipAddress)) {
-			// don't display errors cuz this gets called w/ a blank entry when people didn't even submit anything yet
-			//add_output('<font class="error">IP '.$ipAddress.' Too short/long</font>');
-			return false;
-		}
-		$quads = explode('.', $ipAddress);
-		$num_quads = count($quads);
-		if ($num_quads != 4) {
-			if ($display_errors) {
-				add_output('<font class="error">IP '.$ipAddress.' Too many quads</font>');
-			}
-			return false;
-		}
-		for ($i = 0; $i < 4; $i++) {
-			if ($quads[$i] > 255) {
-				if ($display_errors) {
-					add_output('<font class="error">IP '.$ipAddress.' number '.$quads[$i].' too high</font>');
-				}
+		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
+			if ($support_ipv6 === false || filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) === false) {
 				return false;
 			}
 		}
@@ -472,28 +456,6 @@ function available_ipblocks($blocksize, $location = 1)
 			}
 		}
 	}
-	/* 45.126.36.0/22 */
-	/*		$reserved = array(763241472, 763242495);
-		for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-			$ipAddress = long2ip($x);
-			$usedips[$ipAddress] = $ipAddress;
-		}
-	*/
-	/* 199.231.191.0/24 reserved */
-	/* mike says ok to remove 2/24/2017
-	$reserved = array(3353853696, 3353853951);
-	for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-		$ipAddress = long2ip($x);
-		$usedips[$ipAddress] = $ipAddress;
-	} */
-	/* 66.23.225.0/24 reserved cogent */
-	/*  mike says we can undo this - 2/24/2017
-	$reserved = array(1108861184, 1108861439);
-	for ($x = $reserved[0]; $x < $reserved[1]; $x++) {
-		$ipAddress = long2ip($x);
-		$usedips[$ipAddress] = $ipAddress;
-	}
-	*/
 	$db->query('select ips_ip from ips where ips_vlan is not null', __LINE__, __FILE__);
 	if ($db->num_rows()) {
 		while ($db->next_record()) {
