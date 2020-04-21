@@ -16,6 +16,7 @@
 	],
 	"require": {
 		"php": ">=5.6.0",
+		"pear/net_ipv4": "dev-trunk",
 		"detain/iptools": "*"
 	},
 	"require-dev": {
