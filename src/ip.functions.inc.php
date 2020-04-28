@@ -18,9 +18,9 @@ function network2gateway($network)
 }
 
 /**
- * @param string $data vlan ports like 171/4 or 171/Ethernet1/7 etc..
- * @return array array of switch / port information
- */
+* @param string $data vlan ports like 171/4 or 171/Ethernet1/7 etc..
+* @return array array of switch / port information
+*/
 function parse_vlan_ports($data)
 {
 	$parts2 = explode('/', $data);
@@ -37,10 +37,10 @@ function parse_vlan_ports($data)
 }
 
 /**
- * @param      $index
- * @param bool $short
- * @return string
- */
+* @param      $index
+* @param bool $short
+* @return string
+*/
 function get_switch_name($index, $short = false)
 {
 	$db = get_module_db('default');
@@ -55,10 +55,10 @@ function get_switch_name($index, $short = false)
 }
 
 /**
- * @param bool|array $ports
- * @param int  $size
- * @return string
- */
+* @param bool|array $ports
+* @param int  $size
+* @return string
+*/
 function get_select_ports($ports = false, $size = 5, $extra = '')
 {
 	$db = get_module_db('default');
@@ -81,11 +81,11 @@ function get_select_ports($ports = false, $size = 5, $extra = '')
 }
 
 /**
- * gets the number of ips for a given netmask or bitmask.  can pass it a blocksize (ie 24) or netmask (ie 255.255.255.0)
- *
- * @param $netmask a netmask or block size
- * @return int the number of ips in within a range using this netmask or blocksize
- */
+* gets the number of ips for a given netmask or bitmask.  can pass it a blocksize (ie 24) or netmask (ie 255.255.255.0)
+*
+* @param $netmask a netmask or block size
+* @return int the number of ips in within a range using this netmask or blocksize
+*/
 function get_ipcount_from_netmask($netmask)
 {
 	if (is_numeric($netmask)) {
@@ -102,13 +102,13 @@ function get_ipcount_from_netmask($netmask)
 
 if (!function_exists('validIp')) {
 	/**
-	 * returns whether or not the given IP is valid
-	 *
-	 * @param string $ip the ip address to validate
-	 * @param bool $display_errors whether or not errors are displayed. defaults to true
-	 * @param bool $support_ipv6 optional , defaults to false, whether or not to support ipv6, only works on php >= 5.2.0
-	 * @return bool whether or not its a valid ip
-	 */
+	* returns whether or not the given IP is valid
+	*
+	* @param string $ip the ip address to validate
+	* @param bool $display_errors whether or not errors are displayed. defaults to true
+	* @param bool $support_ipv6 optional , defaults to false, whether or not to support ipv6, only works on php >= 5.2.0
+	* @return bool whether or not its a valid ip
+	*/
 	function validIp($ip, $display_errors = true, $support_ipv6 = false)
 	{
 		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) === false) {
@@ -120,23 +120,23 @@ if (!function_exists('validIp')) {
 	}
 }
 
- /**
- * Gets the Network information from a network address.
- * Example Response: [
- *   'network'      => '66.45.233.160/28',
- *   'network_ip'   => '66.45.233.160',
- *   'bitmask'      => '28',
- *   'netmask'      => '255.255.255.240',
- *   'broadcast'    => '66.45.233.175',
- *   'hostmin'      => '66.45.233.161',
- *   'hostmax'      => '66.45.233.174',
- *   'first_usable' => '66.45.233.162',
- *   'gateway'      => '66.45.233.161',
- *   'hosts'        => 14
- * ];
- * @param $network string Network address in 1.2.3.4/24 format
- * @return array|bool false on error or returns an array containing the network info
- */
+/**
+* Gets the Network information from a network address.
+* Example Response: [
+*   'network'      => '66.45.233.160/28',
+*   'network_ip'   => '66.45.233.160',
+*   'bitmask'      => '28',
+*   'netmask'      => '255.255.255.240',
+*   'broadcast'    => '66.45.233.175',
+*   'hostmin'      => '66.45.233.161',
+*   'hostmax'      => '66.45.233.174',
+*   'first_usable' => '66.45.233.162',
+*   'gateway'      => '66.45.233.161',
+*   'hosts'        => 14
+* ];
+* @param $network string Network address in 1.2.3.4/24 format
+* @return array|bool false on error or returns an array containing the network info
+*/
 function ipcalc($network)
 {
 	if (trim($network) == '') {
@@ -183,37 +183,37 @@ function ipcalc($network)
 		'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
 	];
 	return $ipAddress_info;
-/*    
+	/*    
 	try {
-		$net = \IPTools\Network::parse($network);
+	$net = \IPTools\Network::parse($network);
 	} catch (\Exception $e) {
-		return false;
+	return false;
 	}
 	$hosts = $net->getHosts();
 	if ($net->getBlockSize() > 1)
-		$hosts->next();
+	$hosts->next();
 	return [
-		'network' => $net->getCIDR(),
-		'network_ip' => (string)$net->getNetwork(),
-		'bitmask' => $net->getPrefixLength(),
-		'netmask' => (string)$net->getNetmask(),
-		'broadcast' => (string)$net->getBroadcast(),
-		'hostmin' => (string)$hosts->getFirstIP(),
-		'hostmax' => (string)$hosts->getLastIP(),
-		'first_usable' => (string)$hosts->current(),
-		'gateway' => (string)$hosts->getFirstIP(),
-		'hosts' => $hosts->count(),
+	'network' => $net->getCIDR(),
+	'network_ip' => (string)$net->getNetwork(),
+	'bitmask' => $net->getPrefixLength(),
+	'netmask' => (string)$net->getNetmask(),
+	'broadcast' => (string)$net->getBroadcast(),
+	'hostmin' => (string)$hosts->getFirstIP(),
+	'hostmax' => (string)$hosts->getLastIP(),
+	'first_usable' => (string)$hosts->current(),
+	'gateway' => (string)$hosts->getFirstIP(),
+	'hosts' => $hosts->count(),
 	];
-*/
+	*/
 }
 
 /**
- * @param        $text
- * @param int    $vlan
- * @param string $comment
- * @param string $ports
- * @return array
- */
+* @param        $text
+* @param int    $vlan
+* @param string $comment
+* @param string $ports
+* @return array
+*/
 function get_networks($text, $vlan = 0, $comment = '', $ports = '')
 {
 	$networks = [];
@@ -232,8 +232,8 @@ function get_networks($text, $vlan = 0, $comment = '', $ports = '')
 }
 
 /**
- * @return array
- */
+* @return array
+*/
 function get_all_ipblocks()
 {
 	$db = get_module_db('default');
@@ -246,8 +246,8 @@ function get_all_ipblocks()
 }
 
 /**
- * @return array
- */
+* @return array
+*/
 function get_client_ipblocks()
 {
 	$ipblocks = [
@@ -262,9 +262,9 @@ function get_client_ipblocks()
 }
 
 /**
- * @param bool $include_unusable
- * @return array
- */
+* @param bool $include_unusable
+* @return array
+*/
 function get_client_ips($include_unusable = false)
 {
 	$ipblocks = get_client_ipblocks();
@@ -276,9 +276,9 @@ function get_client_ips($include_unusable = false)
 }
 
 /**
- * @param bool $include_unusable
- * @return array
- */
+* @param bool $include_unusable
+* @return array
+*/
 function get_all_ips_from_ipblocks($include_unusable = false)
 {
 	$all_blocks = get_all_ipblocks();
@@ -290,9 +290,9 @@ function get_all_ips_from_ipblocks($include_unusable = false)
 }
 
 /**
- * @param bool $include_unusable
- * @return array
- */
+* @param bool $include_unusable
+* @return array
+*/
 function get_all_ips2_from_ipblocks($include_unusable = false)
 {
 	$all_blocks = get_all_ipblocks();
@@ -304,10 +304,10 @@ function get_all_ips2_from_ipblocks($include_unusable = false)
 }
 
 /**
- * @param      $network
- * @param bool $include_unusable
- * @return array
- */
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
 function get_ips_new($network, $include_unusable = false)
 {
 	$ips = [];
@@ -322,10 +322,10 @@ function get_ips_new($network, $include_unusable = false)
 }
 
 /**
- * @param      $network
- * @param bool $include_unusable
- * @return array
- */
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
 function get_ips2_new($network, $include_unusable = false)
 {
 	$ips = [];
@@ -343,12 +343,12 @@ function get_ips2_new($network, $include_unusable = false)
 
 
 /**
- * @param      $part
- * @param      $ipparts
- * @param      $maxparts
- * @param bool $include_unusable
- * @return bool
- */
+* @param      $part
+* @param      $ipparts
+* @param      $maxparts
+* @param bool $include_unusable
+* @return bool
+*/
 function check_ip_part($part, $ipparts, $maxparts, $include_unusable = false)
 {
 	if ($include_unusable) {
@@ -406,10 +406,10 @@ function check_ip_part($part, $ipparts, $maxparts, $include_unusable = false)
 
 
 /**
- * @param      $network
- * @param bool $include_unusable
- * @return array
- */
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
 function get_ips($network, $include_unusable = false)
 {
 	$ips = [];
@@ -437,10 +437,10 @@ function get_ips($network, $include_unusable = false)
 }
 
 /**
- * @param      $network
- * @param bool $include_unusable
- * @return array
- */
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
 function get_ips2($network, $include_unusable = false)
 {
 	$ips = [];
@@ -469,10 +469,10 @@ function get_ips2($network, $include_unusable = false)
 
 
 /**
- * @param     $blocksize
- * @param int $location
- * @return array
- */
+* @param     $blocksize
+* @param int $location
+* @return array
+*/
 function available_ipblocks($blocksize, $location = 1)
 {
 	// array of available blocks
