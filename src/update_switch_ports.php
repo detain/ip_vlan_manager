@@ -4,7 +4,7 @@
  * updates the switch ports
  *
  * @param bool $verbose wether or not to enable verbose output.
- * @param bool $pullServerMap defaults to true, optional flag allowing disabling of the switch/ports updating via http://nms.is.cc/cacti/servermap.php
+ * @param bool $pullServerMap defaults to true, optional flag allowing disabling of the switch/ports updating via https://nms.is.cc/cacti/servermap.php
  */
 function update_switch_ports($verbose = false, $pullServerMap = true)
 {
@@ -17,7 +17,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
 		while ($db->next_record(MYSQL_ASSOC)) {
 			$vlan_ids[$db->Record['vlans_id']] = true;
 		}
-		$lines = explode("\n", trim(getcurlpage('http://nms.is.cc/cacti/servermap.php')));
+		$lines = explode("\n", trim(getcurlpage('https://nms.is.cc/cacti/servermap.php')));
 		$switches = [];
 		foreach ($lines as $line) {
 			list($graph_id, $switch, $port, $comment) = explode(',', $line);
