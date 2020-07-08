@@ -48,9 +48,9 @@ function delete_vlan()
 		$db->query($query, __LINE__, __FILE__);
 		$db->next_record();
 		$id = $db->Record['vlans_id'];
-		$query = "delete from vlans where vlans_networks=':$ipblock:'";
-		$db->query($query, __LINE__, __FILE__);
 		$query = "update ips set ips_vlan=null where ips_vlan='{$id}'";
+		$db->query($query, __LINE__, __FILE__);
+		$query = "delete from vlans where vlans_networks=':$ipblock:'";
 		$db->query($query, __LINE__, __FILE__);
 		/*function_requirements('update_switch_ports');
 		update_switch_ports();*/
