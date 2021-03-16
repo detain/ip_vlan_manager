@@ -536,7 +536,6 @@ function available_ipblocks($blocksize, $location = 1)
 		$mainblocks[] = [2117, '68.168.212.0/24'];
 		$mainblocks[] = [2045, '69.10.60.0/26'];
 		$mainblocks[] = [2054, '68.168.222.0/24'];
-		$mainblocks[] = [2253, '68.168.214.0/23'];
 		$mainblocks[] = [2342, '69.10.53.0/24'];
 		$mainblocks[] = [2592, '209.159.159.0/24'];
 		$mainblocks[] = [3124, '66.23.224.0/24'];
@@ -554,7 +553,6 @@ function available_ipblocks($blocksize, $location = 1)
 			[1151915008, 1151915263], // 68.168.212.0/24 reserved
 			[1158298624, 1158298687], // 69.10.60.0/26 reserved
 			[1151917568, 1151917823], // 68.168.222.0/24 reserved
-			[1151915520, 1151916031], // 68.168.214.0/23 reserved
 			[1158296832, 1158297087], // 69.10.53.0/24 reserved
 			[3516899072, 3516899327], // 209.159.159.0/24 reserved
 			[1108860928, 1108861183], // 66.23.224.0/24 reserved
@@ -614,12 +612,14 @@ function available_ipblocks($blocksize, $location = 1)
 	// Switch Subnets
 	if ($location == 7) { // Switch Subnets
 		$mainblocks[] = [22, '173.225.96.0/24'];
+		$mainblocks[] = [2253, '68.168.214.0/23'];
 		$mainblocks[] = [22, '173.225.97.0/24'];
 		$mainblocks[] = [22, '66.45.224.0/24'];
 	} else {
 		$reserved = [
 			[2917228544, 2917228799], // 173.225.96.0/24
 			[2917228800, 2917229055], // 173.225.97.0/24
+			[1151915520, 1151916031], // 68.168.214.0/23 reserved
 			[1110302720, 1110302975], // 66.45.224.0/24
 		];
 		foreach ($reserved as $idx => $reserve) {
