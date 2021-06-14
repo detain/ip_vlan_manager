@@ -270,7 +270,7 @@ function get_client_ips($include_unusable = false)
 	$ipblocks = get_client_ipblocks();
 	$client_ips = [];
 	foreach ($ipblocks as $ipblock) {
-		$client_ips = array_merge($client_ips, get_ips($ipblock, $include_unusable));
+		$client_ips = array_merge($client_ips, get_ips_newer($ipblock, $include_unusable));
 	}
 	return $client_ips;
 }
@@ -284,7 +284,7 @@ function get_all_ips_from_ipblocks($include_unusable = false)
 	$all_blocks = get_all_ipblocks();
 	$all_ips = [];
 	foreach ($all_blocks as $ipblock) {
-		$all_ips = array_merge($all_ips, get_ips($ipblock, $include_unusable));
+		$all_ips = array_merge($all_ips, get_ips_newer($ipblock, $include_unusable));
 	}
 	return $all_ips;
 }
@@ -298,7 +298,7 @@ function get_all_ips2_from_ipblocks($include_unusable = false)
 	$all_blocks = get_all_ipblocks();
 	$all_ips = [];
 	foreach ($all_blocks as $ipblock) {
-		$all_ips = array_merge($all_ips, get_ips2($ipblock, $include_unusable));
+		$all_ips = array_merge($all_ips, get_ips2_newer($ipblock, $include_unusable));
 	}
 	return $all_ips;
 }
