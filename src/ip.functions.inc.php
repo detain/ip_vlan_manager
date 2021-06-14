@@ -326,6 +326,29 @@ function get_ips_new($network, $include_unusable = false)
 * @param bool $include_unusable
 * @return array
 */
+function get_ips_newer($network, $include_unusable = false)
+{
+	$ips = [];
+	$range = \IPLib\Range\Subnet::fromString($network);
+	$offsetMax = $range->getSize();
+	$offsetStart = 0;
+	if (!$include_unusable && $range->getNetworkPrefix() != 32) {
+		$offsetStart++;
+		$offsetMax--;
+	}
+	$explodeChar = $range->getAddressType() == 4 ? '.' : ':';
+	for ($offset = $offsetStart; $offset < $offsetMax; $offset++) {
+		$ipAddress = $range->getAddressAtOffset($offset);
+		$ips[] = $ipAddress->toString();
+	}
+	return $ips;
+}
+
+/**
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
 function get_ips2_new($network, $include_unusable = false)
 {
 	$ips = [];
@@ -337,6 +360,30 @@ function get_ips2_new($network, $include_unusable = false)
 		$parts = explode($ip->getVersion() == \IPTools\IP::IP_V6 ? ':' : '.', (string)$ip);
 		array_unshift($parts, (string)$ip);
 		$ips[] = $parts;
+	}
+	return $ips;
+}
+
+/**
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
+function get_ips2_newer($network, $include_unusable = false)
+{
+	$ips = [];
+	$range = \IPLib\Range\Subnet::fromString($network);
+	$offsetMax = $range->getSize();
+	$offsetStart = 0;
+	if (!$include_unusable && $range->getNetworkPrefix() != 32) {
+		$offsetStart++;
+		$offsetMax--;
+	}
+	$explodeChar = $range->getAddressType() == 4 ? '.' : ':';
+	for ($offset = $offsetStart; $offset < $offsetMax; $offset++) {
+		$ipAddress = $range->getAddressAtOffset($offset);
+		$parts = explode($explodeChar, $ipAddress->toString());
+		$ips[] = [$ipAddress->toString(), (int)$parts[0], (int)$parts[1], (int)$parts[2], (int)$parts[3]];
 	}
 	return $ips;
 }
@@ -639,7 +686,7 @@ function available_ipblocks($blocksize, $location = 1)
 		$ipblock_id = $maindata[0];
 		$mainblock = $maindata[1];
 		// get ips from the main block
-		$ips = get_ips2($mainblock, true);
+		$ips = get_ips2_newer($mainblock, true);
 		// next loop through all available ips
 		$ipsize = count($ips);
 		$found = false;
