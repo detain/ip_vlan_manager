@@ -93,7 +93,7 @@ function get_ipcount_from_netmask($netmask)
 	}
 	$ip = \IPTools\IP::parse($netmask);
 	if ($ip->getVersion() == \IPTools\IP::IP_V6) {
-		$net = new \IPTools\Network(new \IPTools\IP('ffff:ffff::'), $ip);        
+		$net = new \IPTools\Network(new \IPTools\IP('ffff:ffff::'), $ip);
 	} else {
 		$net = new \IPTools\Network(new \IPTools\IP('192.168.0.0'), $ip);
 	}
@@ -183,7 +183,7 @@ function ipcalc($network)
 		'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
 	];
 	return $ipAddress_info;
-	/*    
+	/*
 	try {
 	$net = \IPTools\Network::parse($network);
 	} catch (\Exception $e) {
@@ -515,18 +515,8 @@ function get_ips2($network, $include_unusable = false)
 }
 
 
-/**
-* @param     $blocksize
-* @param int $location
-* @return array
-*/
-function available_ipblocks($blocksize, $location = 1)
-{
-	// array of available blocks
-	$available = [];
+function get_mainblocks_and_usedips($location) {
 	$db = get_module_db('default');
-	// first we gotta get how many ips are in the blocksize they requested
-	$ipcount = get_ipcount_from_netmask($blocksize) + 2;
 	// get the ips in use
 	$usedips = [];
 	$mainblocks = [];
@@ -682,6 +672,21 @@ function available_ipblocks($blocksize, $location = 1)
 			$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
 		}
 	}
+	return [$mainblocks, $usedips];
+}
+
+/**
+* @param     $blocksize
+* @param int $location
+* @return array
+*/
+function available_ipblocks($blocksize, $location = 1)
+{
+	// array of available blocks
+	$available = [];
+	// first we gotta get how many ips are in the blocksize they requested
+	$ipcount = get_ipcount_from_netmask($blocksize) + 2;
+	list($mainblocks, $usedips) = get_mainblocks_and_usedips($location);
 	foreach ($mainblocks as $maindata) {
 		$ipblock_id = $maindata[0];
 		$mainblock = $maindata[1];
