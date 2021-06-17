@@ -252,10 +252,10 @@ function available_ipblocks_new($blocksize, $location = 1)
 	$freeBlocks = calculate_free_blocks($mainBlocks, $usedIps);
 	foreach ($freeBlocks as $freeBlock)
 		if ($freeBlock->getNetworkPrefix() == $blocksize)
-			$available[] = [$freeBlock->toString(), $freeBlock->BlockId];
+			$available[] = [$freeBlock->getStartAddress(), $freeBlock->BlockId];
 		elseif ($freeBlock->getNetworkPrefix() < $blocksize)
 			for ($x = 0, $fitBlocks = (get_ipcount_from_netmask($freeBlock->getNetworkPrefix()) + 2) / $ipcount; $x < $fitBlocks; $x++)
-				$available[] = [$freeBlock->getAddressAtOffset($x * $ipcount)->toString().'/'.$blocksize, $freeBlock->BlockId];
+				$available[] = [$freeBlock->getAddressAtOffset($x * $ipcount)->toString(), $freeBlock->BlockId];
 	return $available;
 }
 
