@@ -19,7 +19,7 @@ function add_vlan()
 		dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
 		return false;
 	}
-	//_debug_array(get_ips2('68.168.208.0/20',TRUE));
+	//_debug_array(get_ips2_newer('68.168.208.0/20',TRUE));
 	$ima = $GLOBALS['tf']->ima;
 	global $groupinfo;
 	$db = get_module_db('default');
@@ -85,7 +85,7 @@ function add_vlan()
 		add_output($t->get_table());
 	} else {
 		$blocksize = str_replace('/', '', $GLOBALS['tf']->variables->request['blocksize']);
-		$blocks = available_ipblocks($blocksize);
+		$blocks = available_ipblocks_new($blocksize);
 		if (!isset($GLOBALS['tf']->variables->request['ipaddress'])) {
 			// ok we have blocksize now need to determine what vlans are possible
 			$ipcount = get_ipcount_from_netmask($blocksize);
@@ -141,7 +141,7 @@ function add_vlan()
 						$found = true;
 					}
 				}
-				$ips = get_ips($ipaddress.'/'.$blocksize, true);
+				$ips = get_ips_newer($ipaddress.'/'.$blocksize, true);
 				$db->query("select * from ips left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ips) . "') and vlans_id is not NULL");
 				if ($db->num_rows() > 0) {
 					$found = false;

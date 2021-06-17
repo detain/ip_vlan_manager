@@ -27,7 +27,7 @@ function add_ips_to_server()
 		$db->query("select * from vlans where vlans_networks like '%:$ipblock:%'", __LINE__, __FILE__);
 		while ($db->next_record()) {
 			$ipinfo = ipcalc($ipblock);
-			$ips = get_ips($ipblock);
+			$ips = get_ips_newer($ipblock);
 			$table = new \TFTable;
 			$table->add_hidden('ipblock', $ipblock);
 			$table->set_title('Add IP(s) To Server');

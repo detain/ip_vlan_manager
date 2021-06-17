@@ -28,7 +28,7 @@ function ipblock_viewer()
 	function_requirements('ipcalc');
 	while ($db->next_record()) {
 		$ipinfo = ipcalc($ipblock);
-		$ips = get_ips($ipblock);
+		$ips = get_ips_newer($ipblock);
 		$table = new \TFTable;
 		$table->set_title('IP Block Viewer');
 		$table->set_colspan(2);

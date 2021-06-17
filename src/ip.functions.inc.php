@@ -304,92 +304,6 @@ function get_all_ips2_from_ipblocks($include_unusable = false)
 }
 
 /**
-* @param      $network
-* @param bool $include_unusable
-* @return array
-*/
-function get_ips_new($network, $include_unusable = false)
-{
-	$ips = [];
-	$net = \IPTools\Network::parse($network);
-	if (!$include_unusable) {
-		$net = $net->getHosts();
-	}
-	foreach ($net as $ip) {
-		$ips[] = (string)$ip;
-	}
-	return $ips;
-}
-
-/**
-* @param      $network
-* @param bool $include_unusable
-* @return array
-*/
-function get_ips_newer($network, $include_unusable = false)
-{
-	$ips = [];
-	$range = \IPLib\Range\Subnet::fromString($network);
-	$offsetMax = $range->getSize();
-	$offsetStart = 0;
-	if (!$include_unusable && $range->getNetworkPrefix() != 32) {
-		$offsetStart++;
-		$offsetMax--;
-	}
-	$explodeChar = $range->getAddressType() == 4 ? '.' : ':';
-	for ($offset = $offsetStart; $offset < $offsetMax; $offset++) {
-		$ipAddress = $range->getAddressAtOffset($offset);
-		$ips[] = $ipAddress->toString();
-	}
-	return $ips;
-}
-
-/**
-* @param      $network
-* @param bool $include_unusable
-* @return array
-*/
-function get_ips2_new($network, $include_unusable = false)
-{
-	$ips = [];
-	$net = \IPTools\Network::parse($network);
-	if (!$include_unusable) {
-		$net = $net->getHosts();
-	}
-	foreach ($net as $ip) {
-		$parts = explode($ip->getVersion() == \IPTools\IP::IP_V6 ? ':' : '.', (string)$ip);
-		array_unshift($parts, (string)$ip);
-		$ips[] = $parts;
-	}
-	return $ips;
-}
-
-/**
-* @param      $network
-* @param bool $include_unusable
-* @return array
-*/
-function get_ips2_newer($network, $include_unusable = false)
-{
-	$ips = [];
-	$range = \IPLib\Range\Subnet::fromString($network);
-	$offsetMax = $range->getSize();
-	$offsetStart = 0;
-	if (!$include_unusable && $range->getNetworkPrefix() != 32) {
-		$offsetStart++;
-		$offsetMax--;
-	}
-	$explodeChar = $range->getAddressType() == 4 ? '.' : ':';
-	for ($offset = $offsetStart; $offset < $offsetMax; $offset++) {
-		$ipAddress = $range->getAddressAtOffset($offset);
-		$parts = explode($explodeChar, $ipAddress->toString());
-		$ips[] = [$ipAddress->toString(), (int)$parts[0], (int)$parts[1], (int)$parts[2], (int)$parts[3]];
-	}
-	return $ips;
-}
-
-
-/**
 * @param      $part
 * @param      $ipparts
 * @param      $maxparts
@@ -488,6 +402,47 @@ function get_ips($network, $include_unusable = false)
 * @param bool $include_unusable
 * @return array
 */
+function get_ips_new($network, $include_unusable = false)
+{
+	$ips = [];
+	$net = \IPTools\Network::parse($network);
+	if (!$include_unusable) {
+		$net = $net->getHosts();
+	}
+	foreach ($net as $ip) {
+		$ips[] = (string)$ip;
+	}
+	return $ips;
+}
+
+/**
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
+function get_ips_newer($network, $include_unusable = false)
+{
+	$ips = [];
+	$range = \IPLib\Range\Subnet::fromString($network);
+	$offsetMax = $range->getSize();
+	$offsetStart = 0;
+	if (!$include_unusable && $range->getNetworkPrefix() != 32) {
+		$offsetStart++;
+		$offsetMax--;
+	}
+	$explodeChar = $range->getAddressType() == 4 ? '.' : ':';
+	for ($offset = $offsetStart; $offset < $offsetMax; $offset++) {
+		$ipAddress = $range->getAddressAtOffset($offset);
+		$ips[] = $ipAddress->toString();
+	}
+	return $ips;
+}
+
+/**
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
 function get_ips2($network, $include_unusable = false)
 {
 	$ips = [];
@@ -514,24 +469,73 @@ function get_ips2($network, $include_unusable = false)
 	return $ips;
 }
 
+/**
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
+function get_ips2_new($network, $include_unusable = false)
+{
+	$ips = [];
+	$net = \IPTools\Network::parse($network);
+	if (!$include_unusable) {
+		$net = $net->getHosts();
+	}
+	foreach ($net as $ip) {
+		$parts = explode($ip->getVersion() == \IPTools\IP::IP_V6 ? ':' : '.', (string)$ip);
+		array_unshift($parts, (string)$ip);
+		$ips[] = $parts;
+	}
+	return $ips;
+}
 
-function get_mainblocks_and_usedips($location) {
+/**
+* @param      $network
+* @param bool $include_unusable
+* @return array
+*/
+function get_ips2_newer($network, $include_unusable = false)
+{
+	$ips = [];
+	$range = \IPLib\Range\Subnet::fromString($network);
+	$offsetMax = $range->getSize();
+	$offsetStart = 0;
+	if (!$include_unusable && $range->getNetworkPrefix() != 32) {
+		$offsetStart++;
+		$offsetMax--;
+	}
+	$explodeChar = $range->getAddressType() == 4 ? '.' : ':';
+	for ($offset = $offsetStart; $offset < $offsetMax; $offset++) {
+		$ipAddress = $range->getAddressAtOffset($offset);
+		$parts = explode($explodeChar, $ipAddress->toString());
+		$ips[] = [$ipAddress->toString(), (int)$parts[0], (int)$parts[1], (int)$parts[2], (int)$parts[3]];
+	}
+	return $ips;
+}
+
+/**
+* returns an array containing the list of ip blocks and a list of iused ips based on the location passed
+*
+* @param int $location location defaults to 1
+* @return array returns array like [$mainBlocks, $usedIps]
+*/
+function get_mainblocks_and_usedips($location = 1) {
 	$db = get_module_db('default');
 	// get the ips in use
-	$usedips = [];
-	$mainblocks = [];
+	$usedIps = [];
+	$mainBlocks = [];
 	if ($location == 1) { // Secaucus, NJ
 		// get the main ipblocks we have routed
 		$db->query('select * from ipblocks', __LINE__, __FILE__);
 		while ($db->next_record()) {
-			$mainblocks[] = [$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
+			$mainBlocks[] = [(int)$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
 		}
 	}
 	if ($location == 2) { // Los Angeles, CA
-		$mainblocks[] = [7, '173.214.160.0/23'];
-		$mainblocks[] = [8, '206.72.192.0/24'];
-		$mainblocks[] = [12, '162.220.160.0/24'];
-		$mainblocks[] = [15, '104.37.184.0/24'];
+		$mainBlocks[] = [7, '173.214.160.0/23'];
+		$mainBlocks[] = [8, '206.72.192.0/24'];
+		$mainBlocks[] = [12, '162.220.160.0/24'];
+		$mainBlocks[] = [15, '104.37.184.0/24'];
 	} else {
 		$reserved = [
 			[1747302400, 1747302655], // 104.37.184.0/24 LA reserved
@@ -543,12 +547,12 @@ function get_mainblocks_and_usedips($location) {
 		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
-				$usedips[$ipAddress] = $ipAddress;
+				$usedIps[$ipAddress] = $ipAddress;
 			}
 		}
 	}
 	if ($location == 3) { // Equinix, NY4
-		$mainblocks[] = [12, '162.220.161.0/24'];
+		$mainBlocks[] = [12, '162.220.161.0/24'];
 	} else {
 		$reserved = [
 			[2732368128, 2732368383], // 162.220.161.0/24 NY4
@@ -556,26 +560,26 @@ function get_mainblocks_and_usedips($location) {
 		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
-				$usedips[$ipAddress] = $ipAddress;
+				$usedIps[$ipAddress] = $ipAddress;
 			}
 		}
 	}
 	if ($location == 4) { // Hone Live
-		$mainblocks[] = [179, '66.45.241.16/28'];
-		$mainblocks[] = [1281, '69.10.38.128/25'];
-		$mainblocks[] = [2047, '69.10.60.192/26'];
-		$mainblocks[] = [1869, '69.10.56.0/25'];
-		$mainblocks[] = [2159, '68.168.216.0/22'];
-		$mainblocks[] = [2276, '69.10.57.0/24'];
-		$mainblocks[] = [1837, '69.10.52.72/29'];
-		$mainblocks[] = [1981, '69.10.52.112/29'];
-		$mainblocks[] = [1992, '69.10.61.64/26'];
-		$mainblocks[] = [2117, '68.168.212.0/24'];
-		$mainblocks[] = [2045, '69.10.60.0/26'];
-		$mainblocks[] = [2054, '68.168.222.0/24'];
-		$mainblocks[] = [2342, '69.10.53.0/24'];
-		$mainblocks[] = [2592, '209.159.159.0/24'];
-		$mainblocks[] = [3124, '66.23.224.0/24'];
+		$mainBlocks[] = [179, '66.45.241.16/28'];
+		$mainBlocks[] = [1281, '69.10.38.128/25'];
+		$mainBlocks[] = [2047, '69.10.60.192/26'];
+		$mainBlocks[] = [1869, '69.10.56.0/25'];
+		$mainBlocks[] = [2159, '68.168.216.0/22'];
+		$mainBlocks[] = [2276, '69.10.57.0/24'];
+		$mainBlocks[] = [1837, '69.10.52.72/29'];
+		$mainBlocks[] = [1981, '69.10.52.112/29'];
+		$mainBlocks[] = [1992, '69.10.61.64/26'];
+		$mainBlocks[] = [2117, '68.168.212.0/24'];
+		$mainBlocks[] = [2045, '69.10.60.0/26'];
+		$mainBlocks[] = [2054, '68.168.222.0/24'];
+		$mainBlocks[] = [2342, '69.10.53.0/24'];
+		$mainBlocks[] = [2592, '209.159.159.0/24'];
+		$mainBlocks[] = [3124, '66.23.224.0/24'];
 	} else {
 		$reserved = [
 			[1110307088, 1110307103], // 66.45.241.16/28 reserved
@@ -597,17 +601,17 @@ function get_mainblocks_and_usedips($location) {
 		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
-				$usedips[$ipAddress] = $ipAddress;
+				$usedIps[$ipAddress] = $ipAddress;
 			}
 		}
 	}
 	if ($location == 5) { // Vianim.in
-		$mainblocks[] = [16, '103.237.44.0/22'];
-		$mainblocks[] = [17, '43.243.84.0/22'];
-		$mainblocks[] = [16, '103.48.176.0/22'];
-		$mainblocks[] = [17, '45.113.224.0/22'];
-		$mainblocks[] = [17, '45.126.36.0/22'];
-		$mainblocks[] = [16, '103.197.16.0/22'];
+		$mainBlocks[] = [16, '103.237.44.0/22'];
+		$mainBlocks[] = [17, '43.243.84.0/22'];
+		$mainBlocks[] = [16, '103.48.176.0/22'];
+		$mainBlocks[] = [17, '45.113.224.0/22'];
+		$mainBlocks[] = [17, '45.126.36.0/22'];
+		$mainBlocks[] = [16, '103.197.16.0/22'];
 	} else {
 		$reserved = [
 			[1743596544, 1743597567], /* 103.237.44.0/22 */
@@ -620,17 +624,17 @@ function get_mainblocks_and_usedips($location) {
 		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
-				$usedips[$ipAddress] = $ipAddress;
+				$usedIps[$ipAddress] = $ipAddress;
 			}
 		}
 	}
 	// la 3
 	if ($location == 6) { // Equinix LA3
-		$mainblocks[] = [3, '69.10.50.0/24'];
-		$mainblocks[] = [18, '208.73.200.0/24'];
-		$mainblocks[] = [18, '208.73.201.0/24'];
-		$mainblocks[] = [20, '216.158.224.0/23'];
-		$mainblocks[] = [20, '67.211.208.0/24'];
+		$mainBlocks[] = [3, '69.10.50.0/24'];
+		$mainBlocks[] = [18, '208.73.200.0/24'];
+		$mainBlocks[] = [18, '208.73.201.0/24'];
+		$mainBlocks[] = [20, '216.158.224.0/23'];
+		$mainBlocks[] = [20, '67.211.208.0/24'];
 	} else {
 		$reserved = [
 			[1158296064, 1158296319], // 69.10.50.0/24
@@ -642,16 +646,16 @@ function get_mainblocks_and_usedips($location) {
 		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
-				$usedips[$ipAddress] = $ipAddress;
+				$usedIps[$ipAddress] = $ipAddress;
 			}
 		}
 	}
 	// Switch Subnets
 	if ($location == 7) { // Switch Subnets
-		$mainblocks[] = [22, '173.225.96.0/24'];
-		$mainblocks[] = [2253, '68.168.214.0/23'];
-		$mainblocks[] = [22, '173.225.97.0/24'];
-		$mainblocks[] = [22, '66.45.224.0/24'];
+		$mainBlocks[] = [22, '173.225.96.0/24'];
+		$mainBlocks[] = [2253, '68.168.214.0/23'];
+		$mainBlocks[] = [22, '173.225.97.0/24'];
+		$mainBlocks[] = [22, '66.45.224.0/24'];
 	} else {
 		$reserved = [
 			[2917228544, 2917228799], // 173.225.96.0/24
@@ -662,21 +666,106 @@ function get_mainblocks_and_usedips($location) {
 		foreach ($reserved as $idx => $reserve) {
 			for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
 				$ipAddress = long2ip($x);
-				$usedips[$ipAddress] = $ipAddress;
+				$usedIps[$ipAddress] = $ipAddress;
 			}
 		}
 	}
 	$db->query('select ips_ip from ips where ips_vlan is not null', __LINE__, __FILE__);
 	if ($db->num_rows()) {
 		while ($db->next_record()) {
-			$usedips[$db->Record['ips_ip']] = $db->Record['ips_ip'];
+			$usedIps[$db->Record['ips_ip']] = $db->Record['ips_ip'];
 		}
 	}
-	return [$mainblocks, $usedips];
+	return [$mainBlocks, $usedIps];
+}
+
+function calculate_free_blocks($mainBlocks, $usedIps) {
+	$startIp = false;
+	$endIp = false;
+	$freeRanges = [];
+	$returnRanges = [];
+	global $usedIpCounts;
+	$usedIpCounts = [];
+	foreach ($mainBlocks as $maindata) {
+		$ips = get_ips2_newer($maindata[1], true);
+		foreach ($ips as $ip) {
+			if (isset($usedIps[$ip[0]])) {
+				if (!isset($usedIpCounts[$ip[1].'.'.$ip[2].'.'.$ip[3]]))
+					$usedIpCounts[$ip[1].'.'.$ip[2].'.'.$ip[3]] = 0;
+				$usedIpCounts[$ip[1].'.'.$ip[2].'.'.$ip[3]]++;
+				if ($startIp !== false)
+					$freeRanges[] = [$startIp, $endIp, $maindata[0]];
+				$startIp = false;
+				$endIp = false;
+			} else {
+				if ($startIp === false)
+					$startIp = $ip[0];
+				$endIp = $ip[0];
+			}
+		}
+		if ($startIp !== false)
+			$freeRanges[] = [$startIp, $endIp, $maindata[0]];
+		$startIp = false;
+		$endIp = false;
+	}
+	unset($startIp, $endIp, $ips, $ip);
+	foreach ($freeRanges as $freeRange) {
+		$ranges = \IPLib\Factory::rangesFromBoundaries($freeRange[0], $freeRange[1]);
+		foreach ($ranges as $range)
+			if (in_array($range->getNetworkPrefix(), [30, 31]))
+				for ($x = 0, $xMax = $range->getSize(); $x < $xMax; $x++) {
+					$rangeNew = \IPLib\Factory::rangeFromString($range->getAddressAtOffset($x)->toString().'/32');
+					$rangeNew->BlockId = $freeRange[2];
+					$returnRanges[] = $rangeNew;
+				}
+			else {
+				$range->BlockId = $freeRange[2];
+				$returnRanges[] = $range;
+			}
+	}
+	unset($freeRanges, $freeRange, $range, $ranges);
+	usort($returnRanges, 'ip_range_sort_desc');
+	return $returnRanges;
 }
 
 /**
-* @param     $blocksize
+* performs an ascending sort on the given ranges based on block size (ie /24) and number of used ips in its class c
+*
+* @param \IPLib\Range\RangeInterface[] $ranges
+*/
+function ip_range_sort_asc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\RangeInterface $rangeB) {
+	if ($rangeA->getNetworkPrefix() > $rangeB->getNetworkPrefix())
+		return 1;
+	if ($rangeA->getNetworkPrefix() < $rangeB->getNetworkPrefix())
+		return -1;
+	$cClassA = substr($rangeA->getStartAddress()->toString(), 0, strrpos($rangeA->getStartAddress()->toString(), '.'));
+	$cClassB = substr($rangeB->getStartAddress()->toString(), 0, strrpos($rangeB->getStartAddress()->toString(), '.'));
+	global $usedIpCounts;
+	$countA = isset($usedIpCounts[$cClassA]) ? $usedIpCounts[$cClassA] : 0;
+	$countB = isset($usedIpCounts[$cClassB]) ? $usedIpCounts[$cClassB] : 0;
+    return strcmp($countB, $countA);
+}
+
+/**
+* performs a descending sort on the given ranges based on block size (ie /24) and number of used ips in its class c
+*
+* @param \IPLib\Range\RangeInterface[] $ranges
+*/
+function ip_range_sort_desc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\RangeInterface $rangeB) {
+	if ($rangeA->getNetworkPrefix() < $rangeB->getNetworkPrefix())
+		return 1;
+	if ($rangeA->getNetworkPrefix() > $rangeB->getNetworkPrefix())
+		return -1;
+	$cClassA = substr($rangeA->getStartAddress()->toString(), 0, strrpos($rangeA->getStartAddress()->toString(), '.'));
+	$cClassB = substr($rangeB->getStartAddress()->toString(), 0, strrpos($rangeB->getStartAddress()->toString(), '.'));
+	global $usedIpCounts;
+	$countA = isset($usedIpCounts[$cClassA]) ? $usedIpCounts[$cClassA] : 0;
+	$countB = isset($usedIpCounts[$cClassB]) ? $usedIpCounts[$cClassB] : 0;
+    return strcmp($countB, $countA);
+}
+
+/**
+* @param int $blocksize
 * @param int $location
 * @return array
 */
@@ -686,8 +775,8 @@ function available_ipblocks($blocksize, $location = 1)
 	$available = [];
 	// first we gotta get how many ips are in the blocksize they requested
 	$ipcount = get_ipcount_from_netmask($blocksize) + 2;
-	list($mainblocks, $usedips) = get_mainblocks_and_usedips($location);
-	foreach ($mainblocks as $maindata) {
+	list($mainBlocks, $usedIps) = get_mainblocks_and_usedips($location);
+	foreach ($mainBlocks as $maindata) {
 		$ipblock_id = $maindata[0];
 		$mainblock = $maindata[1];
 		// get ips from the main block
@@ -699,7 +788,7 @@ function available_ipblocks($blocksize, $location = 1)
 		$found_c = '';
 		for ($x = 0; $x < $ipsize; $x++) {
 			// check if the ips in use already
-			if (isset($usedips[$ips[$x][0]])) {
+			if (isset($usedIps[$ips[$x][0]])) {
 				$found = false;
 				$found_count = 0;
 			} else {
@@ -735,5 +824,28 @@ function available_ipblocks($blocksize, $location = 1)
 			}
 		}
 	}
+	return $available;
+}
+
+
+/**
+* @param int $blocksize
+* @param int $location
+* @return array
+*/
+function available_ipblocks_new($blocksize, $location = 1)
+{
+	// array of available blocks
+	$available = [];
+	// first we gotta get how many ips are in the blocksize they requested
+	$ipcount = get_ipcount_from_netmask($blocksize) + 2;
+	list($mainBlocks, $usedIps) = get_mainblocks_and_usedips($location);
+	$freeBlocks = calculate_free_blocks($mainBlocks, $usedIps);
+	foreach ($freeBlocks as $freeBlock)
+		if ($freeBlock->getNetworkPrefix() == $blocksize)
+			$available[] = [$freeBlock->toString(), $freeBlock->BlockId];
+		elseif ($freeBlock->getNetworkPrefix() < $blocksize)
+			for ($x = 0, $fitBlocks = (get_ipcount_from_netmask($freeBlock->getNetworkPrefix()) + 2) / $ipcount; $x < $fitBlocks; $x++)
+				$available[] = [$freeBlock->getAddressAtOffset($x * $ipcount)->toString().'/'.$blocksize, $freeBlock->BlockId];
 	return $available;
 }
