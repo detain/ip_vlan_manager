@@ -299,7 +299,7 @@ function calculate_free_blocks($mainBlocks, $usedIps) {
 	foreach ($freeRanges as $freeRange) {
 		$ranges = \IPLib\Factory::rangesFromBoundaries($freeRange[0], $freeRange[1]);
 		foreach ($ranges as $range)
-			if (in_array($range->getNetworkPrefix(), [30, 31]))
+			if (in_array($range->getNetworkPrefix(), [31]))
 				for ($x = 0, $xMax = $range->getSize(); $x < $xMax; $x++) {
 					$rangeNew = \IPLib\Factory::rangeFromString($range->getAddressAtOffset($x)->toString().'/32');
 					$rangeNew->BlockId = $freeRange[2];
