@@ -184,7 +184,7 @@ function available_ipblocks($blocksize, $location = 1)
 	// array of available blocks
 	$available = [];
 	// first we gotta get how many ips are in the blocksize they requested
-	$ipcount = get_ipcount_from_netmask($blocksize) + 2;
+	$ipcount = get_ipcount_from_netmask($blocksize);
 	list($mainBlocks, $usedIps) = get_mainblocks_and_usedips($location);
 	foreach ($mainBlocks as $maindata) {
 		$ipblock_id = $maindata[0];
@@ -238,23 +238,24 @@ function available_ipblocks($blocksize, $location = 1)
 }
 
 /**
-* @param int $blocksize
-* @param int $location
+* @param int $blocksize desired block size, ie 32
+* @param int $location location id
+* @param bool $ipv6 false(default) returns IPv4 blocks, true returns IPv6 blocks
 * @return array
 */
-function available_ipblocks_new($blocksize, $location = 1)
+function available_ipblocks_new($blocksize, $location = 1, $ipv6 = false)
 {
 	// array of available blocks
 	$available = [];
 	// first we gotta get how many ips are in the blocksize they requested
-	$ipcount = get_ipcount_from_netmask($blocksize) + 2;
+	$ipcount = get_ipcount_from_netmask($blocksize, $ipv6);
 	list($mainBlocks, $usedIps) = get_mainblocks_and_usedips($location);
 	$freeBlocks = calculate_free_blocks($mainBlocks, $usedIps);
 	foreach ($freeBlocks as $freeBlock)
 		if ($freeBlock->getNetworkPrefix() == $blocksize)
 			$available[] = [$freeBlock->getStartAddress(), $freeBlock->BlockId];
 		elseif ($freeBlock->getNetworkPrefix() < $blocksize)
-			for ($x = 0, $fitBlocks = (get_ipcount_from_netmask($freeBlock->getNetworkPrefix()) + 2) / $ipcount; $x < $fitBlocks; $x++)
+			for ($x = 0, $fitBlocks = get_ipcount_from_netmask($freeBlock->getNetworkPrefix(), $ipv6) / $ipcount; $x < $fitBlocks; $x++)
 				$available[] = [$freeBlock->getAddressAtOffset($x * $ipcount)->toString(), $freeBlock->BlockId];
 	return $available;
 }
@@ -330,7 +331,7 @@ function ip_range_sort_asc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\Ran
 	global $usedIpCounts;
 	$countA = isset($usedIpCounts[$cClassA]) ? $usedIpCounts[$cClassA] : 0;
 	$countB = isset($usedIpCounts[$cClassB]) ? $usedIpCounts[$cClassB] : 0;
-    return strcmp($countB, $countA);
+	return strcmp($countB, $countA);
 }
 
 /**
@@ -348,7 +349,7 @@ function ip_range_sort_desc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\Ra
 	global $usedIpCounts;
 	$countA = isset($usedIpCounts[$cClassA]) ? $usedIpCounts[$cClassA] : 0;
 	$countB = isset($usedIpCounts[$cClassB]) ? $usedIpCounts[$cClassB] : 0;
-    return strcmp($countB, $countA);
+	return strcmp($countB, $countA);
 }
 
 /**
@@ -374,17 +375,16 @@ function netmask2subnet($netmask) {
 /**
 * gets the number of ips for a given netmask or bitmask.  can pass it a blocksize (ie 24) or netmask (ie 255.255.255.0)
 *
-* @param $netmask a netmask or block size
+* @param string|int $netmask a netmask or block size
+* @param bool $ipv6 false(default) returns IPv4 blocks, true returns IPv6 blocks
 * @return int the number of ips in within a range using this netmask or blocksize
 */
-function get_ipcount_from_netmask($netmask) {
+function get_ipcount_from_netmask($netmask, $ipv6 = false) {
 	if (!is_numeric($netmask))
 		$netmask = netmask2subnet($netmask);
 	$netmask = (int)$netmask;
-	$range = \IPLib\Factory::rangeFromString('10.0.0.0/'.$netmask);
+	$range = \IPLib\Factory::rangeFromString(($ipv6 === false ? '10.0.0.0/' : '1::/').$netmask);
 	$count = $range->getSize();
-	if ($netmask <= 30)
-		$count -= 2;
 	return $count;
 }
 

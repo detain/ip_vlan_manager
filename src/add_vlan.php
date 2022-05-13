@@ -96,10 +96,10 @@ function add_vlan()
 			$table->add_field('/'.$blocksize, 'r');
 			$table->add_row();
 			$table->add_field('Total IPs', 'l');
-			$table->add_field($ipcount + 2, 'r');
+			$table->add_field($ipcount, 'r');
 			$table->add_row();
 			$table->add_field('Usable IPs', 'l');
-			$table->add_field($ipcount, 'r');
+			$table->add_field($ipcount - 2, 'r');
 			$table->add_row();
 			if (count($blocks) > 0) {
 				$table->add_field('Enter Desired IP Block', 'l');
