@@ -165,6 +165,22 @@ function get_mainblocks_and_usedips($location = 1)
             }
         }
     }
+    // Private 1
+    if ($location == 8) { // Switch Subnets
+        $mainBlocks[] = [22, '69.164.240.0/24'];
+        $mainBlocks[] = [2253, '69.164.255.0/24'];
+    } else {
+        $reserved = [
+            [1168437248, 1168437503], // 69.164.240.0/24
+            [1168441088, 1168441343], // 69.164.255.0/24
+        ];
+        foreach ($reserved as $idx => $reserve) {
+            for ($x = $reserve[0]; $x < $reserve[1]; $x++) {
+                $ipAddress = long2ip($x);
+                $usedIps[$ipAddress] = $ipAddress;
+            }
+        }
+    }
     $db->query('select ips_ip from ips where ips_vlan is not null', __LINE__, __FILE__);
     if ($db->num_rows()) {
         while ($db->next_record()) {
