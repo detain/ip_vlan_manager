@@ -20,16 +20,14 @@ function get_mainblocks_and_usedips($location = 1)
     $usedIps = [];
     $mainBlocks = [];
     $reserved = [];
-    if ($location == 1) { // Secaucus, NJ
-        // get the main ipblocks we have routed
-        $db->query('select * from ipblocks', __LINE__, __FILE__);
-        while ($db->next_record()) {
-            if ($db->Record['ipblocks_location'] == $location) {
-                $mainBlocks[] = [(int)$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
-            } elseif ($db->Record['ipblocks_location'] != 1) {
-                $range = \IPLib\Factory::rangeFromString($db->Record['ipblocks_network']);
-                $reserved[] = [ip2long($range->getAddressAtOffset(0)->toString()), ip2long($range->getEndAddress()->toString())];
-            }
+    // get the main ipblocks we have routed
+    $db->query('select * from ipblocks', __LINE__, __FILE__);
+    while ($db->next_record()) {
+        if ($db->Record['ipblocks_location'] == $location) {
+            $mainBlocks[] = [(int)$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
+        } elseif ($db->Record['ipblocks_location'] != 1) {
+            $range = \IPLib\Factory::rangeFromString($db->Record['ipblocks_network']);
+            $reserved[] = [ip2long($range->getAddressAtOffset(0)->toString()), ip2long($range->getEndAddress()->toString())];
         }
     }
     foreach ($reserved as $idx => $reserve) {
