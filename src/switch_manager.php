@@ -25,15 +25,27 @@ function switch_manager()
     $ima = $GLOBALS['tf']->ima;
     if (isset($GLOBALS['tf']->variables->request['name']) && isset($GLOBALS['tf']->variables->request['ports'])) {
         $name = $GLOBALS['tf']->variables->request['name'];
+        $ip = $GLOBALS['tf']->variables->request['ip'];
         $ports = $GLOBALS['tf']->variables->request['ports'];
-        $db->query(make_insert_query(
-            'switchmanager',
-            [
+        $db->query(make_insert_query('switchmanager',[
             'id' => null,
             'name' => $name,
+            'ip' => $ip,
             'ports' => $ports
-                                                    ]
-        ), __LINE__, __FILE__);
+        ]), __LINE__, __FILE__);
+    }
+    if (isset($GLOBALS['tf']->variables->request['delete'])) {
+        $id = intval($GLOBALS['tf']->variables->request['delete']);
+        $db->query("select * from switchports where switch={$id} and (vlans != '' or server_id >= 1 or asset_id >= 1)");
+        if ($db->num_rows() > 0) {
+            while ($db->next_record(MYSQL_ASSOC)) {
+                add_output('Switch Port '.$db->Record['port'].' Vlans "'.$db->Record['vlans'].'" Server "'.$db->Record['server_id'].'" Asset "'.$db->Record['asset_id'].'" still has items linked to it<br>');
+            }
+        } else {
+            $db->query("delete from switchports where switch={$id}");
+            $db->query("delete from switchmanager where id={$id}");
+            add_output('Switch '.$id.' and its Ports are deleted<br>');
+        }
     }
     $table = new \TFTable();
     $table->set_title('Switches');
@@ -43,6 +55,7 @@ function switch_manager()
     $table->add_field('Last Updated');
     $table->add_field('Total Ports<br>(including uplink)');
     $table->add_field('Usable Ports');
+    $table->add_field('Links');
     $table->add_row();
     $nextid = 14;
     $db->query('select * from switchmanager order by id');
@@ -57,10 +70,13 @@ function switch_manager()
         $table->add_field($db->Record['updated']);
         $table->add_field($db->Record['ports']);
         $table->add_field($db->Record['ports'] - 1);
+        $table->add_field($table->make_link('choice=none.switch_manager&delete='.$db->Record['id'], 'Delete'));
         $table->add_row();
     }
     $table->add_field('Add Switch');
     $table->add_field($table->make_input('name', $nextid, 5));
+    $table->add_field($table->make_input('ip', $ip, 5));
+    $table->set_colspan(2);
     $table->add_field($table->make_input('ports', 49, 5));
     $table->add_field($table->make_submit('Add Switch'));
     $table->add_row();
