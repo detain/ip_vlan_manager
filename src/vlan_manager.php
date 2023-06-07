@@ -143,7 +143,7 @@ function vlan_manager()
         */
         //					$table->add_field($vlan);
 
-        $table->add_field($vlan, 'l');
+        $table->add_field('"'.$vlan.'"', 'l');
         $table->add_field($network, 'l');
         $table->add_field($table->make_link('choice=ip.edit_vlan_comment&amp;ipblock='.$network, $comment), 'c');
 
