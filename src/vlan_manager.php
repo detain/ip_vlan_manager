@@ -52,8 +52,9 @@ function vlan_manager()
     //				'Server(s)'
     //			$smarty->assign('table_header', $title);
 
-    $table->set_bgcolor(3);
     //			$table->add_field($table->make_link('choice='.$choice.'&order=id', 'VLAN'));
+    $table->add_field($table->make_link('choice='.$choice.'&order=id', 'ID'));
+    $table->set_bgcolor(3);
     $table->add_field($table->make_link('choice='.$choice.'&order=ip', 'Network'));
     $table->add_field('Comment');
     $table->add_field('Port(s)');
@@ -142,6 +143,7 @@ function vlan_manager()
         */
         //					$table->add_field($vlan);
 
+        $table->add_field($vlan, 'l');
         $table->add_field($network, 'l');
         $table->add_field($table->make_link('choice=ip.edit_vlan_comment&amp;ipblock='.$network, $comment), 'c');
 

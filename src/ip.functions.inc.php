@@ -415,12 +415,17 @@ function get_switch_name($index, $short = false)
 {
     $db = get_module_db('default');
     $db->query("select * from switchmanager where id='{$index}'");
-    $db->next_record();
-    $switch = $db->Record['name'];
-    if ($short == false) {
-        return 'Switch '.$switch;
+    if ($db->num_rows() > 0) {
+        $db->next_record();
+        $switch = $db->Record['name'];
+        if ($short == false) {
+            return 'Switch '.$switch;
+        } else {
+            return $switch;
+        }
     } else {
-        return $switch;
+        myadmin_log('myadmin', 'error', "get_switch_name({$index}) called with no matching id", __LINE__, __FILE__);
+        return 'Switch DB ID '.$index;
     }
 }
 
