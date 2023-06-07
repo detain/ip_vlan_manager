@@ -38,7 +38,9 @@ function switch_manager()
     $table = new \TFTable();
     $table->set_title('Switches');
     $table->add_field('Internal ID');
-    $table->add_field('Switch ID');
+    $table->add_field('Switch Name');
+    $table->add_field('Switch IP');
+    $table->add_field('Last Updated');
     $table->add_field('Total Ports<br>(including uplink)');
     $table->add_field('Usable Ports');
     $table->add_row();
@@ -51,6 +53,8 @@ function switch_manager()
         }
         $table->add_field($db->Record['id']);
         $table->add_field($db->Record['name']);
+        $table->add_field($db->Record['ip']);
+        $table->add_field($db->Record['updated']);
         $table->add_field($db->Record['ports']);
         $table->add_field($db->Record['ports'] - 1);
         $table->add_row();
