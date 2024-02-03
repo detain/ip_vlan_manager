@@ -43,7 +43,7 @@ function vlan_port_server_manager()
         $network = $networks[1];
         $ports = explode(':', $db->Record['vlans_ports']);
         if ($ports[1] != '') {
-            list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[1]);
+            [$switch, $port, $blade, $justport] = parse_vlan_ports($ports[1]);
             if (isset($GLOBALS['tf']->variables->request['vlan_'.$db->Record['vlans_id']])) {
                 $server = $GLOBALS['tf']->variables->request['vlan_'.$db->Record['vlans_id']];
                 if ($server != '0') {

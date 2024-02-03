@@ -67,7 +67,7 @@ function vlan_edit_port()
         $portdatasize = count($portdata);
         for ($y = 0; $y < $portdatasize; $y++) {
             if ($portdata[$y] != '') {
-                list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
+                [$switch, $port, $blade, $justport] = parse_vlan_ports($portdata[$y]);
                 $ports[] = $portdata[$y];
                 $searches[] = "(switch='{$switch}' and slot='{$port}')";
             }
@@ -85,7 +85,7 @@ function vlan_edit_port()
         $switchports = [];
         $new_ports = $GLOBALS['tf']->variables->request['ports'];
         foreach ($new_ports as $switchport) {
-            list($switch, $port, $blade, $justport) = parse_vlan_ports($switchport);
+            [$switch, $port, $blade, $justport] = parse_vlan_ports($switchport);
             $db2->query("select * from switchports where switch='{$switch}' and port='{$port}'", __LINE__, __FILE__);
             if ($db2->num_rows() > 0) {
                 $db2->next_record(MYSQL_ASSOC);
@@ -93,7 +93,7 @@ function vlan_edit_port()
             }
         }
         foreach ($ports as $switchport) {
-            list($switch, $port, $blade, $justport) = parse_vlan_ports($switchport);
+            [$switch, $port, $blade, $justport] = parse_vlan_ports($switchport);
             $db2->query("select * from switchports where switch='{$switch}' and port='{$port}'", __LINE__, __FILE__);
             if ($db2->num_rows() > 0) {
                 $db2->next_record(MYSQL_ASSOC);

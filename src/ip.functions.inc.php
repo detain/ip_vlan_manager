@@ -57,7 +57,7 @@ function available_ipblocks($blocksize, $location = 1)
     $available = [];
     // first we gotta get how many ips are in the blocksize they requested
     $ipcount = get_ipcount_from_netmask($blocksize);
-    list($mainBlocks, $usedIps) = get_mainblocks_and_usedips($location);
+    [$mainBlocks, $usedIps] = get_mainblocks_and_usedips($location);
     foreach ($mainBlocks as $maindata) {
         $ipblock_id = $maindata[0];
         $mainblock = $maindata[1];
@@ -121,7 +121,7 @@ function available_ipblocks_new($blocksize, $location = 1, $ipv6 = false)
     $available = [];
     // first we gotta get how many ips are in the blocksize they requested
     $ipcount = get_ipcount_from_netmask($blocksize, $ipv6);
-    list($mainBlocks, $usedIps) = get_mainblocks_and_usedips($location);
+    [$mainBlocks, $usedIps] = get_mainblocks_and_usedips($location);
     $freeBlocks = calculate_free_blocks($mainBlocks, $usedIps);
     foreach ($freeBlocks as $freeBlock) {
         if ($freeBlock->getNetworkPrefix() == $blocksize) {
@@ -213,8 +213,8 @@ function ip_range_sort_asc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\Ran
     $cClassA = substr($rangeA->getStartAddress()->toString(), 0, strrpos($rangeA->getStartAddress()->toString(), '.'));
     $cClassB = substr($rangeB->getStartAddress()->toString(), 0, strrpos($rangeB->getStartAddress()->toString(), '.'));
     global $usedIpCounts;
-    $countA = isset($usedIpCounts[$cClassA]) ? $usedIpCounts[$cClassA] : 0;
-    $countB = isset($usedIpCounts[$cClassB]) ? $usedIpCounts[$cClassB] : 0;
+    $countA = $usedIpCounts[$cClassA] ?? 0;
+    $countB = $usedIpCounts[$cClassB] ?? 0;
     return strcmp($countB, $countA);
 }
 
@@ -234,8 +234,8 @@ function ip_range_sort_desc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\Ra
     $cClassA = substr($rangeA->getStartAddress()->toString(), 0, strrpos($rangeA->getStartAddress()->toString(), '.'));
     $cClassB = substr($rangeB->getStartAddress()->toString(), 0, strrpos($rangeB->getStartAddress()->toString(), '.'));
     global $usedIpCounts;
-    $countA = isset($usedIpCounts[$cClassA]) ? $usedIpCounts[$cClassA] : 0;
-    $countB = isset($usedIpCounts[$cClassB]) ? $usedIpCounts[$cClassB] : 0;
+    $countA = $usedIpCounts[$cClassA] ?? 0;
+    $countB = $usedIpCounts[$cClassB] ?? 0;
     return strcmp($countB, $countA);
 }
 
@@ -499,7 +499,7 @@ function ipcalc($network)
     }
     $parts = explode('/', $network);
     if (count($parts) > 1) {
-        list($block, $bitmask) = $parts;
+        [$block, $bitmask] = $parts;
     } else {
         $block = $parts[0];
         $bitmask = '32';

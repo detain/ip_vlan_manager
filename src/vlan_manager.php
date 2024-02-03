@@ -115,7 +115,7 @@ function vlan_manager()
         $portdatasize = count($portdata);
         for ($y = 0; $y < $portdatasize; $y++) {
             if ($portdata[$y] != '') {
-                list($switch, $port, $blade, $justport) = parse_vlan_ports($portdata[$y]);
+                [$switch, $port, $blade, $justport] = parse_vlan_ports($portdata[$y]);
                 $ports[] = $portdata[$y];
                 $searches[] = "(switch='{$switch}' and slot='{$port}')";
             }
@@ -174,7 +174,7 @@ function vlan_manager()
             $portsize = count($ports);
             for ($y = 0; $y < $portsize; $y++) {
                 if (!(mb_strpos($ports[$y], '/') === false)) {
-                    list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
+                    [$switch, $port, $blade, $justport] = parse_vlan_ports($ports[$y]);
                     $ports[$y] = get_switch_name($switch, true).'/'.$port;
                 }
             }
@@ -198,7 +198,7 @@ function vlan_manager()
                             if (count($ports) > 1) {
                                 $out .= 'Port '.$ports[$y].': ';
                             }
-                            list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
+                            [$switch, $port, $blade, $justport] = parse_vlan_ports($ports[$y]);
                             $query = "select id, server_hostname from servers where switch='{$switch}' and slot='{$port}'";
                             $db2->query($query, __LINE__, __FILE__);
                             if ($db2->num_rows()) {
@@ -223,7 +223,7 @@ function vlan_manager()
                             $server = $GLOBALS['tf']->variables->request['port_'.$y];
                             if ($server != '0') {
                                 $servers[] = $server;
-                                list($switch, $port, $blade, $justport) = parse_vlan_ports($ports[$y]);
+                                [$switch, $port, $blade, $justport] = parse_vlan_ports($ports[$y]);
                                 $query = "update servers set switch='', slot='' where switch='{$switch}' and slot='{$port}'";
                                 $db2->query($query, __LINE__, __FILE__);
                                 $query = "update servers set switch='{$switch}', slot='{$port}' where server_hostname='{$server}'";

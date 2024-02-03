@@ -20,7 +20,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
         $lines = explode("\n", trim(getcurlpage('https://nms.is.cc/cacti/servermap.php')));
         $switches = [];
         foreach ($lines as $line) {
-            list($graph_id, $switch, $port, $comment) = explode(',', $line);
+            [$graph_id, $switch, $port, $comment] = explode(',', $line);
             if ($switch != '') {
                 $switches[$switch][$port] = $graph_id;
             }
