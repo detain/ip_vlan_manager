@@ -7,6 +7,8 @@ $db = $GLOBALS['tf']->db;
 $privateData = true;
 $cmds = '';
 $total = 0;
+$totalVlans = 0;
+$totalAvailableIps = 0;
 $templates = [
     'referral' => 'attribute:       Referral
 attribute-alias: R
@@ -516,9 +518,9 @@ type:            TEXT',
 ];
 $rwhoisd_auth_area = 'type: master
 name: interserver.net
-data-dir: interserver.net/data
-schema-file: interserver.net/schema
-soa-file: interserver.net/soa
+data-dir: etc/rwhoisd/interserver.net/data
+schema-file: etc/rwhoisd/interserver.net/schema
+soa-file: etc/rwhoisd/interserver.net/soa
 ---
 ';
 $installDir = '/home/rwhois/bin';
@@ -538,24 +540,26 @@ while ($db->next_record())
     $ip = $vlandata[0];
     $size = $vlandata[1];
     $nets[] = $ipblock;
+    $network_info = ipcalc($ipblock);
+    $totalAvailableIps += $network_info['hosts'];
     $rwhoisd_auth_area .= "type: master
 name: {$ipblock}
-data-dir: net-{$ip}-{$size}/data
-schema-file: net-{$ip}-{$size}/schema
-soa-file: net-{$ip}-{$size}/soa
+data-dir: etc/rwhoisd/net-{$ip}-{$size}/data
+schema-file: etc/rwhoisd/net-{$ip}-{$size}/schema
+soa-file: etc/rwhoisd/net-{$ip}-{$size}/soa
 ---
 ";
     $schema = "#
 # RWhois Main Schema Config File
 #
 name:network
-attributedef:net-{$ip}-{$size}/attribute_defs/network.tmpl
-dbdir:net-{$ip}-{$size}/data/network
+attributedef:etc/rwhoisd/net-{$ip}-{$size}/attribute_defs/network.tmpl
+dbdir:etc/rwhoisd/net-{$ip}-{$size}/data/network
 Schema-Version: {$serial}
 ---
 name:referral
-attributedef:net-{$ip}-{$size}/attribute_defs/referral.tmpl
-dbdir:net-{$ip}-{$size}/data/referral
+attributedef:etc/rwhoisd/net-{$ip}-{$size}/attribute_defs/referral.tmpl
+dbdir:etc/rwhoisd/net-{$ip}-{$size}/data/referral
 Schema-Version: {$serial}";
     $soa = "Serial-Number: {$serial}
 Refresh-Interval: 3600
@@ -603,6 +607,8 @@ while ($db->next_record(MYSQL_ASSOC)) {
     list($ipAddress, $size) = explode('/', $vlan);
     $network_info = ipcalc($vlan);
     $maxip = $network_info['broadcast'];
+    $totalVlans++;
+    
     $total += $network_info['hosts'];
     if ($privateData) {        
         $org = 'Private Customer';
@@ -646,4 +652,10 @@ while ($db->next_record(MYSQL_ASSOC)) {
         . 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
 }
 file_put_contents('vlantorwhois.sh', str_replace('\n', "\n", $cmds));
-echo "$total\n";
+echo "wrote vlantorwhois.sh
+
+Totals:
+VLANs: {$totalVlans}
+IPs Assigneed to VLANs: {$total}
+IPs Available: {$totalAvailableIps}
+";
