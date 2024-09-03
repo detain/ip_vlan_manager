@@ -123,12 +123,13 @@ function available_ipblocks_new($blocksize, $location = 1, $ipv6 = false)
     $ipcount = get_ipcount_from_netmask($blocksize, $ipv6);
     [$mainBlocks, $usedIps] = get_mainblocks_and_usedips($location);
     $freeBlocks = calculate_free_blocks($mainBlocks, $usedIps);
-    foreach ($freeBlocks as $freeBlock) {
+    foreach ($freeBlocks as $freeBlockData) {
+        [$freeBlock, $blockId] = $freeBlockData;
         if ($freeBlock->getNetworkPrefix() == $blocksize) {
-            $available[] = [$freeBlock->getStartAddress(), $freeBlock->BlockId];
+            $available[] = [$freeBlock->getStartAddress()->toString(), $blockId];
         } elseif ($freeBlock->getNetworkPrefix() < $blocksize) {
             for ($x = 0, $fitBlocks = get_ipcount_from_netmask($freeBlock->getNetworkPrefix(), $ipv6) / $ipcount; $x < $fitBlocks; $x++) {
-                $available[] = [$freeBlock->getAddressAtOffset($x * $ipcount)->toString(), $freeBlock->BlockId];
+                $available[] = [$freeBlock->getAddressAtOffset($x * $ipcount)->toString(), $blockId];
             }
         }
     }
@@ -140,7 +141,7 @@ function available_ipblocks_new($blocksize, $location = 1, $ipv6 = false)
 *
 * @param array $mainBlocks arrray of ipblocks and ids
 * @param array $usedIps array of used ips
-* @return \IPLib\Range\RangeInterface[]
+* @return array
 */
 function calculate_free_blocks($mainBlocks, $usedIps)
 {
@@ -183,12 +184,12 @@ function calculate_free_blocks($mainBlocks, $usedIps)
             if (in_array($range->getNetworkPrefix(), [31])) {
                 for ($x = 0, $xMax = $range->getSize(); $x < $xMax; $x++) {
                     $rangeNew = \IPLib\Factory::rangeFromString($range->getAddressAtOffset($x)->toString().'/32');
-                    $rangeNew->BlockId = $freeRange[2];
-                    $returnRanges[] = $rangeNew;
+                    //$rangeNew->BlockId = $freeRange[2];
+                    $returnRanges[] = [$rangeNew, $freeRange[2]];
                 }
             } else {
-                $range->BlockId = $freeRange[2];
-                $returnRanges[] = $range;
+                //$range->BlockId = $freeRange[2];
+                $returnRanges[] = [$range, $freeRange[2]];
             }
         }
     }
@@ -200,18 +201,18 @@ function calculate_free_blocks($mainBlocks, $usedIps)
 /**
 * performs an ascending sort on the given ranges based on block size (ie /24) and number of used ips in its class c
 *
-* @param \IPLib\Range\RangeInterface[] $ranges
+* @param array $ranges
 */
-function ip_range_sort_asc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\RangeInterface $rangeB)
+function ip_range_sort_asc($rangeA, $rangeB)
 {
-    if ($rangeA->getNetworkPrefix() > $rangeB->getNetworkPrefix()) {
+    if ($rangeA[0]->getNetworkPrefix() > $rangeB[0]->getNetworkPrefix()) {
         return 1;
     }
-    if ($rangeA->getNetworkPrefix() < $rangeB->getNetworkPrefix()) {
+    if ($rangeA[0]->getNetworkPrefix() < $rangeB[0]->getNetworkPrefix()) {
         return -1;
     }
-    $cClassA = substr($rangeA->getStartAddress()->toString(), 0, strrpos($rangeA->getStartAddress()->toString(), '.'));
-    $cClassB = substr($rangeB->getStartAddress()->toString(), 0, strrpos($rangeB->getStartAddress()->toString(), '.'));
+    $cClassA = substr($rangeA[0]->getStartAddress()->toString(), 0, strrpos($rangeA[0]->getStartAddress()->toString(), '.'));
+    $cClassB = substr($rangeB[0]->getStartAddress()->toString(), 0, strrpos($rangeB[0]->getStartAddress()->toString(), '.'));
     global $usedIpCounts;
     $countA = $usedIpCounts[$cClassA] ?? 0;
     $countB = $usedIpCounts[$cClassB] ?? 0;
@@ -221,18 +222,18 @@ function ip_range_sort_asc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\Ran
 /**
 * performs a descending sort on the given ranges based on block size (ie /24) and number of used ips in its class c
 *
-* @param \IPLib\Range\RangeInterface[] $ranges
+* @param array $ranges
 */
-function ip_range_sort_desc(\IPLib\Range\RangeInterface $rangeA, \IPLib\Range\RangeInterface $rangeB)
+function ip_range_sort_desc($rangeA, $rangeB)
 {
-    if ($rangeA->getNetworkPrefix() < $rangeB->getNetworkPrefix()) {
+    if ($rangeA[0]->getNetworkPrefix() < $rangeB[0]->getNetworkPrefix()) {
         return 1;
     }
-    if ($rangeA->getNetworkPrefix() > $rangeB->getNetworkPrefix()) {
+    if ($rangeA[0]->getNetworkPrefix() > $rangeB[0]->getNetworkPrefix()) {
         return -1;
     }
-    $cClassA = substr($rangeA->getStartAddress()->toString(), 0, strrpos($rangeA->getStartAddress()->toString(), '.'));
-    $cClassB = substr($rangeB->getStartAddress()->toString(), 0, strrpos($rangeB->getStartAddress()->toString(), '.'));
+    $cClassA = substr($rangeA[0]->getStartAddress()->toString(), 0, strrpos($rangeA[0]->getStartAddress()->toString(), '.'));
+    $cClassB = substr($rangeB[0]->getStartAddress()->toString(), 0, strrpos($rangeB[0]->getStartAddress()->toString(), '.'));
     global $usedIpCounts;
     $countA = $usedIpCounts[$cClassA] ?? 0;
     $countB = $usedIpCounts[$cClassB] ?? 0;
@@ -274,6 +275,9 @@ function get_ipcount_from_netmask($netmask, $ipv6 = false)
     }
     $netmask = (int)$netmask;
     $range = \IPLib\Factory::rangeFromString(($ipv6 === false ? '10.0.0.0/' : '1::/').$netmask);
+    if (is_null($range)) {
+        return 0;
+    }
     $count = $range->getSize();
     return $count;
 }
@@ -318,6 +322,9 @@ function get_ips_newer($network, $include_unusable = false)
 {
     $ips = [];
     $range = \IPLib\Range\Subnet::fromString($network);
+    if (is_null($range)) {
+        return $ips;
+    }
     $offsetMax = $range->getSize();
     $offsetStart = 0;
     if (!$include_unusable && $range->getNetworkPrefix() != 32) {
@@ -372,6 +379,9 @@ function get_ips2_newer($network, $include_unusable = false)
 {
     $ips = [];
     $range = \IPLib\Range\Subnet::fromString($network);
+    if (is_null($range)) {
+        return $ips;
+    }
     $offsetMax = $range->getSize();
     $offsetStart = 0;
     if (!$include_unusable && $range->getNetworkPrefix() != 32) {
