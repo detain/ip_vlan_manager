@@ -1,5 +1,17 @@
 <?php
-
+/**
+* VLAN to rWhois Generator
+* 
+* @todo
+* * adding improved setting up of organizations and contacts.
+* * adding ipv6 blocks.
+* * improving the vlan listings we have,
+* * improving the way the script rebuilds all the data files.
+* * fixing some schema definitions
+* * use real or private contact info for each user based on account setting
+* if you want i could add vps network definitions as well
+* 
+*/
 include_once(__DIR__.'/../../../../include/functions.inc.php');
 include_once(__DIR__.'/ip.functions.inc.php');
 
