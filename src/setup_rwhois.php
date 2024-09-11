@@ -39,8 +39,8 @@ echo "Generating Output\n";
 $out = [
     'domains' => [],
     'nets' => [],
+    'networks' => [],
     'authArea' => [],
-    'mkdirs' => [],
     'soa' => "Serial-Number:{$serial}
 Refresh-Interval:{$intervals['refresh']}
 Increment-Interval:{$intervals['increment']}
@@ -49,7 +49,6 @@ Time-To-Live:{$intervals['ttl']}
 Primary-Server:rwhois.trouble-free.net:4321
 Hostmaster:hostmaster@interserver.net",
 ];
-$mkdirs[] = $installDir;
 echo "Writing IP Blocks\n";
 // generate output from data
 foreach ($ipblocks as $blockType => $typeBlocks) {
@@ -61,15 +60,16 @@ foreach ($ipblocks as $blockType => $typeBlocks) {
         // $contact = $custid;
         $netDir = 'net-'.str_replace($range->toString(), '/', '-');
         $netName = 'NETBLK-'.$range->toString();
-$authArea[] = "type: master
+        $out['authArea'][] = "type: master
 name: {$netName}
 data-dir: {$netDir}/data
 schema-file: {$netDir}/schema
 soa-file: {$netDir}/soa";
-        $mkdirs[] = $installDir.'/'.$netDir.'/attribute_defs';
-        $mkdirs[] = $installDir.'/'.$netDir.'/data/network';
-        $mkdirs[] = $installDir.'/'.$netDir.'/data/referral';
-        $networks[] = "Network-Name: NETBLK-{$ipblock}
+        @mkdir($installDir.'/'.$netDir.'/attribute_defs', 0644, true);
+        foreach ($defs['net'] as $suffix) {
+            @mkdir($installDir.'/'.$netDir.'/data/'.$suffix, 0644, true);
+        }
+        $out['networks'][] = "Network-Name: NETBLK-{$ipblock}
 IP-Network: {$ipblock}
 Organization: 777.interserver.net
 Tech-Contact: hostmaster.interserver.net
@@ -78,22 +78,21 @@ Admin-Contact: {$contact}.interserver.net";
 attributedef:{$netDir}/attribute_defs/network.tmpl
 dbdir:{$netDir}/data/network
 Schema-Version: {$serial}";
-
-        file_put_contents($installDir.'/rwhoisd.auth_area', implode("\n---\n", $authArea));
-        file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
-        file_put_contents($installDir.'/'.$netDir.'/soa', $soa);
-        // write net soa file
         // write net schema file
+        file_put_contents($installDir.'/'.$netDir.'/schema', $schema);
+        // write net soa file
+        file_put_contents($installDir.'/'.$netDir.'/soa', $soa);
         // write net network.txt
-                
+        file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
     }
-}
-echo "Making Dirs\n";
-foreach ($mkdirs as $mkdir) {
-    @mkdir($mkdir, 0644, true);
 }
 echo "Writiong Domains\n";
 foreach ($domains as $domain) {
+    $out['authArea'][] = "type: master
+    name: {$domain}
+    data-dir: {$domain}/data
+    schema-file: {$domain}/schema
+    soa-file: {$domain}/soa";    
     // write domain soa
     file_put_contents($installDir.'/'.$domain.'/soa', $soa);
     // write domain schema
@@ -141,6 +140,12 @@ name:referral
 attributedef:{$domain}/attribute_defs/referral.tmpl  
 dbdir:{$domain}/data/referral
 Schema-Version: {$serial}";
+    file_put_contents($installDir.'/'.$domain.'/schema', $schema);
+    // create attribute_defs and assorted data dirs
+    @mkdir($installDir.'/'.$domain.'/attribute_defs', 0644, true);
+    foreach ($defs['domain'] as $suffix) {
+        mkdir($installDir.'/'.$domain.'/data/'.$suffix, 0644, true)
+    }
     // write domain data dirs
     $asn = "ID:111.{$domain}
 Auth-Area:{$domain}
@@ -216,7 +221,20 @@ Referred-Auth-Area:fddi.{$domain}
 Created:{$serial}
 Updated:19961023
 Updated-By:hostmaster@{$domain}";                             
-    
+    file_put_contents($installDir.'/'.$domain.'/data/asn/asn.txt', $asn);
+    file_put_contents($installDir.'/'.$domain.'/data/contacts/contacts.txt', implode("\n---\n", $contacts));
+    file_put_contents($installDir.'/'.$domain.'/data/domain/domain.txt', $domain);
+    file_put_contents($installDir.'/'.$domain.'/data/guardian/guardian.txt', $guardian);
+    file_put_contents($installDir.'/'.$domain.'/data/host/host.txt', implode("\n---\n", $contacts));
+    file_put_contents($installDir.'/'.$domain.'/data/org/orgl.txt', $org);
+    file_put_contents($installDir.'/'.$domain.'/data/referral/referral.txt', $referral);
+    foreach ($defs as $defType => $typeDefs) {
+        foreach ($typeDefs as $def) {
+            file_put_contents($installDir.'/'.$domain.'/attribute_defs/'.$def.'.tmpl', $templates[$defType][$def]);
+        }
+    }
 }
-
-
+file_put_contents($installDir.'/rwhoisd.auth_area', implode("\n---\n", $authArea));
+foreach ($rwhoisFiles as $file) {
+    file_put_contents($installDir.'/rwhoisd.'.$file, $templates['rwhoisd.'.$file]);
+}
