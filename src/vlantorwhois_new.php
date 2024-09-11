@@ -13,7 +13,7 @@
 */
 include_once(__DIR__.'/../../../../include/functions.inc.php');
 include_once(__DIR__.'/ip.functions.inc.php');
-
+// initialize variables
 $db = $GLOBALS['tf']->db;
 $samplePrefix = 'https://raw.githubusercontent.com/arineng/rwhoisd/master/rwhoisd/sample.data/';
 $typeDirs = ['domain' => 'a.com', 'net' => 'net-fd00%3A1234%3A%3A-32'];
@@ -22,6 +22,7 @@ $defs = [
     'net' => ['contact', 'guardian', 'host', 'network', 'referral']
 ];
 $templates = ['domain' => [], 'net' => []];
+$contacts = ['hostmaster' => []];
 $privateData = true;
 $cmds = '';
 $total = 0;
@@ -31,9 +32,23 @@ $installDir = '/home/rwhois/bin';
 $nets = [];
 $ipblocks = [ 4 => [], 6 => [] ];
 $serial = date('YmdHis') . '000';
-$serial = '19961101000000000';
+//$serial = '19961101000000000';
 $authArea = [];
 $mkdirs = [];
+$intervals = [
+    'refresh' => 3600,
+    'increment' => 1800,
+    'retry' => 60,
+    'ttl' => 86400,
+];
+$soa = "Serial-Number:{$serial}
+Refresh-Interval:{$intervals['refresh']}
+Increment-Interval:{$intervals['increment']}
+Retry-Interval:{$intervals['retry']}
+Time-To-Live:{$intervals['ttl']}
+Primary-Server:rwhois.trouble-free.net:4321
+Hostmaster:hostmaster@interserver.net";
+// gather data
 $db->query("select * from ipblocks6", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
 {
@@ -58,10 +73,14 @@ while ($db->next_record(MYSQL_ASSOC))
 {
     $ipblocks[4][$db->Record['vlans_block']]['vlans'][$db->Record['vlans_id']] = $db->Record;     
 }
+// generate output from data
 foreach ($ipblocks as $blockType => $typeBlocks) {
     foreach ($typeBlocks as $blockId => $blockData) {
+        $networks = [];
         $ipblock = $db->Record['ipblocks_network'];
         $range = \IPLib\Range\Subnet::parseString($ipblock);
+        $contact = 'hostmaster';
+        // $contact = $custid;
         $netDir = 'net-'.str_replace($range->toString(), '/', '-');
         $netName = 'NETBLK-'.$range->toString();
 $authArea[] = "type: master
@@ -71,7 +90,16 @@ schema-file: {$netDir}/schema
 soa-file: {$netDir}/soa";
         $mkdirs[] = $installDir.'/'.$netDir.'/attribute_defs';
         $mkdirs[] = $installDir.'/'.$netDir.'/data/network';
-        $mkdirs[] = $installDir.'/'.$netDir.'/data/referral';                
+        $mkdirs[] = $installDir.'/'.$netDir.'/data/referral';
+        $networks[] = "Network-Name: NETBLK-{$ipblock}
+IP-Network: {$ipblock}
+Organization: 777.interserver.net
+Tech-Contact: hostmaster.interserver.net
+Admin-Contact: {$contact}.interserver.net";
+        $schema = "name:network
+attributedef:{$netDir}/attribute_defs/network.tmpl
+dbdir:{$netDir}/data/network
+Schema-Version: {$serial}";                
     }
 }
 
@@ -86,11 +114,56 @@ foreach ($mkdirs as $mkdir) {
 }
 file_put_contents($installDir.'/rwhoisd.auth_area', implode("\n---\n", $authArea));
 file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
+file_put_contents($installDir.'/'.$netDir.'/soa', $soa);
 // write net soa file
 // write net schema file
 // write net network.txt
 // write domain soa
 // write domain schema
+$schema = "name:contact
+alias:user
+alias:person
+alias:mailbox
+attributedef:interserver.net/attribute_defs/contact.tmpl
+dbdir: interserver.net/data/contact
+description:User object
+# parse-program: contact-parse
+Schema-Version: {$serial}
+---
+name:domain 
+attributedef:interserver.net/attribute_defs/domain.tmpl  
+dbdir: interserver.net/data/domain
+description:Domain object
+Schema-Version: {$serial}
+---
+name:host
+attributedef:interserver.net/attribute_defs/host.tmpl
+dbdir: interserver.net/data/host
+description:Host object
+Schema-Version: {$serial}
+---
+name:asn
+attributedef:interserver.net/attribute_defs/asn.tmpl
+dbdir: interserver.net/data/asn
+description:Autonomous System Number object
+Schema-Version: {$serial}
+---
+name:organization
+attributedef:interserver.net/attribute_defs/org.tmpl
+dbdir:interserver.net/data/org
+description:Organization object
+Schema-Version: {$serial}
+---
+name:guardian
+attributedef:interserver.net/attribute_defs/guardian.tmpl
+dbdir:interserver.net/data/guardian
+description:Guardian Object
+Schema-Version: {$serial}
+---
+name:referral 
+attributedef:interserver.net/attribute_defs/referral.tmpl  
+dbdir:interserver.net/data/referral
+Schema-Version: {$serial}";
 // write domain data dirs                             
 
 /* $range = \IPLib\Range\Subnet::parseString($ipblock);
@@ -103,6 +176,8 @@ $range->getNetworkPrefix();                 // 26                   32
 $range->getSubnetMask()->toString();        // 255.255.255.192   
 $range->getStartAddress()->toString();      // 69.10.61.64          2604:a00::
 $range->getEndAddress()->toString();        // 69.10.61.127         2604:a00:ffff:ffff:ffff:ffff:ffff:ffff  */
+
+
 foreach ($ipblocks as $ipblock => $blockData) {
     //echo "Generating IP Block {$ipblock}\n";
     $vlandata = explode('/', $ipblock);
