@@ -51,10 +51,10 @@ Hostmaster:hostmaster@interserver.net",
 ];
 echo "Writing IP Blocks\n";
 // generate output from data
-foreach ($ipblocks as $blockType => $typeBlocks) {
+foreach ($json['ipblocks'] as $blockType => $typeBlocks) {
     foreach ($typeBlocks as $blockId => $blockData) {
         $networks = [];
-        $ipblock = $db->Record['ipblocks_network'];
+        $ipblock = $blockData['ipblocks_network'];
         $range = \IPLib\Range\Subnet::parseString($ipblock);
         $contact = 'hostmaster';
         // $contact = $custid;
@@ -87,7 +87,12 @@ Schema-Version: {$serial}";
     }
 }
 echo "Writiong Domains\n";
-foreach ($domains as $domain) {
+foreach ($json['domains'] as $domain) {
+    // create attribute_defs and assorted data dirs
+    @mkdir($installDir.'/'.$domain.'/attribute_defs', 0644, true);
+    foreach ($defs['domain'] as $suffix) {
+        mkdir($installDir.'/'.$domain.'/data/'.$suffix, 0644, true);
+    }
     $out['authArea'][] = "type: master
     name: {$domain}
     data-dir: {$domain}/data
@@ -141,11 +146,6 @@ attributedef:{$domain}/attribute_defs/referral.tmpl
 dbdir:{$domain}/data/referral
 Schema-Version: {$serial}";
     file_put_contents($installDir.'/'.$domain.'/schema', $schema);
-    // create attribute_defs and assorted data dirs
-    @mkdir($installDir.'/'.$domain.'/attribute_defs', 0644, true);
-    foreach ($defs['domain'] as $suffix) {
-        mkdir($installDir.'/'.$domain.'/data/'.$suffix, 0644, true)
-    }
     // write domain data dirs
     $asn = "ID:111.{$domain}
 Auth-Area:{$domain}
