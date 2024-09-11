@@ -35,6 +35,7 @@ foreach ($defs as $defType => $typeDefs) {
         $templates[$defType][$def] = file_get_contents($samplePrefix.$typeDirs[$defType].'/attribute_defs/'.$def.'.tmpl');
     }
 }
+@mkdir($installDir, 0774, true);
 echo "Generating Output\n";
 $out = [
     'domains' => [],
@@ -55,19 +56,19 @@ foreach ($json['ipblocks'] as $blockType => $typeBlocks) {
     foreach ($typeBlocks as $blockId => $blockData) {
         $networks = [];
         $ipblock = $blockData['ipblocks_network'];
-        $range = \IPLib\Range\Subnet::parseString($ipblock);
         $contact = 'hostmaster';
         // $contact = $custid;
-        $netDir = 'net-'.str_replace($range->toString(), '/', '-');
-        $netName = 'NETBLK-'.$range->toString();
+        $netDir = 'net-'.str_replace('/', '-', $ipblock);
+        $netName = 'NETBLK-'.$ipblock;
+        @mkdir($installDir.'/'.$netDir, 0774, true);
         $out['authArea'][] = "type: master
 name: {$netName}
 data-dir: {$netDir}/data
 schema-file: {$netDir}/schema
 soa-file: {$netDir}/soa";
-        @mkdir($installDir.'/'.$netDir.'/attribute_defs', 0644, true);
+        @mkdir($installDir.'/'.$netDir.'/attribute_defs', 0774, true);
         foreach ($defs['net'] as $suffix) {
-            @mkdir($installDir.'/'.$netDir.'/data/'.$suffix, 0644, true);
+            @mkdir($installDir.'/'.$netDir.'/data/'.$suffix, 0774, true);
         }
         $out['networks'][] = "Network-Name: NETBLK-{$ipblock}
 IP-Network: {$ipblock}
@@ -81,17 +82,17 @@ Schema-Version: {$serial}";
         // write net schema file
         file_put_contents($installDir.'/'.$netDir.'/schema', $schema);
         // write net soa file
-        file_put_contents($installDir.'/'.$netDir.'/soa', $soa);
+        file_put_contents($installDir.'/'.$netDir.'/soa', $out['soa']);
         // write net network.txt
         file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
     }
 }
 echo "Writiong Domains\n";
-foreach ($json['domains'] as $domain) {
+foreach ($json['domains'] as $domain => $domData) {
     // create attribute_defs and assorted data dirs
-    @mkdir($installDir.'/'.$domain.'/attribute_defs', 0644, true);
+    @mkdir($installDir.'/'.$domain.'/attribute_defs', 0774, true);
     foreach ($defs['domain'] as $suffix) {
-        mkdir($installDir.'/'.$domain.'/data/'.$suffix, 0644, true);
+        @mkdir($installDir.'/'.$domain.'/data/'.$suffix, 0774, true);
     }
     $out['authArea'][] = "type: master
     name: {$domain}
@@ -99,7 +100,7 @@ foreach ($json['domains'] as $domain) {
     schema-file: {$domain}/schema
     soa-file: {$domain}/soa";    
     // write domain soa
-    file_put_contents($installDir.'/'.$domain.'/soa', $soa);
+    file_put_contents($installDir.'/'.$domain.'/soa', $out['soa']);
     // write domain schema
     $schema = "name:contact
 alias:user
