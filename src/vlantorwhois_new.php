@@ -186,43 +186,7 @@ foreach ($ipblocks as $ipblock => $blockData) {
     $nets[] = $ipblock;
     $network_info = ipcalc($ipblock);
     $totalAvailableIps += $network_info['hosts'];
-    $rwhoisd_auth_area .= "type: master
-name: {$ipblock}
-data-dir: etc/rwhoisd/net-{$ip}-{$size}/data
-schema-file: etc/rwhoisd/net-{$ip}-{$size}/schema
-soa-file: etc/rwhoisd/net-{$ip}-{$size}/soa
----
-";
-    $schema = "#
-# RWhois Main Schema Config File
-#
-name:network
-attributedef:etc/rwhoisd/net-{$ip}-{$size}/attribute_defs/network.tmpl
-dbdir:etc/rwhoisd/net-{$ip}-{$size}/data/network
-Schema-Version: {$serial}
----
-name:referral
-attributedef:etc/rwhoisd/net-{$ip}-{$size}/attribute_defs/referral.tmpl
-dbdir:etc/rwhoisd/net-{$ip}-{$size}/data/referral
-Schema-Version: {$serial}";
-    $soa = "Serial-Number: {$serial}
-Refresh-Interval: 3600
-Increment-Interval: 1800
-Retry-Interval: 60
-Time-To-Live: 86400
-Primary-Server: rwhois.trouble-free.net:4321
-Hostmaster: hostmaster@trouble-free.net";
-    $cmds .= "mkdir -p net-{$ip}-{$size}/{attribute_defs,data/referral,data/network,data/org};
-echo '{$schema}' > net-{$ip}-{$size}/schema;
-echo '{$soa}' > net-{$ip}-{$size}/soa;
-echo '{$templates['contact']}' > net-{$ip}-{$size}/attribute_defs/contact.tmpl;
-echo '{$templates['guardian']}' > net-{$ip}-{$size}/attribute_defs/guardian.tmpl;
-echo '{$templates['host']}' > net-{$ip}-{$size}/attribute_defs/host.tmpl;
-echo '{$templates['network']}' > net-{$ip}-{$size}/attribute_defs/network.tmpl;
-echo '{$templates['org']}' > net-{$ip}-{$size}/attribute_defs/org.tmpl;
-echo '{$templates['referral']}' > net-{$ip}-{$size}/attribute_defs/referral.tmpl;\n";        
 }
-$cmds .= "echo '{$rwhoisd_auth_area}' > {$installDir}/rwhoisd.auth_area;\n";
 //$nets = implode(' ', $nets);
 //$cmds .= "echo '$nets' > ipblocks.txt;\n";
 echo "Building VLAN data";
