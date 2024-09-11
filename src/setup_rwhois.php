@@ -11,68 +11,36 @@
 * * use real or private contact info for each user based on account setting
 * if you want i could add vps network definitions as well
 */
-include_once(__DIR__.'/../../../../include/functions.inc.php');
-include_once(__DIR__.'/ip.functions.inc.php');
-// initialize variables
-$db = $GLOBALS['tf']->db;
+$json = file_get_contents('https://mynew.interserver.net/ajax_rwhois.php');
+file_put_contents('rwhois.json', $json);
+//$json = json_decode(file_get_contents('rwhois.json'), true);
+$json = json_decode($json, true);
 $samplePrefix = 'https://raw.githubusercontent.com/arineng/rwhoisd/master/rwhoisd/sample.data/';
 $typeDirs = ['domain' => 'a.com', 'net' => 'net-fd00%3A1234%3A%3A-32'];
-$defs = [
-    'domain' => ['asn', 'contact', 'domain', 'guardian', 'host', 'org', 'referral'], 
-    'net' => ['contact', 'guardian', 'host', 'network', 'referral']
-];
+$defs = [ 'domain' => ['asn', 'contact', 'domain', 'guardian', 'host', 'org', 'referral'], 'net' => ['contact', 'guardian', 'host', 'network', 'referral'] ];
 $templates = ['domain' => [], 'net' => []];
-$contacts = ['hostmaster' => []];
-$privateData = true;
-$cmds = '';
-$total = 0;
-$totalVlans = 0;
-$totalAvailableIps = 0;
+$intervals = [ 'refresh' => 3600, 'increment' => 1800, 'retry' => 60, 'ttl' => 86400 ];
 $installDir = '/home/rwhois/bin';
-$nets = [];
-$ipblocks = [ 4 => [], 6 => [] ];
-$serial = date('YmdHis') . '000';
-//$serial = '19961101000000000';
-$authArea = [];
-$mkdirs = [];
-$intervals = [
-    'refresh' => 3600,
-    'increment' => 1800,
-    'retry' => 60,
-    'ttl' => 86400,
-];
-$soa = "Serial-Number:{$serial}
+$serial = date('YmdHis');
+$privateData = true;
+foreach ($defs as $defType => $typeDefs) {
+    foreach ($typeDefs as $def) {
+        $templates[$defType][$def] = file_get_contents($samplePrefix.$typeDirs[$defType].'/attribute_defs/'.$def.'.tmpl');
+    }
+}
+$out = [
+    'domains' => [],
+    'nets' => [],
+    'authArea' => [],
+    'mkdirs' => [],
+    'soa' => "Serial-Number:{$serial}
 Refresh-Interval:{$intervals['refresh']}
 Increment-Interval:{$intervals['increment']}
 Retry-Interval:{$intervals['retry']}
 Time-To-Live:{$intervals['ttl']}
 Primary-Server:rwhois.trouble-free.net:4321
-Hostmaster:hostmaster@interserver.net";
-// gather data
-$db->query("select * from ipblocks6", __LINE__, __FILE__);
-while ($db->next_record(MYSQL_ASSOC))
-{
-    $db->Record['vlans'] = [];
-    $db->Record['referral'] = [];
-    $ipblocks[6][$db->Record['ipblocks_id']] = $db->Record;     
-}
-$db->query("select * from ipblocks");
-while ($db->next_record(MYSQL_ASSOC))
-{
-    $db->Record['vlans'] = [];
-    $db->Record['referral'] = [];
-    $ipblocks[4][$db->Record['ipblocks_id']] = $db->Record;
-}
-$db->query("select * from vlans6", __LINE__, __FILE__);
-while ($db->next_record(MYSQL_ASSOC))
-{
-    $ipblocks[6][1]['vlans'][$db->Record['vlans6_id']] = $db->Record;     
-}
-$db->query("select * from vlans", __LINE__, __FILE__);
-while ($db->next_record(MYSQL_ASSOC))
-{
-    $ipblocks[4][$db->Record['vlans_block']]['vlans'][$db->Record['vlans_id']] = $db->Record;     
-}
+Hostmaster:hostmaster@interserver.net",
+];
 // generate output from data
 foreach ($ipblocks as $blockType => $typeBlocks) {
     foreach ($typeBlocks as $blockId => $blockData) {
@@ -102,12 +70,129 @@ dbdir:{$netDir}/data/network
 Schema-Version: {$serial}";                
     }
 }
-
-foreach ($defs as $defType => $typeDefs) {
-    foreach ($typeDefs as $def) {
-        $templates[$defType][$def] = file_get_contents($samplePrefix.$typeDirs[$defType].'/attribute_defs/'.$def.'.tmpl');
-    }
+foreach (['interserver.net'] as $domain) {
+    $schema = "name:contact
+alias:user
+alias:person
+alias:mailbox
+attributedef:{$domain}/attribute_defs/contact.tmpl
+dbdir: {$domain}/data/contact
+description:User object
+# parse-program: contact-parse
+Schema-Version: {$serial}
+---
+name:domain 
+attributedef:{$domain}/attribute_defs/domain.tmpl  
+dbdir: {$domain}/data/domain
+description:Domain object
+Schema-Version: {$serial}
+---
+name:host
+attributedef:{$domain}/attribute_defs/host.tmpl
+dbdir: {$domain}/data/host
+description:Host object
+Schema-Version: {$serial}
+---
+name:asn
+attributedef:{$domain}/attribute_defs/asn.tmpl
+dbdir: {$domain}/data/asn
+description:Autonomous System Number object
+Schema-Version: {$serial}
+---
+name:organization
+attributedef:{$domain}/attribute_defs/org.tmpl
+dbdir:{$domain}/data/org
+description:Organization object
+Schema-Version: {$serial}
+---
+name:guardian
+attributedef:{$domain}/attribute_defs/guardian.tmpl
+dbdir:{$domain}/data/guardian
+description:Guardian Object
+Schema-Version: {$serial}
+---
+name:referral 
+attributedef:{$domain}/attribute_defs/referral.tmpl  
+dbdir:{$domain}/data/referral
+Schema-Version: {$serial}";
+    // write domain data dirs
+    $asn = "ID:111.{$domain}
+Auth-Area:{$domain}
+AS-Name:A-AS
+AS-Number:6183
+Organization:777.{$domain}
+Admin-Contact:222.{$domain}
+Tech-Contact:222.{$domain}
+Created:19961022
+Updated:19961023
+Updated-by:hostmaster@{$domain}";
+    $contacts[] = "ID:222.{$domain}
+Auth-Area:{$domain}
+Name:Public, John Q.
+Email:johnq@{$domain}
+Type:I
+First-Name:John
+Last-Name:Public
+Phone:(847)-391-7926
+Fax:(847)-338-0340
+Organization:777.{$domain}
+See-Also:http://www.{$domain}/~johnq
+Created:11961022
+Updated:11961023
+Updated-By:hostmaster@{$domain}";
+    $domain = "ID:333.{$domain}
+Auth-Area:{$domain}
+Guardian:444.{$domain}
+Domain-Name: {$domain}
+Primary-Server:5551.{$domain}
+Secondary-Server:5552.{$domain}
+Organization:777.{$domain}
+Admin-Contact:222.{$domain}
+Tech-Contact:222.{$domain}
+Billing-Contact:222.{$domain}
+Created:19961022
+Updated:19961023
+Updated-By:hostmaster@{$domain}";
+    $guardian = "ID: 444.{$domain}
+Auth-Area: {$domain}
+Guard-Scheme: PW
+Guard-Info: passwd
+Created: 19961022
+Updated: 19961023
+Updated-By: hostmaster@{$domain}
+Private:true";
+    $host[] = "ID: 444.{$domain}
+Auth-Area: {$domain}
+Guard-Scheme: PW
+Guard-Info: passwd
+Created: 19961022
+Updated: 19961023
+Updated-By: hostmaster@{$domain}
+Private:true";
+    $org = "ID: 777.{$domain}
+Auth-Area: {$domain}
+Org-Name: A Communications, Inc.
+Street-Address: #600 - 1380 Burrars St.
+City: Vaner
+State: CM
+Postal-Code: V6Z 2H3
+Country-Code: NL
+Phone: (401) 555-6721
+Created: 19961022
+Updated: 19961023
+Updated-By: hostmaster@{$domain}";
+    $referral = "ID:888.{$domain}
+Auth-Area: {$domain}
+Guardian:444.{$domain}
+Referral:rwhois://rwhois.second.{$domain}:4321/Auth-Area=fddi.{$domain}
+Organization:777.{$domain}
+Referred-Auth-Area:fddi.{$domain}
+Created:19961022
+Updated:19961023
+Updated-By:hostmaster@{$domain}";                             
+    
 }
+
 
 foreach ($mkdirs as $mkdir) {
     @mkdir($mkdir, 0644, true);
@@ -120,147 +205,7 @@ file_put_contents($installDir.'/'.$netDir.'/soa', $soa);
 // write net network.txt
 // write domain soa
 // write domain schema
-$schema = "name:contact
-alias:user
-alias:person
-alias:mailbox
-attributedef:interserver.net/attribute_defs/contact.tmpl
-dbdir: interserver.net/data/contact
-description:User object
-# parse-program: contact-parse
-Schema-Version: {$serial}
----
-name:domain 
-attributedef:interserver.net/attribute_defs/domain.tmpl  
-dbdir: interserver.net/data/domain
-description:Domain object
-Schema-Version: {$serial}
----
-name:host
-attributedef:interserver.net/attribute_defs/host.tmpl
-dbdir: interserver.net/data/host
-description:Host object
-Schema-Version: {$serial}
----
-name:asn
-attributedef:interserver.net/attribute_defs/asn.tmpl
-dbdir: interserver.net/data/asn
-description:Autonomous System Number object
-Schema-Version: {$serial}
----
-name:organization
-attributedef:interserver.net/attribute_defs/org.tmpl
-dbdir:interserver.net/data/org
-description:Organization object
-Schema-Version: {$serial}
----
-name:guardian
-attributedef:interserver.net/attribute_defs/guardian.tmpl
-dbdir:interserver.net/data/guardian
-description:Guardian Object
-Schema-Version: {$serial}
----
-name:referral 
-attributedef:interserver.net/attribute_defs/referral.tmpl  
-dbdir:interserver.net/data/referral
-Schema-Version: {$serial}";
-// write domain data dirs
-$asn = "ID:111.interserver.net
-Auth-Area:interserver.net
-AS-Name:A-AS
-AS-Number:6183
-Organization:777.interserver.net
-Admin-Contact:222.interserver.net
-Tech-Contact:222.interserver.net
-Created:19961022
-Updated:19961023
-Updated-by:hostmaster@interserver.net";
-$contacts[] = "ID:222.interserver.net
-Auth-Area:interserver.net
-Name:Public, John Q.
-Email:johnq@interserver.net
-Type:I
-First-Name:John
-Last-Name:Public
-Phone:(847)-391-7926
-Fax:(847)-338-0340
-Organization:777.interserver.net
-See-Also:http://www.interserver.net/~johnq
-Created:11961022
-Updated:11961023
-Updated-By:hostmaster@interserver.net";
-$domain = "ID:333.interserver.net
-Auth-Area:interserver.net
-Guardian:444.interserver.net
-Domain-Name: interserver.net
-Primary-Server:5551.interserver.net
-Secondary-Server:5552.interserver.net
-Organization:777.interserver.net
-Admin-Contact:222.interserver.net
-Tech-Contact:222.interserver.net
-Billing-Contact:222.interserver.net
-Created:19961022
-Updated:19961023
-Updated-By:hostmaster@interserver.net";
-$guardian = "ID: 444.interserver.net
-Auth-Area: interserver.net
-Guard-Scheme: PW
-Guard-Info: passwd
-Created: 19961022
-Updated: 19961023
-Updated-By: hostmaster@interserver.net
-Private:true";
-$host[] = "ID: 444.interserver.net
-Auth-Area: interserver.net
-Guard-Scheme: PW
-Guard-Info: passwd
-Created: 19961022
-Updated: 19961023
-Updated-By: hostmaster@interserver.net
-Private:true";
-$org = "ID: 777.interserver.net
-Auth-Area: interserver.net
-Org-Name: A Communications, Inc.
-Street-Address: #600 - 1380 Burrars St.
-City: Vaner
-State: CM
-Postal-Code: V6Z 2H3
-Country-Code: NL
-Phone: (401) 555-6721
-Created: 19961022
-Updated: 19961023
-Updated-By: hostmaster@interserver.net";
-$referral = "ID:888.interserver.net
-Auth-Area: interserver.net
-Guardian:444.interserver.net
-Referral:rwhois://rwhois.second.interserver.net:4321/Auth-Area=fddi.interserver.net
-Organization:777.interserver.net
-Referred-Auth-Area:fddi.interserver.net
-Created:19961022
-Updated:19961023
-Updated-By:hostmaster@interserver.net";                             
 
-/* $range = \IPLib\Range\Subnet::parseString($ipblock);
-$range->toString();                         // 69.10.61.64/26       2604:a00::/32
-$range->getAddressType();                   // 4                    6
-$range->getAddressAtOffset(0)->toString();  // 69.10.61.64          2604:a00::
-$range->getAddressAtOffset(1)->toString();  // 69.10.61.65          2604:a00::1
-$range->getSize();                          // 64                   79228162514264337593543950336
-$range->getNetworkPrefix();                 // 26                   32 
-$range->getSubnetMask()->toString();        // 255.255.255.192   
-$range->getStartAddress()->toString();      // 69.10.61.64          2604:a00::
-$range->getEndAddress()->toString();        // 69.10.61.127         2604:a00:ffff:ffff:ffff:ffff:ffff:ffff  */
-
-
-foreach ($ipblocks as $ipblock => $blockData) {
-    //echo "Generating IP Block {$ipblock}\n";
-    $vlandata = explode('/', $ipblock);
-    $ip = $vlandata[0];
-    $size = $vlandata[1];
-    $nets[] = $ipblock;
-    $network_info = ipcalc($ipblock);
-    $totalAvailableIps += $network_info['hosts'];
-}
 //$nets = implode(' ', $nets);
 //$cmds .= "echo '$nets' > ipblocks.txt;\n";
 echo "Building VLAN data";
