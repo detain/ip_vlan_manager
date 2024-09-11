@@ -103,7 +103,8 @@ left join accounts on account_id=server_custid
 left join accounts_ext on accounts.account_id=accounts_ext.account_id and account_key='company'", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
 {
-    add_range(str_replace(':', '', $db->Record['vlans_networks']), $db->Record);
+    $db->Record['vlans_networks'] = str_replace(':', '', $db->Record['vlans_networks']);
+    add_range($db->Record['vlans_networks'], $db->Record);
     add_contact($db->Record, $out['contacts']);
     $out['ipblocks'][4][$db->Record['vlans_block']]['vlans'][$db->Record['vlans_id']] = $db->Record;     
 }
