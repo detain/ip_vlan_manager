@@ -164,7 +164,81 @@ name:referral
 attributedef:interserver.net/attribute_defs/referral.tmpl  
 dbdir:interserver.net/data/referral
 Schema-Version: {$serial}";
-// write domain data dirs                             
+// write domain data dirs
+$asn = "ID:111.interserver.net
+Auth-Area:interserver.net
+AS-Name:A-AS
+AS-Number:6183
+Organization:777.interserver.net
+Admin-Contact:222.interserver.net
+Tech-Contact:222.interserver.net
+Created:19961022
+Updated:19961023
+Updated-by:hostmaster@interserver.net";
+$contacts[] = "ID:222.interserver.net
+Auth-Area:interserver.net
+Name:Public, John Q.
+Email:johnq@interserver.net
+Type:I
+First-Name:John
+Last-Name:Public
+Phone:(847)-391-7926
+Fax:(847)-338-0340
+Organization:777.interserver.net
+See-Also:http://www.interserver.net/~johnq
+Created:11961022
+Updated:11961023
+Updated-By:hostmaster@interserver.net";
+$domain = "ID:333.interserver.net
+Auth-Area:interserver.net
+Guardian:444.interserver.net
+Domain-Name: interserver.net
+Primary-Server:5551.interserver.net
+Secondary-Server:5552.interserver.net
+Organization:777.interserver.net
+Admin-Contact:222.interserver.net
+Tech-Contact:222.interserver.net
+Billing-Contact:222.interserver.net
+Created:19961022
+Updated:19961023
+Updated-By:hostmaster@interserver.net";
+$guardian = "ID: 444.interserver.net
+Auth-Area: interserver.net
+Guard-Scheme: PW
+Guard-Info: passwd
+Created: 19961022
+Updated: 19961023
+Updated-By: hostmaster@interserver.net
+Private:true";
+$host[] = "ID: 444.interserver.net
+Auth-Area: interserver.net
+Guard-Scheme: PW
+Guard-Info: passwd
+Created: 19961022
+Updated: 19961023
+Updated-By: hostmaster@interserver.net
+Private:true";
+$org = "ID: 777.interserver.net
+Auth-Area: interserver.net
+Org-Name: A Communications, Inc.
+Street-Address: #600 - 1380 Burrars St.
+City: Vaner
+State: CM
+Postal-Code: V6Z 2H3
+Country-Code: NL
+Phone: (401) 555-6721
+Created: 19961022
+Updated: 19961023
+Updated-By: hostmaster@interserver.net";
+$referral = "ID:888.interserver.net
+Auth-Area: interserver.net
+Guardian:444.interserver.net
+Referral:rwhois://rwhois.second.interserver.net:4321/Auth-Area=fddi.interserver.net
+Organization:777.interserver.net
+Referred-Auth-Area:fddi.interserver.net
+Created:19961022
+Updated:19961023
+Updated-By:hostmaster@interserver.net";                             
 
 /* $range = \IPLib\Range\Subnet::parseString($ipblock);
 $range->toString();                         // 69.10.61.64/26       2604:a00::/32
