@@ -190,24 +190,36 @@ foreach ($ipblocks as $ipblock => $blockData) {
 //$nets = implode(' ', $nets);
 //$cmds .= "echo '$nets' > ipblocks.txt;\n";
 echo "Building VLAN data";
-$db->query("select * from vlans left join ipblocks on vlans_block=ipblocks_id left join switchports on find_in_set(vlans.vlans_id, switchports.vlans) left join assets on asset_id=id left join servers on servers.server_id=order_id left join accounts on account_id=server_custid where account_id is not null", __LINE__, __FILE__);
+$db->query("select * from vlans 
+left join ipblocks on vlans_block=ipblocks_id 
+left join switchports on find_in_set(vlans.vlans_id, switchports.vlans) 
+left join assets on asset_id=id 
+left join servers on servers.server_id=order_id 
+left join accounts on account_id=server_custid 
+where account_id is not null", __LINE__, __FILE__);
 echo "\n";
+/* Table        - Fields
+ * vlans        - vlans_id, vlans_block, vlans_networks, vlans_ports, vlans_comment, vlans_primary, vlans_ip, 
+ * ipblocks     - ipblocks_id, ipblocks_network, ipblocks_location, 
+ * switchports  - switchport_id, switch, blade, justport, port, graph_id, vlans, server_id, asset_id, updated, vlans6,
+ * assets       - id, order_id, hostname, status, primary_ipv4, primary_ipv6, mac, datacenter, type_id, asset_tag, 
+                    rack, row, col, unit_start, unit_end, unit_sub, ipmi_mac, ipmi_ip, ipmi_admin_username,
+                    ipmi_admin_password, ipmi_client_username, ipmi_client_password, ipmi_updated, ipmi_working, 
+                    company, comments, make, model, description, customer_id, external_id, billing_status, overdue,
+                    monthly_price, create_timestamp, update_timestamp, mp_status_updated_at, 
+ * servers      - server_id, server_hostname, server_custid, server_type, server_currency, server_order_date, 
+                    server_invoice, server_coupon, server_status, server_root, server_dedicated_tag, server_custom_tag,
+                    server_comment, server_initial_bill, server_hardware, server_ips, server_monthly_bill, server_setup,
+                    server_discount, server_rep, server_date, server_total_cost, server_location, server_hardware_ordered,
+                    server_billed, server_welcome_email, server_dedicated_cpu, server_dedicated_memory, server_dedicated_hd1,
+                    server_dedicated_hd2, server_dedicated_bandwidth, server_dedicated_ips, server_dedicated_os, 
+                    server_dedicated_cp, server_dedicated_raid, server_extra, 
+ * accounts      - account_id, account_lid, account_passwd, account_group, account_status, account_ima, account_name,
+                    account_address, account_city, account_state, account_zip, account_country, account_phone,
+                    account_fraudrecord_score, account_maxmind_riskscore, account_payment_method, account_pin,
+                    account_disable_cc
+*/
 while ($db->next_record(MYSQL_ASSOC)) {
-    /*
-     * vlans - vlans_id, vlans_block, vlans_networks, vlans_ports, vlans_comment, vlans_primary, vlans_ip, 
-     * ipblocks - ipblocks_id, ipblocks_network, ipblocks_location, 
-     * switchports - switchport_id, switch, blade, justport, port, graph_id, vlans, server_id, asset_id, updated, vlans6, 
-     * assets - id, order_id, hostname, status, primary_ipv4, primary_ipv6, mac, datacenter, type_id, asset_tag, rack, row, col, unit_start, unit_end, unit_sub, 
-     *    ipmi_mac, ipmi_ip, ipmi_admin_username, ipmi_admin_password, ipmi_client_username, ipmi_client_password, ipmi_updated, ipmi_working, company, 
-     *    comments, make, model, description, customer_id, external_id, billing_status, overdue, monthly_price, create_timestamp, update_timestamp, mp_status_updated_at, 
-     * servers - server_id, server_hostname, server_custid, server_type, server_currency, server_order_date, server_invoice, server_coupon, server_status, server_root, 
-     *    server_dedicated_tag, server_custom_tag, server_comment, server_initial_bill, server_hardware, server_ips, server_monthly_bill, server_setup, 
-     *    server_discount, server_rep, server_date, server_total_cost, server_location, server_hardware_ordered, server_billed, server_welcome_email, 
-     *    server_dedicated_cpu, server_dedicated_memory, server_dedicated_hd1, server_dedicated_hd2, server_dedicated_bandwidth, server_dedicated_ips, 
-     *    server_dedicated_os, server_dedicated_cp, server_dedicated_raid, server_extra, 
-     * accounts - account_id, account_lid, account_passwd, account_group, account_status, account_ima, account_name, account_address, account_city, account_state, 
-     *    account_zip, account_country, account_phone, account_fraudrecord_score, account_maxmind_riskscore, account_payment_method, account_pin, account_disable_c
-    */
     $ipblock = $db->Record['ipblocks_network'];         
     list($ipblock_ip, $ipblock_size) = explode('/', $ipblock);
     $vlan = str_replace(':', '', $db->Record['vlans_networks']);
