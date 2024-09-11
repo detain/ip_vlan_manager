@@ -3,32 +3,39 @@
 * VLAN to rWhois Generator
 * 
 * @todo
-* * adding improved setting up of organizations and contacts.
-* * adding ipv6 blocks.
-* * improving the vlan listings we have,
-* * improving the way the script rebuilds all the data files.
-* * fixing some schema definitions
 * * use real or private contact info for each user based on account setting
 * if you want i could add vps network definitions as well
 */
-$json = file_get_contents('https://mynew.interserver.net/ajax_rwhois.php');
-file_put_contents('rwhois.json', $json);
-//$json = json_decode(file_get_contents('rwhois.json'), true);
+echo "Loading rwhoisd JSON Data\n";
+if (file_exists('rwhoisd.json')) {
+    $json = file_get_contents('rwhoisd.json');    
+} else {
+    $json = file_get_contents('https://mynew.interserver.net/ajax_rwhois.php');
+    file_put_contents('rwhoisd.json', $json);
+}  
 $json = json_decode($json, true);
 $samplePrefix = 'https://raw.githubusercontent.com/arineng/rwhoisd/master/rwhoisd/sample.data/';
 $typeDirs = ['domain' => 'a.com', 'net' => 'net-fd00%3A1234%3A%3A-32'];
 $domains = ['interserver.net'];
+$rwhoisFiles = ['allow', 'conf', 'deny', 'dir', 'root', 'x.dir'];
 $defs = [ 'domain' => ['asn', 'contact', 'domain', 'guardian', 'host', 'org', 'referral'], 'net' => ['contact', 'guardian', 'host', 'network', 'referral'] ];
 $templates = ['domain' => [], 'net' => []];
 $intervals = [ 'refresh' => 3600, 'increment' => 1800, 'retry' => 60, 'ttl' => 86400 ];
 $installDir = '/home/rwhois/bin';
+$installDir = '/home/rwhois/bin/new';
 $serial = date('YmdHis');
 $privateData = true;
+echo "Setting up rwhoisd in {$installDir}\n";
+echo "Downloading Templates\n";
+foreach ($rwhoisFiles as $file) {
+    $templates['rwhoisd.'.$file] = file_get_contents($samplePrefix.'rwhoisd.'.$file);
+}
 foreach ($defs as $defType => $typeDefs) {
     foreach ($typeDefs as $def) {
         $templates[$defType][$def] = file_get_contents($samplePrefix.$typeDirs[$defType].'/attribute_defs/'.$def.'.tmpl');
     }
 }
+echo "Generating Output\n";
 $out = [
     'domains' => [],
     'nets' => [],
@@ -42,6 +49,8 @@ Time-To-Live:{$intervals['ttl']}
 Primary-Server:rwhois.trouble-free.net:4321
 Hostmaster:hostmaster@interserver.net",
 ];
+$mkdirs[] = $installDir;
+echo "Writing IP Blocks\n";
 // generate output from data
 foreach ($ipblocks as $blockType => $typeBlocks) {
     foreach ($typeBlocks as $blockId => $blockData) {
@@ -68,12 +77,22 @@ Admin-Contact: {$contact}.interserver.net";
         $schema = "name:network
 attributedef:{$netDir}/attribute_defs/network.tmpl
 dbdir:{$netDir}/data/network
-Schema-Version: {$serial}";                
+Schema-Version: {$serial}";
+
+        file_put_contents($installDir.'/rwhoisd.auth_area', implode("\n---\n", $authArea));
+        file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
+        file_put_contents($installDir.'/'.$netDir.'/soa', $soa);
+        // write net soa file
+        // write net schema file
+        // write net network.txt
+                
     }
 }
+echo "Making Dirs\n";
 foreach ($mkdirs as $mkdir) {
     @mkdir($mkdir, 0644, true);
 }
+echo "Writiong Domains\n";
 foreach ($domains as $domain) {
     // write domain soa
     file_put_contents($installDir.'/'.$domain.'/soa', $soa);
@@ -201,9 +220,3 @@ Updated-By:hostmaster@{$domain}";
 }
 
 
-file_put_contents($installDir.'/rwhoisd.auth_area', implode("\n---\n", $authArea));
-file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
-file_put_contents($installDir.'/'.$netDir.'/soa', $soa);
-// write net soa file
-// write net schema file
-// write net network.txt
