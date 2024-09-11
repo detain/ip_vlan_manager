@@ -15,39 +15,18 @@ include_once(__DIR__.'/../../../../include/functions.inc.php');
 include_once(__DIR__.'/ip.functions.inc.php');
 // initialize variables
 $db = $GLOBALS['tf']->db;
-$samplePrefix = 'https://raw.githubusercontent.com/arineng/rwhoisd/master/rwhoisd/sample.data/';
 $typeDirs = ['domain' => 'a.com', 'net' => 'net-fd00%3A1234%3A%3A-32'];
-$defs = [
-    'domain' => ['asn', 'contact', 'domain', 'guardian', 'host', 'org', 'referral'], 
-    'net' => ['contact', 'guardian', 'host', 'network', 'referral']
-];
-$templates = ['domain' => [], 'net' => []];
 $contacts = ['hostmaster' => []];
 $privateData = true;
 $cmds = '';
 $total = 0;
 $totalVlans = 0;
 $totalAvailableIps = 0;
-$installDir = '/home/rwhois/bin';
 $nets = [];
 $ipblocks = [ 4 => [], 6 => [] ];
 $serial = date('YmdHis') . '000';
 //$serial = '19961101000000000';
 $authArea = [];
-$mkdirs = [];
-$intervals = [
-    'refresh' => 3600,
-    'increment' => 1800,
-    'retry' => 60,
-    'ttl' => 86400,
-];
-$soa = "Serial-Number:{$serial}
-Refresh-Interval:{$intervals['refresh']}
-Increment-Interval:{$intervals['increment']}
-Retry-Interval:{$intervals['retry']}
-Time-To-Live:{$intervals['ttl']}
-Primary-Server:rwhois.trouble-free.net:4321
-Hostmaster:hostmaster@interserver.net";
 // gather data
 $db->query("select * from ipblocks6", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
@@ -82,163 +61,8 @@ foreach ($ipblocks as $blockType => $typeBlocks) {
         $contact = 'hostmaster';
         // $contact = $custid;
         $netDir = 'net-'.str_replace($range->toString(), '/', '-');
-        $netName = 'NETBLK-'.$range->toString();
-$authArea[] = "type: master
-name: {$netName}
-data-dir: {$netDir}/data
-schema-file: {$netDir}/schema
-soa-file: {$netDir}/soa";
-        $mkdirs[] = $installDir.'/'.$netDir.'/attribute_defs';
-        $mkdirs[] = $installDir.'/'.$netDir.'/data/network';
-        $mkdirs[] = $installDir.'/'.$netDir.'/data/referral';
-        $networks[] = "Network-Name: NETBLK-{$ipblock}
-IP-Network: {$ipblock}
-Organization: 777.interserver.net
-Tech-Contact: hostmaster.interserver.net
-Admin-Contact: {$contact}.interserver.net";
-        $schema = "name:network
-attributedef:{$netDir}/attribute_defs/network.tmpl
-dbdir:{$netDir}/data/network
-Schema-Version: {$serial}";                
     }
 }
-
-foreach ($defs as $defType => $typeDefs) {
-    foreach ($typeDefs as $def) {
-        $templates[$defType][$def] = file_get_contents($samplePrefix.$typeDirs[$defType].'/attribute_defs/'.$def.'.tmpl');
-    }
-}
-
-foreach ($mkdirs as $mkdir) {
-    @mkdir($mkdir, 0644, true);
-}
-file_put_contents($installDir.'/rwhoisd.auth_area', implode("\n---\n", $authArea));
-file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
-file_put_contents($installDir.'/'.$netDir.'/soa', $soa);
-// write net soa file
-// write net schema file
-// write net network.txt
-// write domain soa
-// write domain schema
-$schema = "name:contact
-alias:user
-alias:person
-alias:mailbox
-attributedef:interserver.net/attribute_defs/contact.tmpl
-dbdir: interserver.net/data/contact
-description:User object
-# parse-program: contact-parse
-Schema-Version: {$serial}
----
-name:domain 
-attributedef:interserver.net/attribute_defs/domain.tmpl  
-dbdir: interserver.net/data/domain
-description:Domain object
-Schema-Version: {$serial}
----
-name:host
-attributedef:interserver.net/attribute_defs/host.tmpl
-dbdir: interserver.net/data/host
-description:Host object
-Schema-Version: {$serial}
----
-name:asn
-attributedef:interserver.net/attribute_defs/asn.tmpl
-dbdir: interserver.net/data/asn
-description:Autonomous System Number object
-Schema-Version: {$serial}
----
-name:organization
-attributedef:interserver.net/attribute_defs/org.tmpl
-dbdir:interserver.net/data/org
-description:Organization object
-Schema-Version: {$serial}
----
-name:guardian
-attributedef:interserver.net/attribute_defs/guardian.tmpl
-dbdir:interserver.net/data/guardian
-description:Guardian Object
-Schema-Version: {$serial}
----
-name:referral 
-attributedef:interserver.net/attribute_defs/referral.tmpl  
-dbdir:interserver.net/data/referral
-Schema-Version: {$serial}";
-// write domain data dirs
-$asn = "ID:111.interserver.net
-Auth-Area:interserver.net
-AS-Name:A-AS
-AS-Number:6183
-Organization:777.interserver.net
-Admin-Contact:222.interserver.net
-Tech-Contact:222.interserver.net
-Created:19961022
-Updated:19961023
-Updated-by:hostmaster@interserver.net";
-$contacts[] = "ID:222.interserver.net
-Auth-Area:interserver.net
-Name:Public, John Q.
-Email:johnq@interserver.net
-Type:I
-First-Name:John
-Last-Name:Public
-Phone:(847)-391-7926
-Fax:(847)-338-0340
-Organization:777.interserver.net
-See-Also:http://www.interserver.net/~johnq
-Created:11961022
-Updated:11961023
-Updated-By:hostmaster@interserver.net";
-$domain = "ID:333.interserver.net
-Auth-Area:interserver.net
-Guardian:444.interserver.net
-Domain-Name: interserver.net
-Primary-Server:5551.interserver.net
-Secondary-Server:5552.interserver.net
-Organization:777.interserver.net
-Admin-Contact:222.interserver.net
-Tech-Contact:222.interserver.net
-Billing-Contact:222.interserver.net
-Created:19961022
-Updated:19961023
-Updated-By:hostmaster@interserver.net";
-$guardian = "ID: 444.interserver.net
-Auth-Area: interserver.net
-Guard-Scheme: PW
-Guard-Info: passwd
-Created: 19961022
-Updated: 19961023
-Updated-By: hostmaster@interserver.net
-Private:true";
-$host[] = "ID: 444.interserver.net
-Auth-Area: interserver.net
-Guard-Scheme: PW
-Guard-Info: passwd
-Created: 19961022
-Updated: 19961023
-Updated-By: hostmaster@interserver.net
-Private:true";
-$org = "ID: 777.interserver.net
-Auth-Area: interserver.net
-Org-Name: A Communications, Inc.
-Street-Address: #600 - 1380 Burrars St.
-City: Vaner
-State: CM
-Postal-Code: V6Z 2H3
-Country-Code: NL
-Phone: (401) 555-6721
-Created: 19961022
-Updated: 19961023
-Updated-By: hostmaster@interserver.net";
-$referral = "ID:888.interserver.net
-Auth-Area: interserver.net
-Guardian:444.interserver.net
-Referral:rwhois://rwhois.second.interserver.net:4321/Auth-Area=fddi.interserver.net
-Organization:777.interserver.net
-Referred-Auth-Area:fddi.interserver.net
-Created:19961022
-Updated:19961023
-Updated-By:hostmaster@interserver.net";                             
 
 /* $range = \IPLib\Range\Subnet::parseString($ipblock);
 $range->toString();                         // 69.10.61.64/26       2604:a00::/32
@@ -264,8 +88,13 @@ foreach ($ipblocks as $ipblock => $blockData) {
 //$nets = implode(' ', $nets);
 //$cmds .= "echo '$nets' > ipblocks.txt;\n";
 echo "Building VLAN data";
+$db->query("select * from vlans6 
+left join switchports on vlans6.vlans6_id=switchports.vlans6 
+left join assets on asset_id=id 
+left join servers on servers.server_id=order_id 
+left join accounts on account_id=server_custid 
+where account_id is not null", __LINE__, __FILE__);
 $db->query("select * from vlans 
-left join ipblocks on vlans_block=ipblocks_id 
 left join switchports on find_in_set(vlans.vlans_id, switchports.vlans) 
 left join assets on asset_id=id 
 left join servers on servers.server_id=order_id 
@@ -345,11 +174,3 @@ while ($db->next_record(MYSQL_ASSOC)) {
         . 'Updated: '.date('Ymd').'\n'
         . 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
 }
-file_put_contents('vlantorwhois.sh', str_replace('\n', "\n", $cmds));
-echo "wrote vlantorwhois.sh
-
-Totals:
-VLANs: {$totalVlans}
-IPs Assigneed to VLANs: {$total}
-IPs Available: {$totalAvailableIps}
-";
