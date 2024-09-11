@@ -3,11 +3,6 @@
 * VLAN to rWhois Generator
 * 
 * @todo
-* * adding improved setting up of organizations and contacts.
-* * adding ipv6 blocks.
-* * improving the vlan listings we have,
-* * improving the way the script rebuilds all the data files.
-* * fixing some schema definitions
 * * use real or private contact info for each user based on account setting
 * if you want i could add vps network definitions as well
 */
@@ -68,14 +63,6 @@ $out = [
         ],
     ],
 ];
-$privateData = true;
-$cmds = '';
-$total = 0;
-$totalVlans = 0;
-$totalAvailableIps = 0;
-$nets = [];
-$serial = date('YmdHis') . '000';
-//$serial = '19961101000000000';
 // gather data
 $db->query("select * from ipblocks6", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
@@ -120,4 +107,5 @@ while ($db->next_record(MYSQL_ASSOC))
     add_contact($db->Record, $out['contacts']);
     $out['ipblocks'][4][$db->Record['vlans_block']]['vlans'][$db->Record['vlans_id']] = $db->Record;     
 }
-file_put_contents('rwhois.json', json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+header('Content-type: application/json; charset=UTF-8');
+echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
