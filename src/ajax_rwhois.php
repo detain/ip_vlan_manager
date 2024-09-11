@@ -51,6 +51,9 @@ $out = [
         4 => [], 
         6 => [], 
     ],
+    'domains' => [
+        'interserver.net' => [],
+    ],
     'contacts' => [
         0 => [
             'address' => 'PO BOX 1707',
