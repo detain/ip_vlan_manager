@@ -93,8 +93,6 @@ Schema-Version: {$serial}";
             if (!is_null($vlan['account_id'])) {
                 $contact = $vlan['account_id'];                
             }
-            $netDir = 'net-'.str_replace('/', '-', $ipblock);
-            $netName = 'NETBLK-'.$ipblock;
             $networks[] = "Network-Name: NETBLK-{$ipblock}
 IP-Network: {$ipblock}
 Organization: 777.interserver.net
