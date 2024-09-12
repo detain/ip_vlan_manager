@@ -40,6 +40,7 @@ foreach ($defs as $defType => $typeDefs) {
 //mkdir($installDir, 0774, true);
 //echo "Generating Output\n";
 $out = [
+    'contacts' => [],
     'domains' => [],
     'nets' => [],
     'networks' => [],
@@ -109,6 +110,33 @@ Admin-Contact: {$contact}.interserver.net";
         file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
         file_put_contents($installDir.'/'.$netDir.'/data/network/network.txt', implode("\n---\n", $networks));        
     }
+}
+$fields = [
+'Name' => 'name',
+'Email' => 'email',
+'Street-Address' => 'address',
+'City' => 'city',
+'State' => 'state',
+'Postal-Code' => 'zip',
+'Country-Code' => 'country',
+'Phone' => 'phone',
+];
+$domain = 'interserver.net';
+foreach ($json['contacts'] as $custid => $data) {
+    $contact = "ID:{$custid}.{$domain}
+Auth-Area:{$domain}
+Type:I";
+    foreach ($fields as $field => $from) {
+        if (isset($data[$from]))  {
+            $contact .= "\n{$field}:{$data[$from]}"; 
+        }
+    }
+    $contact .= "
+Organization:777.{$domain}
+Created:{$serial}
+Updated:{$serial}
+Updated-By:hostmaster@{$domain}";
+    $out['contacts'][] = $contact; 
 }
 //echo "Writing Domains\n";
 foreach ($json['domains'] as $domain => $domData) {
@@ -183,20 +211,6 @@ Tech-Contact:222.{$domain}
 Created:{$serial}
 Updated:{$serial}
 Updated-by:hostmaster@{$domain}";
-    $contacts[] = "ID:222.{$domain}
-Auth-Area:{$domain}
-Name:Public, John Q.
-Email:johnq@{$domain}
-Type:I
-First-Name:John
-Last-Name:Public
-Phone:(847)-391-7926
-Fax:(847)-338-0340
-Organization:777.{$domain}
-See-Also:http://www.{$domain}/~johnq
-Created:{$serial}
-Updated:{$serial}
-Updated-By:hostmaster@{$domain}";
     $domainData = "ID:333.{$domain}
 Auth-Area:{$domain}
 Guardian:444.{$domain}
@@ -248,10 +262,10 @@ Created:{$serial}
 Updated:{$serial}
 Updated-By:hostmaster@{$domain}";                             
     file_put_contents($installDir.'/'.$domain.'/data/asn/asn.txt', $asn);
-    file_put_contents($installDir.'/'.$domain.'/data/contact/contact.txt', implode("\n---\n", $contacts));
+    file_put_contents($installDir.'/'.$domain.'/data/contact/contact.txt', implode("\n---\n", $out['contacts']));
     file_put_contents($installDir.'/'.$domain.'/data/domain/domain.txt', $domainData);
     file_put_contents($installDir.'/'.$domain.'/data/guardian/guardian.txt', $guardian);
-    file_put_contents($installDir.'/'.$domain.'/data/host/host.txt', implode("\n---\n", $contacts));
+    file_put_contents($installDir.'/'.$domain.'/data/host/host.txt', $out['contacts'][0]);
     file_put_contents($installDir.'/'.$domain.'/data/org/org.txt', $org);
     file_put_contents($installDir.'/'.$domain.'/data/referral/referral.txt', $referral);
     foreach ($defs as $defType => $typeDefs) {

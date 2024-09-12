@@ -8,7 +8,7 @@
 */
 
 function add_contact(&$data, &$contacts) {
-    $fields = ['address', 'city', 'state', 'zip', 'country', 'phone', 'company'];
+    $fields = ['name', 'email', 'address', 'city', 'state', 'zip', 'country', 'phone', 'company'];
     $privateData = true;
     if (!is_null($data['account_id'])) {
         $contact = [];
@@ -55,7 +55,7 @@ $out = [
         'interserver.net' => [],
     ],
     'contacts' => [
-        0 => [
+        1 => [
             'address' => 'PO BOX 1707',
             'city' => 'Englewood Cliffs',
             'state' => 'NJ',
@@ -75,7 +75,7 @@ while ($db->next_record(MYSQL_ASSOC))
     add_range($db->Record['ipblocks_network'], $db->Record);
     $out['ipblocks'][6][$db->Record['ipblocks_id']] = $db->Record;     
 }
-$db->query("select ipblocks.*, accounts.account_id, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from ipblocks
+$db->query("select ipblocks.*, accounts.account_id, account_lid as account_email, account_name, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from ipblocks
 left join accounts on account_id=ipblocks_custid
 left join accounts_ext on accounts.account_id=accounts_ext.account_id and account_key='company'");
 while ($db->next_record(MYSQL_ASSOC))
@@ -86,7 +86,7 @@ while ($db->next_record(MYSQL_ASSOC))
     add_contact($db->Record, $out['contacts']);
     $out['ipblocks'][4][$db->Record['ipblocks_id']] = $db->Record;
 }
-$db->query("select vlans6.*, accounts.account_id, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from vlans6 
+$db->query("select vlans6.*, accounts.account_id, account_lid as account_email, account_name, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from vlans6 
 left join switchports on vlans6.vlans6_id=switchports.vlans6 
 left join assets on asset_id=id 
 left join servers on servers.server_id=order_id 
@@ -98,7 +98,7 @@ while ($db->next_record(MYSQL_ASSOC))
     add_contact($db->Record, $out['contacts']);
     $out['ipblocks'][6][1]['vlans'][$db->Record['vlans6_id']] = $db->Record;
 }
-$db->query("select vlans.*, accounts.account_id, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from vlans 
+$db->query("select vlans.*, accounts.account_id, account_lid as account_email, account_name, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from vlans 
 left join switchports on find_in_set(vlans.vlans_id, switchports.vlans) 
 left join assets on asset_id=id 
 left join servers on servers.server_id=order_id 
