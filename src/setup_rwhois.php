@@ -24,7 +24,6 @@ $defs = [ 'domain' => ['asn', 'contact', 'domain', 'guardian', 'host', 'org', 'r
 $templates = ['domain' => [], 'net' => []];
 $intervals = [ 'refresh' => 3600, 'increment' => 1800, 'retry' => 60, 'ttl' => 86400 ];
 $installDir = '/home/rwhois/bin';
-$installDir = '/home/rwhois/bin/new';
 $serial = date('YmdHis');
 $privateData = true;
 //echo "Setting up rwhoisd in {$installDir}\n";
@@ -124,6 +123,12 @@ foreach ($json['contacts'] as $custid => $data) {
     $contact = "ID:{$custid}.{$domain}
 Auth-Area:{$domain}
 Type:I";
+    if (!isset($data['name'])) {
+        $data['name'] = 'Private Customer';
+    }
+    if (!isset($data['address'])) {
+        $data['address'] = 'Private Residence';
+    }
     foreach ($fields as $field => $from) {
         if (isset($data[$from]))  {
             $contact .= "\n{$field}:{$data[$from]}"; 
@@ -201,12 +206,12 @@ Schema-Version: {$serial}";
     // write domain data dirs
     $asn = "ID:111.{$domain}
 Auth-Area:{$domain}
-AS-Name:A-AS
-AS-Number:6183
+AS-Name:Interserver, Inc
+AS-Number:19318
 Organization:777.{$domain}
 Admin-Contact:222.{$domain}
 Tech-Contact:222.{$domain}
-Created:{$serial}
+Created:{$seriasl}
 Updated:{$serial}
 Updated-by:hostmaster@{$domain}";
     $domainData = "ID:333.{$domain}
@@ -240,15 +245,15 @@ Updated-By: hostmaster@{$domain}
 Private:true";
     $org = "ID: 777.{$domain}
 Auth-Area: {$domain}
-Org-Name: A Communications, Inc.
-Street-Address: #600 - 1380 Burrars St.
-City: Vaner
-State: CM
-Postal-Code: V6Z 2H3
-Country-Code: NL
-Phone: (401) 555-6721
+Org-Name: InterServer
+Street-Address: 110 Meadowlands Parkway, Suite 100
+City: Secaucus
+State: NJ
+Postal-Code: 07094
+Country-Code: US
+Phone: 12016051440
 Created: {$serial}
-Updated: {$serial}
+Updated: {$serial}s
 Updated-By: hostmaster@{$domain}";
     $referral = "ID:888.{$domain}
 Auth-Area: {$domain}

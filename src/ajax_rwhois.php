@@ -8,15 +8,21 @@
 */
 
 function add_contact(&$data, &$contacts) {
-    $fields = ['name', 'email', 'address', 'city', 'state', 'zip', 'country', 'phone', 'company'];
+    $fields = ['city', 'state', 'zip', 'country'];
+    $privateFields = ['name', 'email', 'address', 'phone', 'company'];
     $privateData = true;
     if (!is_null($data['account_id'])) {
         $contact = [];
         if ($privateData == false) {
-            foreach ($fields as $field) {
+            foreach ($privateFields as $field) {
                 if (isset($data['account_'.$field]) && !empty($data['account_'.$field])) {
                     $contact[$field] = $data['account_'.$field];
                 }
+            }
+        }
+        foreach ($fields as $field) {
+            if (isset($data['account_'.$field]) && !empty($data['account_'.$field])) {
+                $contact[$field] = $data['account_'.$field];
             }
         }
         $contacts[(int)$data['account_id']] = $contact;        
