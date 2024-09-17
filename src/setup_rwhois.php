@@ -211,7 +211,7 @@ AS-Number:19318
 Organization:777.{$domain}
 Admin-Contact:222.{$domain}
 Tech-Contact:222.{$domain}
-Created:{$seriasl}
+Created:{$serial}
 Updated:{$serial}
 Updated-by:hostmaster@{$domain}";
     $domainData = "ID:333.{$domain}
