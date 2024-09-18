@@ -23,8 +23,9 @@ $rwhoisFiles = ['allow', 'conf', 'deny', 'dir', 'root', 'x.dir'];
 $defs = [ 'domain' => ['asn', 'contact', 'domain', 'guardian', 'host', 'org', 'referral'], 'net' => ['contact', 'guardian', 'host', 'network', 'referral'] ];
 $templates = ['domain' => [], 'net' => []];
 $intervals = [ 'refresh' => 3600, 'increment' => 1800, 'retry' => 60, 'ttl' => 86400 ];
-$installDir = '/home/rwhois/bin';
+$installDir = '/home/rwhois/bin.new';
 $serial = date('YmdHis');
+$serial = "20240912103710";
 $privateData = true;
 //echo "Setting up rwhoisd in {$installDir}\n";
 //echo "Downloading Templates\n";
@@ -64,7 +65,7 @@ foreach ($json['ipblocks'] as $blockType => $typeBlocks) {
         $netName = 'NETBLK-'.$ipblock;
         //mkdir($installDir.'/'.$netDir, 0774, true);
         $out['authArea'][] = "type: master
-name: {$netName}
+name: {$ipblock}
 data-dir: {$netDir}/data
 schema-file: {$netDir}/schema
 soa-file: {$netDir}/soa";
