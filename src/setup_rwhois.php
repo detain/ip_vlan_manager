@@ -162,13 +162,13 @@ Type:I";
 Auth-Area:{$domain}
 Type:I";
     $data['email'] = 'hostmaster+'.$custid.'@interserver.net';
-    if (!isset($data['company']) && !empty($data['company'])) {
+    if (!isset($data['company']) || empty($data['company'])) {
         $data['company'] = 'Private Organization';
     }
-    if (!isset($data['name']) && !empty($data['name'])) {
+    if (!isset($data['name']) || empty($data['name'])) {
         $data['name'] = 'Private Customer';
     }
-    if (!isset($data['address']) && !empty($data['address'])) {
+    if (!isset($data['address']) || empty($data['address'])) {
         $data['address'] = 'Private Residence';
     }
     foreach ($contactFields as $field => $from) {
