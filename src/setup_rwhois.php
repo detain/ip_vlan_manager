@@ -112,7 +112,7 @@ Admin-Contact: {$contact}.interserver.net";
         file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
         file_put_contents($installDir.'/'.$netDir.'/data/network/network.txt', implode("\n---\n", $networks));        
         foreach ($defs['net'] as $def) {
-            file_put_contents($installDir.'/'.$domain.'/attribute_defs/'.$def.'.tmpl', $templates['net'][$def]);
+            file_put_contents($installDir.'/'.$netDir.'/attribute_defs/'.$def.'.tmpl', $templates['net'][$def]);
         }
     }
 }
