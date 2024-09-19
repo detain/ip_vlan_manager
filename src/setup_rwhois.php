@@ -23,9 +23,8 @@ $rwhoisFiles = ['allow', 'conf', 'deny', 'dir', 'root', 'x.dir'];
 $defs = [ 'domain' => ['asn', 'contact', 'domain', 'guardian', 'host', 'org', 'referral'], 'net' => ['contact', 'guardian', 'host', 'network', 'referral'] ];
 $templates = ['domain' => [], 'net' => []];
 $intervals = [ 'refresh' => 3600, 'increment' => 1800, 'retry' => 60, 'ttl' => 86400 ];
-$installDir = '/home/rwhois/bin.new';
+$installDir = '/home/rwhois/bin';
 $serial = date('YmdHis');
-$serial = "20240912103710";
 $privateData = true;
 //echo "Setting up rwhoisd in {$installDir}\n";
 //echo "Downloading Templates\n";
@@ -336,3 +335,9 @@ $templates['rwhoisd.conf'] = str_replace([
 foreach ($rwhoisFiles as $file) {
     file_put_contents($installDir.'/rwhoisd.'.$file, $templates['rwhoisd.'.$file]);
 }
+echo `cd {$installDir}
+for i in \$(grep ^name rwhoisd.auth_area|cut -d" " -f2); do
+  bin/rwhois_indexer -c rwhoisd.conf -i -v -A \$i -C network -s txt;
+done
+bin/rwhois_indexer -c rwhoisd.conf -i -v -A interserver.net -s txt
+`;
