@@ -41,6 +41,7 @@ foreach ($defs as $defType => $typeDefs) {
 //echo "Generating Output\n";
 $out = [
     'contacts' => [],
+    'orgs' => [],
     'domains' => [],
     'nets' => [],
     'networks' => [],
@@ -60,6 +61,7 @@ foreach ($json['ipblocks'] as $blockType => $typeBlocks) {
         $networks = [];
         $ipblock = $blockData['ipblocks_network'];
         $contact = 'hostmaster';
+        $orgName = 'org';
         // $contact = $custid;
         $netDir = 'net-'.str_replace('/', '-', $ipblock);
         $netName = 'NETBLK-'.$ipblock;
@@ -76,7 +78,7 @@ soa-file: {$netDir}/soa";
         }
         $networks[] = "Network-Name: NETBLK-{$ipblock}
 IP-Network: {$ipblock}
-Organization: 777.interserver.net
+Organization: {$orgName}.interserver.net
 Tech-Contact: hostmaster.interserver.net
 Admin-Contact: {$contact}.interserver.net";
         $schema = "name:network
@@ -90,12 +92,14 @@ Schema-Version: {$serial}";
                 $ipblock = $vlan['vlans6_networks'];
             }
             $contact = 'hostmaster';
+            $orgName = 'org';
             if (!is_null($vlan['account_id'])) {
-                $contact = $vlan['account_id'];                
+                $orgName = $vlan['account_id'];
+                $contact = 'client'.$vlan['account_id'];                
             }
             $networks[] = "Network-Name: NETBLK-{$ipblock}
 IP-Network: {$ipblock}
-Organization: 777.interserver.net
+Organization: {$orgName}.interserver.net
 Tech-Contact: hostmaster.interserver.net
 Admin-Contact: {$contact}.interserver.net";            
         }
@@ -107,11 +111,18 @@ Admin-Contact: {$contact}.interserver.net";
         // write net network.txt
         file_put_contents($installDir.'/'.$netDir.'/data/referral/referral.txt', '');
         file_put_contents($installDir.'/'.$netDir.'/data/network/network.txt', implode("\n---\n", $networks));        
+        foreach ($defs['net'] as $def) {
+            file_put_contents($installDir.'/'.$domain.'/attribute_defs/'.$def.'.tmpl', $templates['net'][$def]);
+        }
     }
 }
-$fields = [
+$contactFields = [
 'Name' => 'name',
 'Email' => 'email',
+'Phone' => 'phone',
+];
+$orgFields = [
+'Org-Name' => 'company',
 'Street-Address' => 'address',
 'City' => 'city',
 'State' => 'state',
@@ -120,27 +131,67 @@ $fields = [
 'Phone' => 'phone',
 ];
 $domain = 'interserver.net';
+$out['orgs'][] ="ID: org.{$domain}
+Auth-Area: {$domain}
+Org-Name: InterServer
+Street-Address: 110 Meadowlands Parkway, Suite 100
+City: Secaucus
+State: NJ
+Postal-Code: 07094
+Country-Code: US
+Phone: 12016051440
+Created: {$serial}
+Updated: {$serial}
+Updated-By: hostmaster@{$domain}";
+$out['contacts'][] = "ID:hostmaster.{$domain}
+Auth-Area:{$domain}
+Name:Hostmaster
+Email:hostmaster@{$domain}
+Type:R
+Phone:12016051440
+Organization:org.interserver.net
+See-Also:http://www.interserver.net
+Created:{$serial}
+Updated:{$serial}
+Updated-By:hostmaster@{$domain}"
 foreach ($json['contacts'] as $custid => $data) {
-    $contact = "ID:{$custid}.{$domain}
+    $contact = "ID:client{$custid}.{$domain}
 Auth-Area:{$domain}
 Type:I";
-    if (!isset($data['name'])) {
+    $org = "ID:{$custid}.{$domain}
+Auth-Area:{$domain}
+Type:I";
+    $data['email'] = 'hostmaster+'.$custid.'@interserver.net';
+    if (!isset($data['company']) && !empty($data['company'])) {
+        $data['company'] = 'Private Organization';
+    }
+    if (!isset($data['name']) && !empty($data['name'])) {
         $data['name'] = 'Private Customer';
     }
-    if (!isset($data['address'])) {
+    if (!isset($data['address']) && !empty($data['address'])) {
         $data['address'] = 'Private Residence';
     }
-    foreach ($fields as $field => $from) {
+    foreach ($contactFields as $field => $from) {
         if (isset($data[$from]))  {
             $contact .= "\n{$field}:{$data[$from]}"; 
         }
     }
+    foreach ($orgFields as $field => $from) {
+        if (isset($data[$from]))  {
+            $org .= "\n{$field}:{$data[$from]}"; 
+        }
+    }
     $contact .= "
-Organization:777.{$domain}
+Organization:{$custid}.{$domain}
+Created:{$serial}
+Updated:{$serial}
+Updated-By:hostmaster@{$domain}";
+    $org .= "
 Created:{$serial}
 Updated:{$serial}
 Updated-By:hostmaster@{$domain}";
     $out['contacts'][] = $contact; 
+    $out['orgs'][] = $org; 
 }
 //echo "Writing Domains\n";
 foreach ($json['domains'] as $domain => $domData) {
@@ -209,9 +260,9 @@ Schema-Version: {$serial}";
 Auth-Area:{$domain}
 AS-Name:Interserver, Inc
 AS-Number:19318
-Organization:777.{$domain}
-Admin-Contact:222.{$domain}
-Tech-Contact:222.{$domain}
+Organization:org.{$domain}
+Admin-Contact:hostmaster.{$domain}
+Tech-Contact:hostmaster.{$domain}
 Created:{$serial}
 Updated:{$serial}
 Updated-by:hostmaster@{$domain}";
@@ -221,10 +272,10 @@ Guardian:444.{$domain}
 Domain-Name: {$domain}
 Primary-Server:5551.{$domain}
 Secondary-Server:5552.{$domain}
-Organization:777.{$domain}
-Admin-Contact:222.{$domain}
-Tech-Contact:222.{$domain}
-Billing-Contact:222.{$domain}
+Organization:org.{$domain}
+Admin-Contact:hostmaster.{$domain}
+Tech-Contact:hostmaster.{$domain}
+Billing-Contact:hostmaster.{$domain}
 Created:{$serial}
 Updated:{$serial}
 Updated-By:hostmaster@{$domain}";
@@ -244,23 +295,11 @@ Created: {$serial}
 Updated: {$serial}
 Updated-By: hostmaster@{$domain}
 Private:true";
-    $org = "ID: 777.{$domain}
-Auth-Area: {$domain}
-Org-Name: InterServer
-Street-Address: 110 Meadowlands Parkway, Suite 100
-City: Secaucus
-State: NJ
-Postal-Code: 07094
-Country-Code: US
-Phone: 12016051440
-Created: {$serial}
-Updated: {$serial}s
-Updated-By: hostmaster@{$domain}";
     $referral = "ID:888.{$domain}
 Auth-Area: {$domain}
 Guardian:444.{$domain}
 Referral:rwhois://rwhois.second.{$domain}:4321/Auth-Area=fddi.{$domain}
-Organization:777.{$domain}
+Organization:org.{$domain}
 Referred-Auth-Area:fddi.{$domain}
 Created:{$serial}
 Updated:{$serial}
@@ -270,12 +309,10 @@ Updated-By:hostmaster@{$domain}";
     file_put_contents($installDir.'/'.$domain.'/data/domain/domain.txt', $domainData);
     file_put_contents($installDir.'/'.$domain.'/data/guardian/guardian.txt', $guardian);
     file_put_contents($installDir.'/'.$domain.'/data/host/host.txt', $out['contacts'][0]);
-    file_put_contents($installDir.'/'.$domain.'/data/org/org.txt', $org);
+    file_put_contents($installDir.'/'.$domain.'/data/org/org.txt', implode("\n---\n", $out['orgs']));
     file_put_contents($installDir.'/'.$domain.'/data/referral/referral.txt', $referral);
-    foreach ($defs as $defType => $typeDefs) {
-        foreach ($typeDefs as $def) {
-            file_put_contents($installDir.'/'.$domain.'/attribute_defs/'.$def.'.tmpl', $templates[$defType][$def]);
-        }
+    foreach ($defs['domain'] as $def) {
+        file_put_contents($installDir.'/'.$domain.'/attribute_defs/'.$def.'.tmpl', $templates['domain'][$def]);
     }
 }
 file_put_contents($installDir.'/rwhoisd.auth_area', implode("\n---\n", $out['authArea']));
