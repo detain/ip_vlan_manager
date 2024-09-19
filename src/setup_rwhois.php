@@ -150,10 +150,10 @@ Email:hostmaster@{$domain}
 Type:R
 Phone:12016051440
 Organization:org.interserver.net
-See-Also:http://www.interserver.net
+See-Also:http://www.{$domain}
 Created:{$serial}
 Updated:{$serial}
-Updated-By:hostmaster@{$domain}"
+Updated-By:hostmaster@{$domain}";
 foreach ($json['contacts'] as $custid => $data) {
     $contact = "ID:client{$custid}.{$domain}
 Auth-Area:{$domain}
