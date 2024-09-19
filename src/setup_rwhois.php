@@ -228,12 +228,6 @@ dbdir: {$domain}/data/domain
 description:Domain object
 Schema-Version: {$serial}
 ---
-name:host
-attributedef:{$domain}/attribute_defs/host.tmpl
-dbdir: {$domain}/data/host
-description:Host object
-Schema-Version: {$serial}
----
 name:asn
 attributedef:{$domain}/attribute_defs/asn.tmpl
 dbdir: {$domain}/data/asn
@@ -256,6 +250,14 @@ name:referral
 attributedef:{$domain}/attribute_defs/referral.tmpl  
 dbdir:{$domain}/data/referral
 Schema-Version: {$serial}";
+/*
+---
+name:host
+attributedef:{$domain}/attribute_defs/host.tmpl
+dbdir: {$domain}/data/host
+description:Host object
+Schema-Version: {$serial}
+*/
     file_put_contents($installDir.'/'.$domain.'/schema', $schema);
     // write domain data dirs
     $asn = "ID:111.{$domain}
@@ -310,7 +312,7 @@ Updated-By:hostmaster@{$domain}";
     file_put_contents($installDir.'/'.$domain.'/data/contact/contact.txt', implode("\n---\n", $out['contacts']));
     file_put_contents($installDir.'/'.$domain.'/data/domain/domain.txt', $domainData);
     file_put_contents($installDir.'/'.$domain.'/data/guardian/guardian.txt', $guardian);
-    file_put_contents($installDir.'/'.$domain.'/data/host/host.txt', $out['contacts'][0]);
+    //file_put_contents($installDir.'/'.$domain.'/data/host/host.txt', $out['contacts'][0]);
     file_put_contents($installDir.'/'.$domain.'/data/org/org.txt', implode("\n---\n", $out['orgs']));
     file_put_contents($installDir.'/'.$domain.'/data/referral/referral.txt', $referral);
     foreach ($defs['domain'] as $def) {
