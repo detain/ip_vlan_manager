@@ -159,14 +159,16 @@ foreach ($json['contacts'] as $custid => $data) {
 Auth-Area:{$domain}
 Type:I";
     $org = "ID:{$custid}.{$domain}
-Auth-Area:{$domain}
-Type:I";
+Auth-Area:{$domain}";
     $data['email'] = 'hostmaster+'.$custid.'@interserver.net';
     if (!isset($data['company']) || empty($data['company'])) {
         $data['company'] = 'Private Organization';
     }
     if (!isset($data['name']) || empty($data['name'])) {
         $data['name'] = 'Private Customer';
+    }
+    if (!isset($data['phone']) || empty($data['phone'])) {
+        $data['phone'] = 'Private Customer';
     }
     if (!isset($data['address']) || empty($data['address'])) {
         $data['address'] = 'Private Residence';
