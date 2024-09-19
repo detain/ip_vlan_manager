@@ -316,6 +316,19 @@ Updated-By:hostmaster@{$domain}";
     }
 }
 file_put_contents($installDir.'/rwhoisd.auth_area', implode("\n---\n", $out['authArea']));
+$templates['rwhoisd.conf'] = str_replace([
+    '/home/databases/rwhoisd', 
+    '# local-host: rwhois.a.com', 
+    '# server-type: inetd', 
+    'userid: rwhoisd', 
+    'hostmaster@a.com'
+    ], [
+    $installDir, 
+    'local-host: rwhois.trouble-free.net', 
+    'server-type: inetd', 
+    'userid: rwhois', 
+    'abusencc@interserver.net'
+    ], $templates['rwhoisd.conf']);
 foreach ($rwhoisFiles as $file) {
     file_put_contents($installDir.'/rwhoisd.'.$file, $templates['rwhoisd.'.$file]);
 }
