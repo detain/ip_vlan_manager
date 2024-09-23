@@ -55,6 +55,18 @@ Hostmaster:hostmaster@interserver.net",
 ];
 //echo "Writing IP Blocks\n";
 // generate output from data
+$templates['net']['network'] .= '---
+attribute:       Abuse-Email
+attribute-alias: AE
+description:     Abuse Email
+is-primary-key:  FALSE
+is-required:     FALSE
+is-repeatable:   FALSE
+is-multi-line:   FALSE
+is-hierarchical: FALSE
+index:           NONE
+type:            TEXT
+';
 foreach ($json['ipblocks'] as $blockType => $typeBlocks) {
     foreach ($typeBlocks as $blockId => $blockData) {
         $networks = [];
