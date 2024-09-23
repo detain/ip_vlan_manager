@@ -90,6 +90,7 @@ soa-file: {$netDir}/soa";
         $networks[] = "Network-Name: NETBLK-{$ipblock}
 IP-Network: {$ipblock}
 Organization: {$orgName}.interserver.net
+Abuse-Email: abusencc@interserver.net
 Tech-Contact: hostmaster.interserver.net
 Admin-Contact: {$contact}.interserver.net";
         $schema = "name:network
