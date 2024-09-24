@@ -66,6 +66,61 @@ is-multi-line:   FALSE
 is-hierarchical: FALSE
 index:           NONE
 type:            TEXT
+---
+attribute:       Street-Address
+attribute-alias: SA
+description:     Street address
+is-primary-key:  FALSE
+is-required:     FALSE
+is-repeatable:   FALSE
+is-multi-line:   TRUE
+is-hierarchical: FALSE
+index:           NONE
+type:            TEXT
+---
+attribute:       City
+attribute-alias: C
+description:     City
+is-primary-key:  FALSE
+is-required:     FALSE
+is-repeatable:   FALSE
+is-multi-line:   FALSE
+is-hierarchical: FALSE
+index:           NONE
+type:            TEXT
+---
+attribute:       State
+attribute-alias: ST
+description:     State
+is-primary-key:  FALSE
+is-required:     FALSE
+is-repeatable:   FALSE
+is-multi-line:   FALSE
+is-hierarchical: FALSE
+index:           NONE
+type:            TEXT
+---
+attribute:       Postal-Code
+attribute-alias: PC
+description:     Postal code
+is-primary-key:  FALSE
+is-required:     FALSE
+is-repeatable:   FALSE
+is-multi-line:   FALSE
+is-hierarchical: FALSE
+index:           NONE
+type:            TEXT
+---
+attribute:       Country-Code
+attribute-alias: CC
+description:     Country code
+is-primary-key:  FALSE
+is-required:     FALSE
+is-repeatable:   FALSE
+is-multi-line:   FALSE
+is-hierarchical: FALSE
+index:           NONE
+type:            TEXT
 ';
 foreach ($json['ipblocks'] as $blockType => $typeBlocks) {
     foreach ($typeBlocks as $blockId => $blockData) {
@@ -90,6 +145,11 @@ soa-file: {$netDir}/soa";
         $networks[] = "Network-Name: NETBLK-{$ipblock}
 IP-Network: {$ipblock}
 Organization: {$orgName}.interserver.net
+Street-Address: PO Box 1707
+City: Englewood Cliffs
+State: NJ
+Postal-Code: 07632
+Country-Code: US
 Abuse-Email: abusencc@interserver.net
 Tech-Contact: hostmaster.interserver.net
 Admin-Contact: {$contact}.interserver.net";
@@ -147,10 +207,10 @@ $domain = 'interserver.net';
 $out['orgs'][] ="ID: org.{$domain}
 Auth-Area: {$domain}
 Org-Name: InterServer
-Street-Address: 110 Meadowlands Parkway, Suite 100
-City: Secaucus
+Street-Address: PO Box 1707
+City: Englewood Cliffs
 State: NJ
-Postal-Code: 07094
+Postal-Code: 07632
 Country-Code: US
 Phone: 12016051440
 Created: {$serial}
