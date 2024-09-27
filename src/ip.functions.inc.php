@@ -20,14 +20,23 @@ function get_mainblocks_and_usedips($location = 1)
     $usedIps = [];
     $mainBlocks = [];
     $reserved = [];
+    $others = [];
     // get the main ipblocks we have routed
     $db->query('select * from ipblocks', __LINE__, __FILE__);
     while ($db->next_record()) {
         if ($db->Record['ipblocks_location'] == $location) {
             $mainBlocks[] = [(int)$db->Record['ipblocks_id'], $db->Record['ipblocks_network']];
-        } elseif ($db->Record['ipblocks_location'] != 1) {
-            $range = \IPLib\Factory::rangeFromString($db->Record['ipblocks_network']);
-            $reserved[] = [ip2long($range->getAddressAtOffset(0)->toString()), ip2long($range->getEndAddress()->toString())];
+        } else {
+            $others[] = $db->Record['ipblocks_network'];
+        }
+    }
+    foreach ($mainBlocks as $block) {
+        $range1 = \IPLib\Factory::parseRangeString($block[1]);
+        foreach ($others as $other) {
+            $range2 = \IPLib\Factory::parseRangeString($other);
+            if ($range1->containsRange($range2)) {
+                $reserved[] = [ip2long($range2->getAddressAtOffset(0)->toString()), ip2long($range2->getEndAddress()->toString())];
+            }
         }
     }
     foreach ($reserved as $idx => $reserve) {
