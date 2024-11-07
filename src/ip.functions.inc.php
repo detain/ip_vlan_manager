@@ -464,7 +464,7 @@ function get_select_ports($ports = false, $size = 5, $extra = '')
     while ($db->next_record()) {
         $switch = $db->Record['id'];
         $port = $db->Record['port'];
-        if (in_array($switch.'/'.$port, $ports)) {
+        if (is_array($ports) && in_array($switch.'/'.$port, $ports)) {
             $select .= '<option selected value="'.$switch.'/'.$port.'">Switch '.$db->Record['name'].' Port '.$port.'</option>';
         } else {
             $select .= '<option value="'.$switch.'/'.$port.'">Switch '.$db->Record['name'].' Port '.$port.'</option>';
