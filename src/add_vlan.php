@@ -3,7 +3,7 @@
  * IP Functionality
  *
  * @author Joe Huss <detain@interserver.net>
- * @copyright 2019
+ * @copyright 2024
  * @package IP-VLAN-Manager
  * @category IPs
  */
@@ -154,18 +154,27 @@ function add_vlan()
                     exit;
                 }
                 $comment = $GLOBALS['tf']->variables->request['comment'];
-                $ports = ':'.implode(':', $ports).':';
-                $db->query(make_insert_query(
-                    'vlans',
-                    [
+                $db->query(make_insert_query('vlans', [
                     'vlans_id' => null,
                     'vlans_block' => $block,
                     'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
-                    'vlans_ports' => $ports,
                     'vlans_comment' => $comment
-                                                    ]
-                ), __LINE__, __FILE__);
+                ]), __LINE__, __FILE__);
                 $vlan = $db->getLastInsertId('vlans', 'vlans_id');
+                foreach ($ports as $port) {
+                    $switch = substr($port, 0, strpos($port, '/'));
+                    $port = substr($port, strpos($port, '/') + 1);
+                    $db->query("select * from switchports where switch='{$switch}' and port='{$port}'", __LINE__, __FILE__);
+                    if ($db->num_rows() > 0) {
+                        $db->next_record(MYSQL_ASSOC);
+                        if (trim($db->Record['ports']) == '') {
+                            $db->query("update switchports set ports='{$vlan}' where switchport_id={$db->Record['switchport_id']}", __LINE__, __FILE__);
+                        } else {
+                            $db->query("update switchports set ports=concat(ports,',{$vlan}') where switchport_id={$db->Record['switchport_id']}", __LINE__, __FILE__);
+                        }
+                    }
+                }
+                $ports = ':'.implode(':', $ports).':';
                 $query = "select ips_ip from ips where ips_ip in ('" . implode("', '", $ips) . "')";
                 $db->query($query, __LINE__, __FILE__);
                 $ips2 = [];
@@ -181,16 +190,13 @@ function add_vlan()
                     if (in_array($ips[$x], $ips2)) {
                         $query = "update ips set ips_vlan='{$vlan}', ips_serverid=0, ips_group=0, ips_reserved='{$reserved}' where ips_ip='$ips[$x]'";
                     } else {
-                        $query = make_insert_query(
-                            'ips',
-                            [
+                        $query = make_insert_query('ips', [
                             'ips_ip' => $ips[$x],
                             'ips_vlan' => $vlan,
                             'ips_serverid' => 0,
                             'ips_group' => 0,
                             'ips_reserved' => $reserved
-                                                        ]
-                        );
+                        ]);
                     }
                     $db->query($query, __LINE__, __FILE__);
                 }
