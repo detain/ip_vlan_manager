@@ -3,10 +3,11 @@
 * IP Functionality
 *
 * @author Joe Huss <detain@interserver.net>
-* @copyright 2019
+* @copyright 2024
 * @package IP-VLAN-Manager
 * @category IPs
 */
+
 /**
 * VLAN Manager
 *

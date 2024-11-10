@@ -3,7 +3,7 @@
  * IP Functionality
  *
  * @author Joe Huss <detain@interserver.net>
- * @copyright 2019
+ * @copyright 2024
  * @package IP-VLAN-Manager
  * @category IPs
  */
@@ -20,7 +20,7 @@ function portless_vlans()
         return false;
     }
     $db = get_module_db('default');
-    $db->query("select * from vlans where vlans_ports='::' order by vlans_networks", __LINE__, __FILE__);
+    $db->query("SELECT vlans.* FROM vlans LEFT JOIN switchports ON FIND_IN_SET(vlans_id, vlans) WHERE switchport_id IS NULL order by vlans_networks", __LINE__, __FILE__);
     $table = new \TFTable();
     $table->set_title('Port-less VLAN List'.pdf_link('choice=ip.portless_vlans'));
     if ($db->num_rows() > 0) {

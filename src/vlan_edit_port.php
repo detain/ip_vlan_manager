@@ -3,7 +3,7 @@
  * IP Functionality
  *
  * @author Joe Huss <detain@interserver.net>
- * @copyright 2019
+ * @copyright 2024
  * @package IP-VLAN-Manager
  * @category IPs
  */
@@ -44,11 +44,14 @@ function vlan_edit_port()
         $table->add_field($table->make_checkbox('update_server', 1, true));
         $table->add_row();
     }
-    $db->query("select * from vlans where vlans_networks like '%:{$ipblock}:%'");
-    $db->next_record();
-    $vlanInfo = $db->Record;
+    $db->query("select * from vlans, switchports where vlans_networks like '%:{$ipblock}:%' and find_in_set(vlans_id, vlans)");
+    $ports = [];
+    while ($db->next_record(MYSQL_ASSOC)) {
+        $vlanInfo = $db->Record;
+        $ports[] = $db->Record['switch'].'/'.$db->Record['port'];
+    }
     function_requirements('get_networks');
-    $networks = get_networks($vlanInfo['vlans_networks'], $vlanInfo['vlans_id'], $vlanInfo['vlans_comment'], $vlanInfo['vlans_ports']);
+    $networks = get_networks($vlanInfo['vlans_networks'], $vlanInfo['vlans_id'], $vlanInfo['vlans_comment'], $ports);
     $networksize = count($networks);
     $rows = [];
     for ($x = 0; $x < $networksize; $x++) {
@@ -138,7 +141,6 @@ function vlan_edit_port()
                 }
             }
         }
-        $db2->query("update vlans set vlans_ports=':".implode(':', $new_ports).":' where vlans_networks like '%:{$network}:%' and vlans_id='{$vlan}'", __LINE__, __FILE__);
 
         //function_requirements('update_switch_ports');
         //update_switch_ports();

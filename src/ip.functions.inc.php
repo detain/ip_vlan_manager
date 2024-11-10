@@ -1,11 +1,12 @@
 <?php
-/************************************************************************************\
-* MyAdmin VLAN Manager                                                               *
-* (c)2002-2022 Interserver                                                           *
-* ---------------------------------------------------------------------------------- *
-* Description: IP functions                                                          *
-\************************************************************************************/
-
+/**
+* IP functions
+* @author Joe Huss <detain@interserver.net>
+* @copyright 2024
+* @package MyAdmin
+* @category IPs 
+* 
+*/
 
 /**
 * returns an array containing the list of ip blocks and a list of iused ips based on the location passed
