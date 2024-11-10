@@ -56,12 +56,23 @@ function vlan_manager()
     // get ip block(s)
     $networks = [];
     $vlanPorts = [];
-    $db->query('select vlans, switch, port, graph_id, servers.server_id, server_hostname from switchports left join servers using (server_id) where vlans != ""');
+    $switchNames = [];
+    $switches = [];
+    $switchPortIds = [];
+    $db->query('select * from switchmanager');
+    while ($db->next_record(MYSQL_ASSOC)) {
+        $switches[$db->Record['id']] = $db->Record;
+        $switchNames[$db->Record['id']] = is_numeric($db->Record['name']) ? 'switch'.$db->Record['name'] : $db->Record['name'];
+    }
+    $db->query('select switchport_id, vlans, switch, port, graph_id, servers.server_id, server_hostname from switchports left join servers using (server_id) where vlans != ""');
     while ($db->next_record(MYSQL_ASSOC)) {
         $vlans = explode(',', $db->Record['vlans']);
         unset($db->Record['vlans']);
         foreach ($vlans as $vlan) {
-            $vlanPorts[$vlan] = $db->Record;
+            if (!isset($vlanPorts[$vlan])) {
+                $vlanPorts[$vlan] = [];
+            }
+            $vlanPorts[$vlan][] = $db->Record;
         }
     }
     $db->query('select * from ipblocks order by ipblocks_network', __LINE__, __FILE__);
@@ -73,10 +84,17 @@ function vlan_manager()
         $db2->query("select * from vlans where vlans_block='{$network_id}' order by {$order};", __LINE__, __FILE__);
         while ($db2->next_record(MYSQL_ASSOC)) {
             if (isset($vlanPorts[$db2->Record['vlans_id']])) {
-                $db2->Record = array_merge($db2->Record, $vlanPorts[$db2->Record['vlans_id']]);
+                $db2->Record['switchports'] = $vlanPorts[$db2->Record['vlans_id']];
+            } else {
+                $db2->Record['switchports'] = [];
+            }
+            $db2->Record['ports'] = [];
+            foreach ($db2->Record['switchports'] as $switchport) {
+                $switchPortIds[$switchport['switch'].'/'.$switchport['port']] = $switchport['switchport_id'];
+                $db2->Record['ports'][] = $switchport['switch'].'/'.$switchport['port'];
             }
             $vlans[$db2->Record['vlans_id']] = $db2->Record;
-            $network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], $db2->Record['vlans_comment'], $db2->Record['vlans_ports']);
+            $network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], $db2->Record['vlans_comment'], $db2->Record['ports']);
             //_debug_array($network);
             $networks = array_merge($networks, $network);
         }
@@ -96,26 +114,20 @@ function vlan_manager()
         } else {
             $comment = 'not set';
         }
-        $portdata = explode(':', $networks[$x]['ports']);
         $ports = [];
         $searches = [];
         $servers = [];
-        $portdatasize = count($portdata);
-        for ($y = 0; $y < $portdatasize; $y++) {
-            if ($portdata[$y] != '') {
-                [$switch, $port, $blade, $justport] = parse_vlan_ports($portdata[$y]);
-                $ports[] = $portdata[$y];
-                $searches[] = "(switch='{$switch}' and slot='{$port}')";
-            }
+        foreach ($networks[$x]['ports'] as $portData) {
+            [$switch, $port, $blade, $justport] = parse_vlan_ports($portData);
+            $ports[] = $portData;
+            //$searches[] = "(switch='{$switch}' and slot='{$port}')";
         }
         if (isset($vlans[$vlan]['server_hostname']) && null !== $vlans[$vlan]['server_hostname']) {
             $servers[] = $vlans[$vlan]['server_hostname'];
         }
-
         $table->add_field('"'.$vlan.'"', 'l');
         $table->add_field($network, 'l');
         $table->add_field($table->make_link('choice=ip.edit_vlan_comment&amp;ipblock='.$network, $comment), 'c');
-
         $editport = false;
         $editserver = false;
         if (isset($GLOBALS['tf']->variables->request['ipblock']) && $GLOBALS['tf']->variables->request['ipblock'] == $network) {
@@ -144,7 +156,8 @@ function vlan_manager()
             for ($y = 0; $y < $portsize; $y++) {
                 if (!(mb_strpos($ports[$y], '/') === false)) {
                     [$switch, $port, $blade, $justport] = parse_vlan_ports($ports[$y]);
-                    $ports[$y] = get_switch_name($switch, true).'/'.$port;
+                    //$ports[$y] = $switches[$switch]['name'].'/'.$port;
+                    $ports[$y] = $switches[$switch]['name'].'/'.$port;
                 }
             }
             $table->add_field($table->make_link('choice=ip.vlan_edit_port&amp;ipblock='.$network, implode(', ', $ports)), 'l');
@@ -210,16 +223,16 @@ function vlan_manager()
         $table->add_row();
     }
 
-    $table->set_colspan(4);
+    $table->set_colspan(5);
     $table->add_field('Total IPs '.$total_ips, 'l');
     $table->add_row();
-    $table->set_colspan(4);
+    $table->set_colspan(5);
     $table->add_field('Used IPs '.$used_ips.' ('.number_format(($used_ips / $total_ips) * 100, 2).'%) (Rough Estimate, I can get better numbers if you want)', 'l');
     $table->add_row();
-    $table->set_colspan(4);
+    $table->set_colspan(5);
     $table->add_field('Free IPs '.($total_ips - $used_ips).' ('.number_format((($total_ips - $used_ips) / $total_ips) * 100, 2).'%)', 'l');
     $table->add_row();
-    $table->set_colspan(4);
+    $table->set_colspan(5);
     $table->add_field($table->make_link('choice=ip.add_vlan', 'Add New VLAN').'   '.$table->make_link('choice=ip.portless_vlans', 'List Of VLAN Without Port Assignments ').'   '.$table->make_link('choice=ip.vlan_port_server_manager', 'VLAN Port <-> Server Mapper'));
     $table->add_row();
     add_output($table->get_table());
