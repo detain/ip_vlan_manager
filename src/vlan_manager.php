@@ -94,7 +94,7 @@ function vlan_manager()
                 $db2->Record['ports'][] = $switchport['switch'].'/'.$switchport['port'];
             }
             $vlans[$db2->Record['vlans_id']] = $db2->Record;
-            $network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], $db2->Record['vlans_comment'], $db2->Record['ports']);
+            $network = get_networks($db2->Record['vlans_networks'], $db2->Record['vlans_id'], '', $db2->Record['ports']);
             //_debug_array($network);
             $networks = array_merge($networks, $network);
         }

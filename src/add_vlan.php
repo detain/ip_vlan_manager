@@ -158,7 +158,6 @@ function add_vlan()
                     'vlans_id' => null,
                     'vlans_block' => $block,
                     'vlans_networks' => ':'.$ipaddress.'/'.$blocksize.':',
-                    'vlans_comment' => $comment
                 ]), __LINE__, __FILE__);
                 $vlan = $db->getLastInsertId('vlans', 'vlans_id');
                 foreach ($ports as $port) {

@@ -51,7 +51,7 @@ function vlan_edit_port()
         $ports[] = $db->Record['switch'].'/'.$db->Record['port'];
     }
     function_requirements('get_networks');
-    $networks = get_networks($vlanInfo['vlans_networks'], $vlanInfo['vlans_id'], $vlanInfo['vlans_comment'], $ports);
+    $networks = get_networks($vlanInfo['vlans_networks'], $vlanInfo['vlans_id'], '', $ports);
     $networksize = count($networks);
     $rows = [];
     for ($x = 0; $x < $networksize; $x++) {

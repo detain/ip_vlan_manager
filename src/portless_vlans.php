@@ -26,15 +26,12 @@ function portless_vlans()
     if ($db->num_rows() > 0) {
         $table->add_field('VLAN');
         $table->set_bgcolor(2);
-        $table->add_field('Comment');
-        $table->set_bgcolor(2);
         $table->add_field('Options');
         $table->add_row();
         $table->alternate_rows();
         while ($db->next_record()) {
             $ipblock = str_replace(':', '', $db->Record['vlans_networks']);
             $table->add_field($ipblock, 'l');
-            $table->add_field($db->Record['vlans_comment']);
             $table->add_field($table->make_link('choice=ip.vlan_port_manager&ipblock='.$ipblock, 'Configure Port(s)'));
             $table->add_row();
         }
