@@ -43,6 +43,7 @@ function switch_manager()
             }
         } else {
             $db->query("delete from switchports where switch={$id}");
+            $db->query("delete from switch_configs where switch={$id}");
             $db->query("delete from switchmanager where id={$id}");
             add_output('Switch '.$id.' and its Ports are deleted<br>');
         }
@@ -62,7 +63,7 @@ function switch_manager()
     $table->alternate_rows();
     while ($db->next_record()) {
         if ($nextid <= (int)$db->Record['name']) {
-            $nextid = $db->Record['name'] + 1;
+            $nextid = (int)$db->Record['name'] + 1;
         }
         $table->add_field($db->Record['id']);
         $table->add_field($db->Record['name']);
@@ -74,10 +75,11 @@ function switch_manager()
         $table->add_row();
     }
     $table->add_field('Add Switch');
-    $table->add_field($table->make_input('name', $nextid, 5));
-    $table->add_field($table->make_input('ip', $ip, 5));
-    $table->set_colspan(2);
+    $table->add_field($table->make_input('name', $nextid, 15));
+    $table->add_field($table->make_input('ip', '', 15));
+    $table->add_field('&nbsp;');
     $table->add_field($table->make_input('ports', 49, 5));
+    $table->add_field('&nbsp;');
     $table->add_field($table->make_submit('Add Switch'));
     $table->add_row();
     add_output($table->get_table());
