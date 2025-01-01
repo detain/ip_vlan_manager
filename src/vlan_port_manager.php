@@ -2,7 +2,7 @@
 /**
  * Manage VLAN assignments on switch ports.
  * @author Joe Huss <detain@interserver.net>
- * @copyright 2024
+ * @copyright 2025
  * @package IP-VLAN-Manager
  * @category IPs
  */

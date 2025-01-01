@@ -2,7 +2,7 @@
 /**
 * IP functions
 * @author Joe Huss <detain@interserver.net>
-* @copyright 2024
+* @copyright 2025
 * @package MyAdmin
 * @category IPs 
 * 
