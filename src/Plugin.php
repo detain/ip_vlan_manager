@@ -59,21 +59,26 @@ class Plugin
          * @var \MyAdmin\Plugins\Loader $this->loader
          */
         $loader = $event->getSubject();
-        $loader->add_page_requirement('add_ips', '/../vendor/detain/ip_vlan_manager/src/add_ips.php');
-        $loader->add_page_requirement('add_ips_to_server', '/../vendor/detain/ip_vlan_manager/src/add_ips_to_server.php');
-        $loader->add_page_requirement('add_vlan', '/../vendor/detain/ip_vlan_manager/src/add_vlan.php');
-        $loader->add_page_requirement('alt_ip_manager', '/../vendor/detain/ip_vlan_manager/src/alt_ip_manager.php');
-        $loader->add_page_requirement('delete_vlan', '/../vendor/detain/ip_vlan_manager/src/delete_vlan.php');
-        $loader->add_page_requirement('edit_vlan_comment', '/../vendor/detain/ip_vlan_manager/src/edit_vlan_comment.php');
-        $loader->add_page_requirement('ip_manager', '/../vendor/detain/ip_vlan_manager/src/ip_manager.php');
-        $loader->add_page_requirement('ipblock_viewer', '/../vendor/detain/ip_vlan_manager/src/ipblock_viewer.php');
-        $loader->add_page_requirement('portless_vlans', '/../vendor/detain/ip_vlan_manager/src/portless_vlans.php');
-        $loader->add_page_requirement('switch_manager', '/../vendor/detain/ip_vlan_manager/src/switch_manager.php');
-        $loader->add_page_requirement('vlan_edit_port', '/../vendor/detain/ip_vlan_manager/src/vlan_edit_port.php');
-        $loader->add_page_requirement('vlan_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_manager.php');
-        $loader->add_page_requirement('vlan_port_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_port_manager.php');
-        $loader->add_page_requirement('vlan_port_server_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_port_server_manager.php');
-        $loader->add_page_requirement('available_ipblocks', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
+        $loader->add_admin_page_requirement('switch_vlans', '/servers/admin/switch_vlans.php');
+        $loader->add_admin_page_requirement('switches', '/servers/admin/switches.php');
+        $loader->add_admin_page_requirement('switch_add', '/servers/admin/switch_add.php');
+        $loader->add_admin_page_requirement('switch_edit', '/servers/admin/switch_edit.php');
+        $loader->add_admin_page_requirement('switch_install', '/servers/admin/switch_install.php');
+        $loader->add_admin_page_requirement('add_ips', '/../vendor/detain/ip_vlan_manager/src/add_ips.php');
+        $loader->add_admin_page_requirement('add_ips_to_server', '/../vendor/detain/ip_vlan_manager/src/add_ips_to_server.php');
+        $loader->add_admin_page_requirement('add_vlan', '/../vendor/detain/ip_vlan_manager/src/add_vlan.php');
+        $loader->add_admin_page_requirement('alt_ip_manager', '/../vendor/detain/ip_vlan_manager/src/alt_ip_manager.php');
+        $loader->add_admin_page_requirement('delete_vlan', '/../vendor/detain/ip_vlan_manager/src/delete_vlan.php');
+        $loader->add_admin_page_requirement('edit_vlan_comment', '/../vendor/detain/ip_vlan_manager/src/edit_vlan_comment.php');
+        $loader->add_admin_page_requirement('ip_manager', '/../vendor/detain/ip_vlan_manager/src/ip_manager.php');
+        $loader->add_admin_page_requirement('ipblock_viewer', '/../vendor/detain/ip_vlan_manager/src/ipblock_viewer.php');
+        $loader->add_admin_page_requirement('portless_vlans', '/../vendor/detain/ip_vlan_manager/src/portless_vlans.php');
+        $loader->add_admin_page_requirement('switch_manager', '/../vendor/detain/ip_vlan_manager/src/switch_manager.php');
+        $loader->add_admin_page_requirement('vlan_edit_port', '/../vendor/detain/ip_vlan_manager/src/vlan_edit_port.php');
+        $loader->add_admin_page_requirement('vlan_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_manager.php');
+        $loader->add_admin_page_requirement('vlan_port_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_port_manager.php');
+        $loader->add_admin_page_requirement('vlan_port_server_manager', '/../vendor/detain/ip_vlan_manager/src/vlan_port_server_manager.php');
+        $loader->add_admin_page_requirement('available_ipblocks', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
         $loader->add_requirement('get_all_ipblocks', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
         $loader->add_requirement('get_all_ips2_from_ipblocks', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
         $loader->add_requirement('get_all_ips_from_ipblocks', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
@@ -88,7 +93,7 @@ class Plugin
         $loader->add_requirement('ipcalc', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
         $loader->add_requirement('network2gateway', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
         $loader->add_requirement('parse_vlan_ports', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
-        $loader->add_page_requirement('update_switch_ports', '/../vendor/detain/ip_vlan_manager/src/update_switch_ports.php');
+        $loader->add_admin_page_requirement('update_switch_ports', '/../vendor/detain/ip_vlan_manager/src/update_switch_ports.php');
         $loader->add_requirement('validIp', '/../vendor/detain/ip_vlan_manager/src/ip.functions.inc.php');
     }
 }
