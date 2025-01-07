@@ -5,6 +5,13 @@
 * @copyright 2025
 * @package MyAdmin
 * @category Networking 
+* 
+* TODO:
+* - delete switch
+* - show availalbe status on page
+* - link to asset
+* - check if no asset and display under notes
+* 
 */
 
 use Detain\SshPool\SshPool;
