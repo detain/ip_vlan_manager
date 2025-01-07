@@ -8,8 +8,6 @@
  */
 function update_switch_ports($verbose = false, $pullServerMap = true)
 {
-/*
-*/
     $db = get_module_db('default');
     $db->query("select id, name from switchmanager", __LINE__, __FILE__);
     $local = [];
@@ -47,7 +45,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
             $db->query("update switchmanager set updated='{$now}' where id={$local[$db2->Record['switch']]['id']}", __LINE__, __FILE__);
         }
         if (!isset($local[$db2->Record['switch']]['ports'][$db2->Record['port']])) {
-            if (substr($db2->Record['port'], 0, 4) == 'Vlan') {
+            if (substr($db2->Record['port'], 0, 4) == 'Vlan' || in_array($db2->Record['port']['mgmt0', 'loopback0'])) {
                 continue;
             } 
             $blade = '';
