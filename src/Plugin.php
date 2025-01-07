@@ -59,11 +59,11 @@ class Plugin
          * @var \MyAdmin\Plugins\Loader $this->loader
          */
         $loader = $event->getSubject();
-        $loader->add_admin_page_requirement('switch_vlans', '/servers/admin/switch_vlans.php');
-        $loader->add_admin_page_requirement('switches', '/servers/admin/switches.php');
-        $loader->add_admin_page_requirement('switch_add', '/servers/admin/switch_add.php');
-        $loader->add_admin_page_requirement('switch_edit', '/servers/admin/switch_edit.php');
-        $loader->add_admin_page_requirement('switch_install', '/servers/admin/switch_install.php');
+        $loader->add_admin_page_requirement('switch_vlans', '/../vendor/detain/ip_vlan_manager/src/switch_vlans.php');
+        $loader->add_admin_page_requirement('switches', '/../vendor/detain/ip_vlan_manager/src/switches.php');
+        $loader->add_admin_page_requirement('switch_add', '/../vendor/detain/ip_vlan_manager/src/switch_add.php');
+        $loader->add_admin_page_requirement('switch_edit', '/../vendor/detain/ip_vlan_manager/src/switch_edit.php');
+        $loader->add_admin_page_requirement('switch_install', '/../vendor/detain/ip_vlan_manager/src/switch_install.php');
         $loader->add_admin_page_requirement('add_ips', '/../vendor/detain/ip_vlan_manager/src/add_ips.php');
         $loader->add_admin_page_requirement('add_ips_to_server', '/../vendor/detain/ip_vlan_manager/src/add_ips_to_server.php');
         $loader->add_admin_page_requirement('add_vlan', '/../vendor/detain/ip_vlan_manager/src/add_vlan.php');
