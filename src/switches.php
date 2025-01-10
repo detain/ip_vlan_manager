@@ -11,6 +11,7 @@
 * - show availalbe status on page
 * - link to asset
 * - check if no asset and display under notes
+* - make list of ports long
 * 
 */
 
