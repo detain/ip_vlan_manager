@@ -8,11 +8,7 @@
 * 
 * TODO:
 * - delete switch
-* - show availalbe status on page
-* - link to asset
-* - check if no asset and display under notes
 * - make list of ports long
-* 
 */
 
 use Detain\SshPool\SshPool;
@@ -40,7 +36,7 @@ function switches() {
         $ips[$db->Record['ip']]['observium'] = $db->Record['device_id']; 
 	}
 	$db->query("select id,description,hostname,snmp_version,snmp_community,snmp_sysObjectID,last_updated,snmp_sysDescr from cacti.host where disabled != 'on' and hostname != ''", __LINE__, __FILE__);
-	while ($db->next_record(MYSQL_ASSOC)) {
+	while ($db->next_record(MYSQL_ASSOC)) {                                                                               
         $db->Record['ip'] = filter_var($db->Record['hostname'], FILTER_VALIDATE_IP) === false ? gethostbyname($db->Record['hostname']) : $db->Record['hostname'];
         if (strpos($db->Record['snmp_sysDescr'], 'Cisco') !== false) {
             $db->Record['type'] = 'cisco';
@@ -57,14 +53,22 @@ function switches() {
         }
         $ips[$db->Record['ip']]['cacti'] = $db->Record['id']; 
 	}
-	$db3->query("select id,name,ports,updated,ip,asset,type,available,snmp_version,snmp_community from switchmanager", __LINE__, __FILE__);
+    $maxId = 1;
+	$db3->query("select switchmanager.id,name,ports,updated,ip,asset,type,available,snmp_version,snmp_community,hostname from switchmanager left join assets on asset=assets.id", __LINE__, __FILE__);
 	while ($db3->next_record(MYSQL_ASSOC)) {
+        if (preg_match('/^(switch)?(?P<id>\d+)n?$/', $db3->Record['name'], $matches)) {
+            $id = intval($matches['id']);
+            if ($id > $maxId) {
+                $maxId = $id;
+            }
+        }
 		$my[$db3->Record['id']] = $db3->Record;
         if (!array_key_exists($db3->Record['ip'], $ips)) {
             $ips[$db3->Record['ip']] = [];
         }
         $ips[$db3->Record['ip']]['my'] = $db3->Record['id']; 
 	}
+    $newId = $maxId + 1;
     $counts = [3 => [], 2 => [], 1 => []];
     foreach ($ips as $ip => $ipData) {
         $counts[count($ipData)][] = $ip;
@@ -77,6 +81,7 @@ function switches() {
     $table->add_field('Name');
     $table->add_field('Type');
     $table->add_field('IP');
+    $table->add_field('Avail');
     $table->add_field('Ver');
     $table->add_field('Community');
     $table->set_colspan(3);        
@@ -84,15 +89,16 @@ function switches() {
     $table->set_col_style('min-width: 250px;');
     $table->add_field('Notes');
     $table->add_row();
-    $table->add_field($table->make_input('name', '', 15));
+    $table->add_field($table->make_input('name', $newId, 15));
     $table->add_field(make_select('type', ['cisco', 'junos'], ['Cisco', 'Juniper']));
     $table->add_field($table->make_input('ip', '', 15));
+    $table->add_field(make_select('available', [0, 1], ['No', 'Yes'], 1));
     $table->add_field(make_select('ver', ['v1', 'v2c'], ['v1', 'v2c'], 'v2c'));
     $table->add_field($table->make_input('community', $defaultCommunity, 15));
     $table->add_field('&nbsp;');
     $table->add_field($table->make_checkbox('install[]', 'observium', true, 'title="Add To Obsdervium"'));
     $table->add_field($table->make_checkbox('install[]', 'cacti', true, 'title="Add To Cacti"'));
-    $table->add_field($table->make_submit('Add Switch'));
+    $table->add_field($table->make_submit('Add Switch', false, true, 'class="btn btn-sm btn-primary"'));
     $table->add_row();
     foreach ($counts as $count => $countIps) {
         foreach ($countIps as $ip) {
@@ -115,6 +121,15 @@ function switches() {
                 $switchName = $my[$id]['name'];
                 $switchType = $my[$id]['type'];
                 $links['my'] = $table->make_link('choice=none.switch_edit&id='.$id, 'My');
+                if (intval($my[$id]['asset']) > 0) {
+                    if (is_null($my[$id]['hostname'])) {
+                        $notes[] = 'Points to invalid asset '.$my[$id]['asset'];
+                    } else {
+                        $notes[] = $table->make_link('choice=none.asset_form&id='.$my[$id]['asset'], 'View Asset', false, 'class="btn btn-primary btn-sm"');
+                    }
+                } else {
+                    $notes[] = 'No Asset Set';
+                }
                 if ($ip != '') {
                     if (!isset($ips[$ip]['observium'])) {
                         $notes[] = $table->make_link('choice=none.switch_install&install[]=observium&id='.$id, 'Add to Observium', false, 'class="btn btn-primary btn-sm"');
@@ -125,6 +140,7 @@ function switches() {
                 } else {
                     $notes[] = 'Blank IP.';
                 }
+                $notes[] = $table->make_link('choice=none.switch_delete&id='.$id, 'Delete', false, 'class="btn btn-danger btn-sm"');
             }
             if (isset($ips[$ip]['observium'])) {
                 $id = $ips[$ip]['observium'];
@@ -197,6 +213,7 @@ function switches() {
             $table->add_field($switchName);
             $table->add_field($switchType === false ? '&nbsp;' : '<img src="https://obs.is.cc/images/os/'.($switchType == 'junos' ? 'juniper' : $switchType).'.svg" style="max-height: 26px; max-width: 48px;" alt="'.$switchType.'">');
             $table->add_field($ip);
+            $table->add_field(isset($ips[$ip]['my']) ? ($my[$ips[$ip]['my']]['available'] == 1 ? '<i class="text-success fa fa-check"></i>' : '<i class="text-danger fa fa-remove"></i>') : '&nbsp;');
             $table->add_field($snmpVersion);
             $table->add_field($snmpCommunity);
             $table->add_field($links['my']);
