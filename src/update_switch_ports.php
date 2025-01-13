@@ -9,17 +9,41 @@
 function update_switch_ports($verbose = false, $pullServerMap = true)
 {
     $db = get_module_db('default');
-    $db->query("select id, name from switchmanager", __LINE__, __FILE__);
+    $db->query("select id, name, ip from switchmanager", __LINE__, __FILE__);
     $local = [];
+    $localIdToName = [];
+    $localIpToName = [];
     while ($db->next_record(MYSQL_ASSOC)) {
         $local[$db->Record['name']] = ['id' => $db->Record['id'], 'ports' => []];
         $localIdToName[$db->Record['id']] = $db->Record['name'];
+        $localIpToName[$db->Record['ip']] = $db->Record['name'];
     }
-    $db->query("select switch, switchport_id, port, graph_id from switchports", __LINE__, __FILE__);
+    $db->query("select switch, switchport_id, port, graph_id, observium_id from switchports", __LINE__, __FILE__);
     while ($db->next_record(MYSQL_ASSOC)) {
-        $local[$localIdToName[$db->Record['switch']]]['ports'][$db->Record['port']] = ['id' => $db->Record['switchport_id'], 'graph_id' => $db->Record['graph_id']];
+        $local[$localIdToName[$db->Record['switch']]]['ports'][$db->Record['port']] = ['id' => $db->Record['switchport_id'], 'graph_id' => $db->Record['graph_id'], 'observium_id' => $db->Record['observium_id']];
     }
     $db2 = new \MyDb\Mysqli\Db('cacti', SNMP_MYSQL_USER, SNMP_MYSQL_PASS, SNMP_SSH_HOST);
+    $db2->query("select devices.device_id,hostname,ip,port_id,port_label from observium.devices, observium.ports where devices.device_id=ports.device_id", __LINE__, __FILE__);
+    $notFound = [];
+    while ($db2->next_record(MYSQL_ASSOC)) {
+        $switch = isset($localIpToName[$db2->Record['ip']]) ? $localIpToName[$db2->Record['ip']] : str_replace('.trouble-free.net', '', $db2->Record['hostname']);
+        if (isset($local[$switch])) {
+            if (isset($local[$switch]['ports'][$db2->Record['port_label']])) {
+                if ($local[$switch]['ports'][$db2->Record['port_label']]['observium_id'] != $db2->Record['port_id']) {
+                    echo "Updating observium id for switch {$switch} port {$db2->Record['port_label']}\n";
+                    $db->query("update switchports set observium_id={$db2->Record['port_id']} where switchport_id={$local[$switch]['ports'][$db2->Record['port_label']]['id']}", __LINE__, __FILE__);
+                }                
+            } else {
+                echo "Cannot find switch {$switch} port {$db2->Record['port_label']}\n";
+            }            
+        } else {
+            if (!in_array($switch, $notFound)) {
+                echo "Cannot find switch {$switch}\n";
+                $notFound[] = $switch;
+            }
+        }
+    }
+
     $db2->query("select local_graph_id as graph_id,description as switch,field_value as port from graph_templates_graph, graph_local, host, host_snmp_cache where local_graph_id=graph_local.id and graph_local.host_id=host.id and graph_local.host_id=host_snmp_cache.host_id and graph_local.snmp_index=host_snmp_cache.snmp_index and field_name='ifName' order by description, field_value", __LINE__, __FILE__);
     $nowUpdates = [];
     $nowIdx = 0;
