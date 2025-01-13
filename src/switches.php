@@ -7,7 +7,6 @@
 * @category Networking 
 * 
 * TODO:
-* - delete switch
 * - make list of ports long
 */
 
