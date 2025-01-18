@@ -157,11 +157,11 @@ function switch_edit() {
                 }
                 $table->add_row();                
             }
-            $table->set_colspan(8);
-            $table->add_field($table->make_submit('Update Switch'));
-            $table->add_row();            
-            add_output($table->get_table().'<br>');
         }
+        $table->set_colspan(8);
+        $table->add_field($table->make_submit('Update Switch'));
+        $table->add_row();            
+        add_output($table->get_table().'<br>');
     } else {
         $name = $GLOBALS['tf']->variables->request['name'];
         $ip = $GLOBALS['tf']->variables->request['ip'];
@@ -171,7 +171,6 @@ function switch_edit() {
         $typeDir = $type == 'junos' ? 'juniper' : $type;
         $ver = !empty($GLOBALS['tf']->variables->request['snmp_version']) ? $GLOBALS['tf']->variables->request['snmp_version'] : 'v2c';
         $community = !empty($GLOBALS['tf']->variables->request['snmp_community']) ? $GLOBALS['tf']->variables->request['snmp_community'] : $defaultCommunity;
-        $ports = $GLOBALS['tf']->variables->request['ports'];
         $updates = [];
         foreach (['name', 'ip', 'type', 'asset', 'available', 'snmp_version', 'snmp_community'] as $field) {
             if (!empty($GLOBALS['tf']->variables->request[$field]) && $GLOBALS['tf']->variables->request[$field] != $switchInfo[$field]) {
@@ -179,15 +178,21 @@ function switch_edit() {
                 $updates[] = "{$field}='{$esc}'";
             }
         }
-        if (count($ports) != $switchInfo['ports']) {
-            $updates[] = "ports=".count($ports);
-        }
         if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
             add_output('Invalid IP Address '.$ip.'<br>');
             return;
         }
-        $delPorts = array_diff(array_keys($portToId), $ports);
-        $addPorts = array_diff($ports, array_keys($portToId));
+        if (isset($GLOBALS['tf']->variables->request['ports'])) {
+            $ports = $GLOBALS['tf']->variables->request['ports'];
+            if (count($ports) != $switchInfo['ports']) {
+                $updates[] = "ports=".count($ports);
+            }
+            $delPorts = array_diff(array_keys($portToId), $ports);
+            $addPorts = array_diff($ports, array_keys($portToId));
+        } else {
+            $delPorts = [];
+            $addPorts = [];            
+        }
         if (count($updates) == 0 && count($delPorts) == 0 && count($addPorts) == 0) {
             add_output('Nothing To Update');
         } else {

@@ -174,6 +174,7 @@ function switch_add() {
             ]), __LINE__, __FILE__);
         }
         add_output("Added switch {$switchId} {$name}<br>");
+        $converter = new AnsiToHtmlConverter();
         if (in_array('cacti', $installs)) {
             $deviceTemplate = $type == 'cisco' ? 5 : 1;
             $deviceVer = $ver == 'v2c' ? 2 : 1;
