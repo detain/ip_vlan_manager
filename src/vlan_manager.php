@@ -40,17 +40,67 @@ function vlan_manager()
     } else {
         $order = 'vlans_networks';
     }
+    $locations = [];
+    $ipblocks = [];
+    $vlans = [];
+    $switchports = [];
+    $switchNames = [];
+    $switches = [];
+    $db->query('select * from switchmanager');
+    while ($db->next_record(MYSQL_ASSOC)) {
+        $switches[$db->Record['id']] = $db->Record;
+        $switchNames[$db->Record['id']] = is_numeric($db->Record['name']) ? 'switch'.$db->Record['name'] : $db->Record['name'];
+    }
+    $db->query("select * from ip_locations");
+    while ($db->next_record(MYSQL_ASSOC)) {
+        $locations[$db->Record['location_id']] = $db->Record['location_label'];
+    }
+    $db->query("select * from ipblocks");
+    while ($db->next_record(MYSQL_ASSOC)) {
+        $ipblocks[$db->Record['ipblocks_id']] = $db->Record;
+    }
+    $db->query("select * from vlans order by vlans_networks");
+    while ($db->next_record(MYSQL_ASSOC)) {
+        $db->Record['ports'] = [];
+        $db->Record['portsStr'] = [];
+        $vlans[$db->Record['vlans_id']] = $db->Record;
+    }
+    $db->query("select * from switchports");
+    while ($db->next_record(MYSQL_ASSOC)) {
+        if (!empty($db->Record['vlans'])) {
+            $vlanIds = explode(',', $db->Record['vlans']);
+            foreach ($vlanIds as $vlanId) {
+                if (isset($vlans[$vlanId])) {
+                    $vlans[$vlanId]['portsStr'][] = $switchNames[$db->Record['switch']].' '.$db->Record['port'];
+                    $vlans[$vlanId]['ports'][] = $db->Record['switchport_id'];
+                }
+            }
+            
+        }
+        $switchports[$db->Record['switchport_id']] = $db->Record;
+    }
     $table = new \TFTable();
     $table->set_title('VLan Manager '.pdf_link('choice='.$choice.'&order='.$order));
     $table->set_options('width="100%"');
     $table->add_field($table->make_link('choice='.$choice.'&order=id', 'ID'));
-    $table->set_bgcolor(3);
+    $table->add_field($table->make_link('choice='.$choice.'&order=location', 'Location'));
     $table->add_field($table->make_link('choice='.$choice.'&order=ip', 'Network'));
-    $table->add_field('Comment');
     $table->add_field('Port(s)');
     $table->add_field('Options');
     $table->add_row();
     $table->alternate_rows();
+    foreach ($vlans as $vlanId => $vlan) {
+        $table->add_field($vlan['vlans_id']);
+        $table->add_field(isset($ipblocks[$vlan['vlans_block']]) ? $locations[$ipblocks[$vlan['vlans_block']]['ipblocks_location']] : 'Unknown');
+        $table->add_field(str_replace(':', '', $vlan['vlans_networks']));
+        $table->add_field(implode(', ', $vlan['portsStr']));
+        $table->add_field('&nbsp;');
+        $table->add_row();
+    }
+    add_output($table->get_table());
+    return;
+    
+    
     $total_ips = 0;
     $used_ips = 0;
     // get ip block(s)
@@ -75,6 +125,7 @@ function vlan_manager()
             $vlanPorts[$vlan][] = $db->Record;
         }
     }
+    
     $db->query('select * from ipblocks order by ipblocks_network', __LINE__, __FILE__);
     $vlans = [];
     while ($db->next_record(MYSQL_ASSOC)) {
