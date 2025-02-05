@@ -75,6 +75,7 @@ function switches() {
     //add_output('1 Count:'.count($counts[1]).'<br>2 Count:'.count($counts[2]).'<br>3 Count:'.count($counts[3]).'<br>');
     $table = new TFTable;
     $table->set_method('GET');
+    $table->add_hidden('choice', 'switch_add');
     $table->add_hidden('action', 'add');
     $table->set_title('Switches');
     $table->add_field('Name');
