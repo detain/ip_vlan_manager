@@ -88,7 +88,7 @@ function update_switch_ports($verbose = false, $pullServerMap = true)
                 'port' => $db2->Record['port'],
                 'graph_id' => $db2->Record['graph_id'],
                 'vlans' => '',
-                'asset_id' => 0,
+                'asset_id' => null,
                 'updated' => mysql_now(),
             ]), __LINE__, __FILE__);
             $id = $db->getLastInsertId('switchports', 'switchport_id');
