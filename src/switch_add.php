@@ -187,7 +187,7 @@ function switch_add() {
             add_output("Got Cacti Device ID {$db->Record['id']}<br>");
             $cmd = "php /usr/share/cacti/cli/add_graphs.php --host-id={$db->Record['id']} --graph-type=ds --graph-template-id=2 --snmp-query-id=1 --snmp-query-type-id=24 --snmp-field=ifType --snmp-value=ethernetCsmacd";
             $ret = $sshpool->runCommand($cmd);
-            add_output('Added Graphs to Cacti<br><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">'.$converter->convert(['out'])."\n".$converter->convert($ret['err']).'</pre><br>');
+            add_output('Added Graphs to Cacti<br><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">'.$converter->convert($ret['out'])."\n".$converter->convert($ret['err']).'</pre><br>');
         }
         if (in_array('observium', $installs)) {
             $cmd = "php /opt/observium/add_device.php '{$name}.trouble-free.net' '{$community}' {$ver}";
