@@ -24,7 +24,7 @@
 		"phpunit/phpunit-mock-objects": "*"
 	},
 	"suggest": {
-		"s1lentium/iptools"
+		"s1lentium/iptools": "dev-master"
 	},
 	"autoload": {
 		"psr-4": {
