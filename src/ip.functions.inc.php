@@ -529,6 +529,169 @@ function ipcalc($network)
         return false;
     }
     if (preg_match('/^(.*)\/32$/', $network, $matches)) {
+        $info = [
+            'network' => $matches[1],
+            'network_ip' => $matches[1],
+            'bitmask' => 32,
+            'netmask' => '255.255.255.255',
+            'broadcast' => '',
+            'hostmin' => $matches[1],
+            'hostmax' => $matches[1],
+            'first_usable' => $matches[1],
+            'gateway' => '',
+            'hosts' => 1
+        ];
+    } else {
+        $info = ipcalcIPLib($network);
+        $info = ipcalcNetIPv4($network);
+        $info = ipcalcIPTools($network);
+        $info = ipcalcBinary($network);
+    }
+    return $info;
+}
+
+/**
+* Gets the Network information from a network address using the IPLib library.
+* 
+* @param string $network network address in form of 66.45.228.160/28
+* @return bool|array false on error or returns an array containing the network info
+*/
+function ipcalcIPLib($network) {
+    $range = \IPLib\Factory::rangeFromString($network);
+    if (is_null($range)) {
+        return false;
+    }
+    $info = [
+        'network' => $range->toString(),
+        'network_ip' => $range->getStartAddress()->toString(),
+        'bitmask' => $range->getNetworkPrefix(),
+        'netmask' => $range->getSubnetMask()->toString(),
+        'broadcast' => $range->getEndAddress()->toString(),
+        'hostmin' => $range->getAddressAtOffset(1)->toString(),
+        'hostmax' => $range->getAddressAtOffset($range->getSize() - 2)->toString(),
+        'first_usable' => $range->getSize() > 2 ? $range->getAddressAtOffset(2)->toString() : false,
+        'gateway' => $range->getAddressAtOffset(1)->toString(),
+        'hosts' => $range->getSize() - 2,
+    ];
+    return $info;
+}
+
+/**
+* Gets the Network information from a network address using the Net/IPv4 library.
+* 
+* @param string $network network address in form of 66.45.228.160/28
+* @return bool|array false on error or returns an array containing the network info
+*/
+function ipcalcNetIPv4($network) {
+    require_once 'Net/IPv4.php';
+    $network_object = new Net_IPv4();
+    $net = $network_object->parseAddress($network);
+    $info = [
+        'network' => $net->network.'/'.$net->bitmask,
+        'network_ip' => $net->network,
+        'bitmask' => (int)$net->bitmask,
+        'netmask' => $net->netmask,
+        'broadcast' => $net->broadcast,
+        'hostmin' => long2ip($net->ip2double($net->network) + 1),
+        'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
+        'first_usable' => $net->bitmask == 31 ? false : long2ip($net->ip2double($net->network) + 2),
+        'gateway' => long2ip($net->ip2double($net->network) + 1),
+        'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
+    ];
+    return $info;
+
+}
+
+/**
+* Gets the Network information from a network address using the IPTools library.
+* 
+* @param string $network network address in form of 66.45.228.160/28
+* @return bool|array false on error or returns an array containing the network info
+*/
+function ipcalcIPTools($network) {
+    try {
+        $net = \IPTools\Network::parse($network);
+    } catch (\Exception $e) {
+        return false;
+    }
+    $hosts = $net->getHosts();
+    if ($net->getBlockSize() > 1)
+        $hosts->next();
+    $info = [
+        'network' => $net->getCIDR(),
+        'network_ip' => (string)$net->getNetwork(),
+        'bitmask' => $net->getPrefixLength(),
+        'netmask' => (string)$net->getNetmask(),
+        'broadcast' => (string)$net->getBroadcast(),
+        'hostmin' => (string)$hosts->getFirstIP(),
+        'hostmax' => (string)$hosts->getLastIP(),
+        'first_usable' => (string)$hosts->current(),
+        'gateway' => (string)$hosts->getFirstIP(),
+        'hosts' => $hosts->count(),
+    ];
+    return $info;
+}
+
+/**
+* Gets the Network information from a network address using the ipcalc Binary from url in link below
+*  
+* @link https://raw.githubusercontent.com/kjokjo/ipcalc/refs/heads/master/ipcalc* 
+* @param string $network network address in form of 66.45.228.160/28
+* @return bool|array false on error or returns an array containing the network info
+*/
+function ipcalcBinary($network) {
+    $result = trim(`LANG=C ipcalc -nb {$network} | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1`);
+    $lines = explode("\n", $result);
+    $netparts = explode('/', $lines[3]);
+    $info = [
+        'network' => $lines[3],
+        'network_ip' => $netparts[0],
+        'bitmask' => $netparts[1],
+        'netmask' => $lines[1],
+        'wildcard' => $lines[2],
+        'broadcast' => $lines[6],
+        'hostmin' => $lines[4],
+        'hostmax' => $lines[5],
+        'hosts' => $lines[7],
+    ];
+    return $info;    
+
+}
+
+/**
+* Gets the Network information from a network address.
+* Example Response: [
+*   'network'      => '66.45.233.160/28',
+*   'network_ip'   => '66.45.233.160',
+*   'bitmask'      => '28',
+*   'netmask'      => '255.255.255.240',
+*   'broadcast'    => '66.45.233.175',
+*   'hostmin'      => '66.45.233.161',
+*   'hostmax'      => '66.45.233.174',
+*   'first_usable' => '66.45.233.162',
+*   'gateway'      => '66.45.233.161',
+*   'hosts'        => 14
+* ];
+* @param $network string Network address in 1.2.3.4/24 format
+* @return array|bool false on error or returns an array containing the network info
+*/
+function ipcalc_old($network)
+{
+    if (trim($network) == '') {
+        return false;
+    }
+    $parts = explode('/', $network);
+    if (count($parts) > 1) {
+        [$block, $bitmask] = $parts;
+    } else {
+        $block = $parts[0];
+        $bitmask = '32';
+        $network = $block.'/'.$bitmask;
+    }
+    if (!validIp($block, false) || !is_numeric($bitmask)) {
+        return false;
+    }
+    if (preg_match('/^(.*)\/32$/', $network, $matches)) {
         return [
             'network' => $matches[1],
             'network_ip' => $matches[1],
@@ -548,12 +711,12 @@ function ipcalc($network)
     $ipAddress_info = [
         'network' => $net->network.'/'.$net->bitmask,
         'network_ip' => $net->network,
-        'bitmask' => $net->bitmask,
+        'bitmask' => (int)$net->bitmask,
         'netmask' => $net->netmask,
         'broadcast' => $net->broadcast,
         'hostmin' => long2ip($net->ip2double($net->network) + 1),
         'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
-        'first_usable' => long2ip($net->ip2double($net->network) + 2),
+        'first_usable' => $net->bitmask == 31 ? false : long2ip($net->ip2double($net->network) + 2),
         'gateway' => long2ip($net->ip2double($net->network) + 1),
         'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
     ];
