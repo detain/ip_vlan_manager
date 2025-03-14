@@ -2,7 +2,7 @@
 include __DIR__.'/../../../../include/functions.inc.php';
 function_requirements('ipcalc');
 $db = get_module_db("default");
-$maxLoops = 20;
+$maxLoops = 1;
 $extras = ['1.2.3.4.5/24', '1.2.3.256/24', '1.2.3.4/25', '0.1.1.1/24', '', false, null, '', ' ', '1.2.3.4', ' 1.2.3.4/24', ':1.2.3.4/24:', true, [], 1.324, 24, '2604:a00::/32'];
 $vlans = [];
 echo "Loading VLANs...\n";
@@ -27,6 +27,6 @@ foreach (['IPLib', 'NetIPv4', 'IPTools', 'Binary'] as $name) {
     $end = microtime(true);
     $time = $end - $start;
     $file = 'ipcalc_'.strtolower($name).'.json';
-    echo "IPCalc [{$method}] Finished {$countChecks} lookups in {$time} seconds.  Results stored in {$file}\n";
+    echo "IPCalc [{$name}] Finished {$countChecks} lookups in {$time} seconds.  Results stored in {$file}\n";
     file_put_contents($file, json_encode($out, JSON_PRETTY_PRINT));
 }
