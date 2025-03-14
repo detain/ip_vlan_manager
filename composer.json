@@ -17,6 +17,7 @@
 	"require": {
 		"php": ">=5.6.0",
 		"pear/net_ipv4": "dev-trunk",
+		"s1lentium/iptools": "dev-master",
 		"mlocati/ip-lib": "dev-main"
 	},
 	"require-dev": {

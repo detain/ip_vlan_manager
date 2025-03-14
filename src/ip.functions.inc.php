@@ -8,6 +8,12 @@
 * 
 */
 
+
+define('IPCALC_IPLIB', 1);
+define('IPCALC_NETIPV4', 2);
+define('IPCALC_IPTOOLS', 3);
+define('IPCALC_BINARY', 4);
+
 /**
 * returns an array containing the list of ip blocks and a list of iused ips based on the location passed
 *
@@ -510,11 +516,12 @@ if (!function_exists('validIp')) {
 *   'hosts'        => 14
 * ];
 * @param $network string Network address in 1.2.3.4/24 format
+* @param $method int optionally specify which method to use for ipcalc
 * @return array|bool false on error or returns an array containing the network info
 */
-function ipcalc($network)
+function ipcalc($network, $method = IPCALC_IPLIB)
 {
-    if (trim($network) == '') {
+    if (is_array($network) || is_object($network) || trim($network) == '') {
         return false;
     }
     $parts = explode('/', $network);
@@ -542,10 +549,17 @@ function ipcalc($network)
             'hosts' => 1
         ];
     } else {
-        $info = ipcalcIPLib($network);
-        $info = ipcalcNetIPv4($network);
-        $info = ipcalcIPTools($network);
-        $info = ipcalcBinary($network);
+        if ($method === IPCALC_NETIPV4) {
+            $info = ipcalcNetIPv4($network);
+        } elseif ($method === IPCALC_IPTOOLS) {
+            $info = ipcalcIPTools($network);
+        } elseif ($method === IPCALC_BINARY) {
+            $info = ipcalcBinary($network);
+        } elseif ($method === IPCALC_IPLIB) {
+            $info = ipcalcIPLib($network);
+        } else {
+            $info = ipcalcIPLib($network);
+        }
     }
     return $info;
 }
@@ -596,7 +610,7 @@ function ipcalcNetIPv4($network) {
         'hostmax' => long2ip($net->ip2double($net->broadcast) - 1),
         'first_usable' => $net->bitmask == 31 ? false : long2ip($net->ip2double($net->network) + 2),
         'gateway' => long2ip($net->ip2double($net->network) + 1),
-        'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1
+        'hosts' => (int)$net->ip2double($net->broadcast) - (int)$net->ip2double($net->network) - 1                                                                                                                           
     ];
     return $info;
 
