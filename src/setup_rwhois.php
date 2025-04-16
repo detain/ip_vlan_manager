@@ -13,7 +13,7 @@
 if (file_exists('rwhoisd.json')) {
     $json = file_get_contents('rwhoisd.json');    
 } else {
-    $json = file_get_contents('https://mynew.interserver.net/ajax_rwhois.php');
+    $json = file_get_contents('https://mynew.interserver.net/ajax/rwhois.php');
     file_put_contents('rwhoisd.json', $json);
 }  
 $json = json_decode($json, true);
