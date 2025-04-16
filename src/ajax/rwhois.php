@@ -47,8 +47,8 @@ function add_range($ipblock, &$data) {
     $data['end'] = $range->getEndAddress()->toString();                 // 69.10.61.127         2604:a00:ffff:ffff:ffff:ffff:ffff:ffff  */
 }
 
-include_once(__DIR__.'/../../../../include/functions.inc.php');
-include_once(__DIR__.'/ip.functions.inc.php');
+include_once(__DIR__.'/../../../../../include/functions.inc.php');
+include_once(__DIR__.'/../ip.functions.inc.php');
 
 // initialize variables
 $db = $GLOBALS['tf']->db;
@@ -119,3 +119,4 @@ while ($db->next_record(MYSQL_ASSOC))
 }
 header('Content-type: application/json; charset=UTF-8');
 echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
