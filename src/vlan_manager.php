@@ -90,11 +90,17 @@ function vlan_manager()
     $table->add_row();
     $table->alternate_rows();
     foreach ($vlans as $vlanId => $vlan) {
+        $ip_block_t = str_replace(':', '', $vlan['vlans_networks']);
         $table->add_field($vlan['vlans_id']);
         $table->add_field(isset($ipblocks[$vlan['vlans_block']]) ? $locations[$ipblocks[$vlan['vlans_block']]['ipblocks_location']] : 'Unknown');
-        $table->add_field(str_replace(':', '', $vlan['vlans_networks']));
+        $table->add_field($ip_block_t);
         $table->add_field(implode(', ', $vlan['portsStr']));
-        $table->add_field('&nbsp;');
+        $table->add_field(
+            $table->make_link('choice=ip.ipblock_viewer&amp;ipblock='.$ip_block_t, '<i class="icon-analyze" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-analyze"></use></svg></i>', false, 'title="View"')
+            . $table->make_link('choice=ip.add_ips_to_server&amp;ipblock='.$ip_block_t, '<i class="icon-plus" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-plus"></use></svg></i>', false, 'title="Add IPs"')
+            . $table->make_link('choice=ip.delete_vlan&amp;ipblock='.$ip_block_t, '<i class="icon-delete" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-delete"></use></svg></i>', false, 'title="Delete"'),
+            'c'
+        );
         $table->add_row();
     }
     add_output($table->get_table());
