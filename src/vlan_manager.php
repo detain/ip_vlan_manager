@@ -114,7 +114,7 @@ function vlan_manager()
     add_output($table->get_table());
     $script = '<script>$(document).ready(function(){$("#vlanMangerTBL").DataTable(
         {"columns": [{"title":"ID"}, {"title":"Location"}, {"title":"Network"}, {"title":"Port(s)"}, {"title":"Asset Ids"}, {"title":"Options"}],
-        "order": [[2, "asc"]]},
+        "order": [[2, "asc"]], "pageLength": 1000, lengthMenu: [100, 500, 1000, -1]}
     );});</script>';
     add_output($script);
     return;
