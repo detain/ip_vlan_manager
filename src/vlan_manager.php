@@ -73,7 +73,16 @@ function vlan_manager()
                 if (isset($vlans[$vlanId])) {
                     $vlans[$vlanId]['portsStr'][] = $switchNames[$db->Record['switch']].' '.$db->Record['port'];
                     $vlans[$vlanId]['ports'][] = $db->Record['switchport_id'];
-                    $vlans[$vlanId]['asset_ids'][] = '<a href="/admin/asset_form?id='.$db->Record['asset_id'].'" target="_blank">'.$db->Record['asset_id'].'</a>';
+                    if (preg_match('/vlan\d+/i', $db->Record['port'], $matches)) {
+                        $db2->query("SELECT * FROM switchports WHERE find_in_set({$db->Record['switchport_id']}, vlans_tag)");
+                        if ($db2->num_rows() > 0) {
+                            while($db2->next_record(MYSQL_ASSOC)) {
+                                $vlans[$vlanId]['asset_ids'][] = !empty($db2->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db2->Record['asset_id'].'" target="_blank">'.$db2->Record['asset_id'].'</a>' : null;
+                            }
+                        }
+                    } else {
+                        $vlans[$vlanId]['asset_ids'][] = !empty($db->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db->Record['asset_id'].'" target="_blank">'.$db->Record['asset_id'].'</a>' : null;
+                    }
                 }
             }
             
@@ -82,15 +91,7 @@ function vlan_manager()
     }
     $table = new \TFTable();
     $table->set_title('VLan Manager '.pdf_link('choice='.$choice.'&order='.$order));
-    $table->set_options('width="100%"');
-    $table->add_field($table->make_link('choice='.$choice.'&order=id', 'ID'));
-    $table->add_field($table->make_link('choice='.$choice.'&order=location', 'Location'));
-    $table->add_field($table->make_link('choice='.$choice.'&order=ip', 'Network'));
-    $table->add_field('Port(s)');
-    $table->add_field('Asset Ids');
-    $table->add_field('Options');
-    $table->add_row();
-    $table->alternate_rows();
+    $table->set_options('width="100%" id="vlanMangerTBL"');
     foreach ($vlans as $vlanId => $vlan) {
         $ip_block_t = str_replace(':', '', $vlan['vlans_networks']);
         $table->add_field($vlan['vlans_id']);
@@ -109,7 +110,13 @@ function vlan_manager()
         );
         $table->add_row();
     }
+    add_js('datatables');
     add_output($table->get_table());
+    $script = '<script>$(document).ready(function(){$("#vlanMangerTBL").DataTable(
+        {"columns": [{"title":"ID"}, {"title":"Location"}, {"title":"Network"}, {"title":"Port(s)"}, {"title":"Asset Ids"}, {"title":"Options"}],
+        "order": [[2, "asc"]]},
+    );});</script>';
+    add_output($script);
     return;
     
     
