@@ -77,11 +77,11 @@ function vlan_manager()
                         $db2->query("SELECT * FROM switchports WHERE find_in_set({$db->Record['switchport_id']}, vlans_tag)");
                         if ($db2->num_rows() > 0) {
                             while($db2->next_record(MYSQL_ASSOC)) {
-                                $vlans[$vlanId]['asset_ids'][] = !empty($db2->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db2->Record['asset_id'].'" target="_blank">'.$db2->Record['asset_id'].'</a>' : null;
+                                $vlans[$vlanId]['asset_ids'][] = trim($db2->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db2->Record['asset_id'].'" target="_blank">'.$db2->Record['asset_id'].'</a>' : null;
                             }
                         }
                     } else {
-                        $vlans[$vlanId]['asset_ids'][] = !empty($db->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db->Record['asset_id'].'" target="_blank">'.$db->Record['asset_id'].'</a>' : null;
+                        $vlans[$vlanId]['asset_ids'][] = trim($db->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db->Record['asset_id'].'" target="_blank">'.$db->Record['asset_id'].'</a>' : null;
                     }
                 }
             }
@@ -101,7 +101,7 @@ function vlan_manager()
         if (!empty($vlan['asset_ids']))
             $table->add_field(implode(', ', $vlan['asset_ids']));
         else
-            $table->add_field('<span class="text-danger">-No Asset-</span>');
+            $table->add_field('&nbsp;');
         $table->add_field(
             $table->make_link('choice=ip.ipblock_viewer&amp;ipblock='.$ip_block_t, '<i class="icon-analyze" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-analyze"></use></svg></i>', false, 'title="View"')
             . $table->make_link('choice=ip.add_ips_to_server&amp;ipblock='.$ip_block_t, '<i class="icon-plus" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-plus"></use></svg></i>', false, 'title="Add IPs"')
