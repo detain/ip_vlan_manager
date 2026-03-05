@@ -1,11 +1,11 @@
 <?php
 /**
-* Switch 
+* Switch
 * @author Joe Huss <detain@interserver.net>
 * @copyright 2025
 * @package MyAdmin
 * @category Networking
-* 
+*
 */
 
 use Detain\SshPool\SshPool;
@@ -21,6 +21,7 @@ function switch_delete() {
     $cacti = [];
     $my = [];
     $ips = [];
+    $vlanIds = [];
     add_output('<a href="switches" class="btn btn-primary btn-sm">Return to Switches</a><br><br>');
     $id = intval($GLOBALS['tf']->variables->request['id']);
     $db->query("select * from switchmanager where id={$id}", __LINE__, __FILE__);
@@ -41,7 +42,7 @@ function switch_delete() {
                         $problems[] = 'Switch Port '.$db->Record['port'].' tied to VLAN '.str_replace(':','',$db2->Record['vlans_networks']);
                     }
                 }
-                $vlanIds = array_merge($vlanIds, impode(',',$db->Record['vlans']));                
+                $vlanIds = array_merge($vlanIds, implode(',',$db->Record['vlans']));
             }
             if (!is_null($db->Record['hostname'])) {
                 $problems[] = 'Switch Port '.$db->Record['port'].' tied to Asset '.$db->Record['asset_id'].' '.$db->Record['hostname'];
