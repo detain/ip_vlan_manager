@@ -14,6 +14,7 @@ use SensioLabs\AnsiConverter\AnsiToHtmlConverter;
 function switch_delete() {
     page_title('Switches');
     $db = get_module_db('default');
+    $db2 = clone $db;
     $homeDir = get_current_user() == 'www-data' ? '/var/www' : '/home/'.get_current_user();
     $defaultCommunity = CLOGIN_SNMP_COMMUNITY;
     $observium = [];
