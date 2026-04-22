@@ -83,7 +83,7 @@ while ($db->next_record(MYSQL_ASSOC))
 }
 $db->query("select ipblocks.*, accounts.account_id, account_lid as account_email, account_name, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from ipblocks
 left join accounts on account_id=ipblocks_custid
-left join accounts_ext on accounts.account_id=accounts_ext.account_id and account_key='company'");
+left join accounts_ext on accounts.account_id=accounts_ext.account_id and account_key='company'", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
 {
     $db->Record['vlans'] = [];
