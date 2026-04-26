@@ -51,7 +51,7 @@ include_once(__DIR__.'/../../../../../include/functions.inc.php');
 include_once(__DIR__.'/../ip.functions.inc.php');
 
 // initialize variables
-$db = $GLOBALS['tf']->db;
+$db = \MyAdmin\App::db();
 $out = [
     'ipblocks' => [ 
         4 => [], 

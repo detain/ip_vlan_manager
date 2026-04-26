@@ -14,7 +14,7 @@
 function add_ips()
 {
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('system_config')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
@@ -23,14 +23,14 @@ function add_ips()
     $color1 = COLOR1;
     $color3 = COLOR2;
     $color2 = COLOR3;
-    $choice = $GLOBALS['tf']->variables->request['choice'];
-    if (!isset($GLOBALS['tf']->variables->request['ipclass'])) {
+    $choice = \MyAdmin\App::variables()->request['choice'];
+    if (!isset(\MyAdmin\App::variables()->request['ipclass'])) {
         add_output('<TABLE>
     <TR bgcolor="'.$color3.'" align=center>
         <TD colspan=2>IP Address Addition Menu</TD></TR>
     <TR bgcolor="'.$color1.'" align=center>
         <TD colspan=2>Adding A Single Class C</TD></TR>
-<form enctype="multipart/form-data" method="post" action="'.$GLOBALS['tf']->link('index.php').'">
+<form enctype="multipart/form-data" method="post" action="'.\MyAdmin\App::link('index.php').'">
 <input type=hidden name=choice value="'.$choice.'">
     <TR>
         <TD bgcolor="'.$color2.'">Enter First 3 Set Of IPs In The Class C (ie 216.74.109):</TD>
@@ -42,7 +42,7 @@ function add_ips()
         <TD colspan=2>&nbsp;</TD></TR>
     <TR bgcolor="'.$color1.'" align=center>
         <TD colspan=2>I Want To Add Less Than A Class C</TD></TR>
-<form enctype="multipart/form-data" method="post" action="'.$GLOBALS['tf']->link('index.php').'">
+<form enctype="multipart/form-data" method="post" action="'.\MyAdmin\App::link('index.php').'">
 <input type=hidden name=choice value="'.$choice.'">
     <TR>
         <TD bgcolor="'.$color2.'">Enter First 3 Set Of IPs In The Class C (ie 216.74.109):</TD>
@@ -58,18 +58,18 @@ function add_ips()
 </FORM>
 </TABLE>');
     } else {
-        $ipclass = $GLOBALS['tf']->variables->request['ipclass'];
+        $ipclass = \MyAdmin\App::variables()->request['ipclass'];
         add_output('Adding IPs: ');
-        if (!isset($GLOBALS['tf']->variables->request['iplow'])) {
+        if (!isset(\MyAdmin\App::variables()->request['iplow'])) {
             $iplow = 2;
         } else {
-            $iplow = $GLOBALS['tf']->variables->request['iplow'];
+            $iplow = \MyAdmin\App::variables()->request['iplow'];
         }
 
-        if (!isset($GLOBALS['tf']->variables->request['iphigh'])) {
+        if (!isset(\MyAdmin\App::variables()->request['iphigh'])) {
             $iphigh = 254;
         } else {
-            $iphigh = $GLOBALS['tf']->variables->request['iphigh'];
+            $iphigh = \MyAdmin\App::variables()->request['iphigh'];
         }
 
         $new_ips = 0;
@@ -77,7 +77,7 @@ function add_ips()
             $ipAddress = $ipclass.'.'.$num;
             $db->query("select * from ips where ips_ip='{$ipAddress}'", __LINE__, __FILE__);
             if ($db->num_rows() == 0) {
-                if ($GLOBALS['tf']->accounts->data['demo'] == 1) {
+                if (\MyAdmin\App::accounts()->data['demo'] == 1) {
                     add_output('No Updates In Demo Mode');
                 } else {
                     $db->query(make_insert_query(

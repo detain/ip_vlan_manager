@@ -15,15 +15,15 @@
 function delete_vlan()
 {
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('system_config')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
-    $ima = $GLOBALS['tf']->ima;
+    $ima = \MyAdmin\App::ima();
     global $groupinfo;
     $db = get_module_db('default');
-    $ipblock = $GLOBALS['tf']->variables->request['ipblock'];
-    if (!isset($GLOBALS['tf']->variables->request['sure']) || $GLOBALS['tf']->variables->request['sure'] != 'yes') {
+    $ipblock = \MyAdmin\App::variables()->request['ipblock'];
+    if (!isset(\MyAdmin\App::variables()->request['sure']) || \MyAdmin\App::variables()->request['sure'] != 'yes') {
         $table = new \TFTable();
         $table->set_title('Delete VLan');
         $table->add_hidden('ipblock', $ipblock);
@@ -55,9 +55,9 @@ function delete_vlan()
         /*function_requirements('update_switch_ports');
         update_switch_ports();*/
         if (isset($_REQUEST['httpreferrer'])) {
-            $GLOBALS['tf']->redirect($_REQUEST['httpreferrer']);
+            \MyAdmin\App::output()->redirect($_REQUEST['httpreferrer']);
         } else {
-            $GLOBALS['tf']->redirect($table->make_link('index.php', 'choice=none.vlan_manager'));
+            \MyAdmin\App::output()->redirect($table->make_link('index.php', 'choice=none.vlan_manager'));
         }
     }
 }

@@ -15,16 +15,16 @@
 function vlan_port_manager()
 {
     function_requirements('update_switch_ports');
-    $ima = $GLOBALS['tf']->ima;
+    $ima = \MyAdmin\App::ima();
     $db = get_module_db('default');
     $db2 = $db;
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('system_config')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
 
-    $ipblock = $GLOBALS['tf']->variables->request['ipblock'];q
+    $ipblock = \MyAdmin\App::variables()->request['ipblock'];
     $db->query("SELECT * FROM vlans WHERE vlans_networks LIKE '%:$ipblock:%'", __LINE__, __FILE__);
     
     if (($ipblock == '') || ($db->num_rows() == 0)) {
@@ -35,7 +35,7 @@ function vlan_port_manager()
     $db->next_record();
     $vlan_id = $db->Record['vlans_id'];
 
-    if (!isset($GLOBALS['tf']->variables->request['ports'])) {
+    if (!isset(\MyAdmin\App::variables()->request['ports'])) {
         // Fetch current ports associated with this VLAN from the switchports table
         $db2->query("SELECT switchport_id FROM switchports WHERE FIND_IN_SET('{$vlan_id}', vlans)", __LINE__, __FILE__);
         $currentPorts = [];
@@ -59,7 +59,7 @@ function vlan_port_manager()
         $table->add_row();
         add_output($table->get_table());
     } else {
-        $selectedPorts = $GLOBALS['tf']->variables->request['ports'];
+        $selectedPorts = \MyAdmin\App::variables()->request['ports'];
 
         // Remove the VLAN from all switchports currently associated with it except the selecte ones
         $db2->query("SELECT switchport_id, vlans FROM switchports WHERE FIND_IN_SET('{$vlan_id}', vlans)", __LINE__, __FILE__);
@@ -91,6 +91,6 @@ function vlan_port_manager()
 
         function_requirements('update_switch_ports');
         update_switch_ports();
-        $GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock='.$ipblock));
+        \MyAdmin\App::output()->redirect(\MyAdmin\App::link('index.php', 'choice=ip.ipblock_viewer&amp;ipblock='.$ipblock));
     }
 }

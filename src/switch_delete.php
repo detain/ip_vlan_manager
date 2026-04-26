@@ -23,7 +23,7 @@ function switch_delete() {
     $ips = [];
     $vlanIds = [];
     add_output('<a href="switches" class="btn btn-primary btn-sm">Return to Switches</a><br><br>');
-    $id = intval($GLOBALS['tf']->variables->request['id']);
+    $id = intval(\MyAdmin\App::variables()->request['id']);
     $db->query("select * from switchmanager where id={$id}", __LINE__, __FILE__);
     if ($db->num_rows() == 0) {
         add_output('Invalid Switch<br>');

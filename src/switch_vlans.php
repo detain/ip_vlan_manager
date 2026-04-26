@@ -455,11 +455,11 @@ function switch_vlans()
     page_title(_('Switch VLANs'));
     add_js('font-awesome');
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('client_billing')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('client_billing')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
-    $db = $GLOBALS['tf']->db;
+    $db = \MyAdmin\App::db();
     $ipblocks = [];
     $db->query('select * from ipblocks', __LINE__, __FILE__);
     while ($db->next_record(MYSQL_ASSOC)) {
@@ -601,7 +601,7 @@ function switch_vlans()
         } elseif ($_REQUEST['action'] == 'delete_both') {
 
         }
-        $GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=none.switch_vlans&message='.urlencode(implode('<br>', $message))));
+        \MyAdmin\App::output()->redirect(\MyAdmin\App::link('index.php', 'choice=none.switch_vlans&message='.urlencode(implode('<br>', $message))));
     }
     $table = new TFTable();
     $table->set_title('Switch VLANs');

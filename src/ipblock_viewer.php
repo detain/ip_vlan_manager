@@ -15,15 +15,15 @@
 function ipblock_viewer()
 {
     function_requirements('update_switch_ports');
-    $ima = $GLOBALS['tf']->ima;
+    $ima = \MyAdmin\App::ima();
     $db = get_module_db('default');
     $db2 = $db;
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('system_config')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
-    $ipblock = $GLOBALS['tf']->variables->request['ipblock'];
+    $ipblock = \MyAdmin\App::variables()->request['ipblock'];
     $db->query("select * from vlans where vlans_networks like '%:$ipblock:%'", __LINE__, __FILE__);
     function_requirements('ipcalc');
     while ($db->next_record()) {
@@ -89,7 +89,7 @@ function ipblock_viewer()
         $table->alternate_rows();
         if ($usedips > 0) {
             while ($db2->next_record()) {
-                $server = $GLOBALS['tf']->get_server($db2->Record['ips_serverid']);
+                $server = \MyAdmin\App::getServer($db2->Record['ips_serverid']);
                 $table->add_field($server['server_hostname']);
                 $table->add_field($db2->Record['ips_ip']);
                 $table->set_colspan(2);

@@ -15,7 +15,7 @@
 function portless_vlans()
 {
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('system_config')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
@@ -39,7 +39,7 @@ function portless_vlans()
         $table->add_field('No VLANs without ports assigned to them');
         $table->add_row();
     }
-    if ($GLOBALS['tf']->variables->request['pdf'] == 1) {
+    if (\MyAdmin\App::variables()->request['pdf'] == 1) {
         $table->get_pdf();
     }
     add_output($table->get_table());

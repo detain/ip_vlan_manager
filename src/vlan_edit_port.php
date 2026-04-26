@@ -15,26 +15,26 @@
 function vlan_edit_port()
 {
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('system_config')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
     add_js('bootstrap');
     add_js('select2');
-    $GLOBALS['tf']->add_html_head_css_file('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css');
-    $GLOBALS['tf']->add_html_head_js_file('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js');
+    \MyAdmin\App::output()->addHeadCssFile('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/css/bootstrap-select.min.css');
+    \MyAdmin\App::output()->addHeadJsFile('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.11.2/js/bootstrap-select.min.js');
     $db = get_module_db('default');
     $db2 = $db;
     $table = new \TFTable();
     $table->set_title('VLAN Edit Port Assignments');
-    $ipblock = $GLOBALS['tf']->variables->request['ipblock'];
+    $ipblock = \MyAdmin\App::variables()->request['ipblock'];
     $table->add_hidden('ipblock', $ipblock);
     $table->add_field('IP Block');
     $table->add_field($ipblock);
     $table->add_row();
     $server_id = null;
-    if (isset($GLOBALS['tf']->variables->request['pop_order_id'])) {
-        $server_id = $GLOBALS['tf']->variables->request['pop_order_id'];
+    if (isset(\MyAdmin\App::variables()->request['pop_order_id'])) {
+        $server_id = \MyAdmin\App::variables()->request['pop_order_id'];
         $table->add_hidden('pop_order_id', $server_id);
         $table->add_field('Server ID');
         $table->add_field($server_id);
@@ -76,17 +76,17 @@ function vlan_edit_port()
             }
         }
     }
-    if (!isset($GLOBALS['tf']->variables->request['ports'])) {
+    if (!isset(\MyAdmin\App::variables()->request['ports'])) {
         $select = get_select_ports($ports, 20);
         $table->add_hidden('edit_port', 1);
-        $table->add_hidden('ipblock', $GLOBALS['tf']->variables->request['ipblock']);
+        $table->add_hidden('ipblock', \MyAdmin\App::variables()->request['ipblock']);
         $table->set_colspan(2);
         $table->add_field($select.'<br>'.$table->make_submit('Set Port(s)'));
         $editport = true;
     } else {
         $orig_switchports = [];
         $switchports = [];
-        $new_ports = $GLOBALS['tf']->variables->request['ports'];
+        $new_ports = \MyAdmin\App::variables()->request['ports'];
         foreach ($new_ports as $switchport) {
             [$switch, $port, $blade, $justport] = parse_vlan_ports($switchport);
             $db2->query("select * from switchports where switch='{$switch}' and port='{$port}'", __LINE__, __FILE__);
@@ -117,7 +117,7 @@ function vlan_edit_port()
                         $db2->query("update switchports set vlans='{$vlans}' where switchport_id={$db2->Record['switchport_id']}", __LINE__, __FILE__);
                     }
                 } else {
-                    if (is_null($server_id) && isset($GLOBALS['tf']->variables->request['update_server']) && $GLOBALS['tf']->variables->request['update_server'] == '1' && !is_null($db2->Record['server_id'])) {
+                    if (is_null($server_id) && isset(\MyAdmin\App::variables()->request['update_server']) && \MyAdmin\App::variables()->request['update_server'] == '1' && !is_null($db2->Record['server_id'])) {
                         $server_id = $db2->Record['server_id'];
                     }
                 }
@@ -144,15 +144,15 @@ function vlan_edit_port()
 
         //function_requirements('update_switch_ports');
         //update_switch_ports();
-        if (isset($GLOBALS['tf']->variables->request['pop_order_id'])) {
-            $GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=none.view_server_order&id='.$GLOBALS['tf']->variables->request['pop_order_id']));
+        if (isset(\MyAdmin\App::variables()->request['pop_order_id'])) {
+            \MyAdmin\App::output()->redirect(\MyAdmin\App::link('index.php', 'choice=none.view_server_order&id='.\MyAdmin\App::variables()->request['pop_order_id']));
             return true;
         } else {
-            $GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
+            \MyAdmin\App::output()->redirect(\MyAdmin\App::link('index.php', 'choice=ip.vlan_manager'));
         }
     }
     $table->add_row();
-    if (isset($GLOBALS['tf']->variables->request['source']) && $GLOBALS['tf']->variables->request['source'] == 'popup_order') {
+    if (isset(\MyAdmin\App::variables()->request['source']) && \MyAdmin\App::variables()->request['source'] == 'popup_order') {
         return true;
     } else {
         add_output($table->get_table());

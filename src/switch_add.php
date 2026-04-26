@@ -23,13 +23,13 @@ function switch_add() {
     $my = [];
     $ips = [];
     add_output('<a href="switches" class="btn btn-primary btn-sm">Return to Switches</a><br><br>');
-    $name = $GLOBALS['tf']->variables->request['name'];
-    $ip = $GLOBALS['tf']->variables->request['ip'];
-    $installs = isset($GLOBALS['tf']->variables->request['install']) ? $GLOBALS['tf']->variables->request['install'] : [];
-    $type = !empty($GLOBALS['tf']->variables->request['type']) ? $GLOBALS['tf']->variables->request['type'] : 'cisco';
+    $name = \MyAdmin\App::variables()->request['name'];
+    $ip = \MyAdmin\App::variables()->request['ip'];
+    $installs = isset(\MyAdmin\App::variables()->request['install']) ? \MyAdmin\App::variables()->request['install'] : [];
+    $type = !empty(\MyAdmin\App::variables()->request['type']) ? \MyAdmin\App::variables()->request['type'] : 'cisco';
     $typeDir = $type == 'junos' ? 'juniper' : $type;
-    $ver = !empty($GLOBALS['tf']->variables->request['ver']) ? $GLOBALS['tf']->variables->request['ver'] : 'v2c';
-    $community = !empty($GLOBALS['tf']->variables->request['community']) ? $GLOBALS['tf']->variables->request['community'] : $defaultCommunity;
+    $ver = !empty(\MyAdmin\App::variables()->request['ver']) ? \MyAdmin\App::variables()->request['ver'] : 'v2c';
+    $community = !empty(\MyAdmin\App::variables()->request['community']) ? \MyAdmin\App::variables()->request['community'] : $defaultCommunity;
     if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
         add_output('Invalid IP Address '.$ip.'<br>');
         return;
@@ -38,7 +38,7 @@ function switch_add() {
     $sshpool->setMinConfigSize(0);
     $sshpool->setMaxRetries(0);
     $sshpool->setMaxThreads(2);
-    if (!isset($GLOBALS['tf']->variables->request['ports'])) {
+    if (!isset(\MyAdmin\App::variables()->request['ports'])) {
         global $indexes;
         $indexes = [];
         //snmpget -t 2 -v2c -c *********** -Pud -OQUs switch72n.trouble-free.net sysDescr.0
@@ -147,7 +147,7 @@ function switch_add() {
             add_output($table->get_table().'<br>');
         }
     } else {
-        $ports = $GLOBALS['tf']->variables->request['ports'];
+        $ports = \MyAdmin\App::variables()->request['ports'];
         $db3->query(make_insert_query('switchmanager', [
             'name' => $name,
             'ports' => count($ports),

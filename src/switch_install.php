@@ -23,8 +23,8 @@ function switch_install() {
     $my = [];
     $ips = [];
     add_output('<a href="switches" class="btn btn-primary btn-sm">Return to Switches</a><br><br>');
-    $id = intval($GLOBALS['tf']->variables->request['id']);
-    $installs = isset($GLOBALS['tf']->variables->request['install']) ? $GLOBALS['tf']->variables->request['install'] : [];
+    $id = intval(\MyAdmin\App::variables()->request['id']);
+    $installs = isset(\MyAdmin\App::variables()->request['install']) ? \MyAdmin\App::variables()->request['install'] : [];
     $converter = new AnsiToHtmlConverter();
     $db3->query("select * from switchmanager where id={$id}", __LINE__, __FILE__);
     if ($db3->num_rows() > 0) {

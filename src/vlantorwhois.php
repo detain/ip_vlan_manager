@@ -15,7 +15,7 @@
 include_once(__DIR__.'/../../../../include/functions.inc.php');
 include_once(__DIR__.'/ip.functions.inc.php');
 
-$db = $GLOBALS['tf']->db;
+$db = \MyAdmin\App::db();
 $privateData = true;
 $cmds = '';
 $total = 0;
@@ -619,7 +619,7 @@ while ($db->next_record(MYSQL_ASSOC)) {
             'company' => 'na',
         ];
     } else {
-        $data = $GLOBALS['tf']->accounts->read($group);
+        $data = \MyAdmin\App::accounts()->read($group);
         $org = !empty($data['company']) ? $data['company'] : 'Account ' . $db->Record['account_id'];
     }
     $cmds .= 'cd '.$installDir.'/etc/rwhoisd/net-'.$ipblock_ip.'-'.$ipblock_size.';\n'

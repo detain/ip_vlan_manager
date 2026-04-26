@@ -15,15 +15,15 @@
 function alt_ip_manager()
 {
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('system_config')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
     global $groupinfo;
-    $ima = $GLOBALS['tf']->ima;
+    $ima = \MyAdmin\App::ima();
     $db = get_module_db('default');
     $db2 = get_module_db('default');
-    if (isset($GLOBALS['tf']->variables->request['ipblock'])) {
+    if (isset(\MyAdmin\App::variables()->request['ipblock'])) {
         $db->query('select id, server_hostname from servers', __LINE__, __FILE__);
         $serverids = [];
         $serverids[0] = 'None';
@@ -31,10 +31,10 @@ function alt_ip_manager()
             $serverids[$db->Record['id']] = $db->Record['server_hostname'];
             $server_hostnames[$db->Record['server_hostname']] = $db->Record['id'];
         }
-        $ipblock = $GLOBALS['tf']->variables->request['ipblock'];
-        if (isset($GLOBALS['tf']->variables->request['server']) && isset($GLOBALS['tf']->variables->request['ip'])) {
-            $sid = $server_hostnames[$GLOBALS['tf']->variables->request['server']];
-            $ipAddress = $GLOBALS['tf']->variables->request['ip'];
+        $ipblock = \MyAdmin\App::variables()->request['ipblock'];
+        if (isset(\MyAdmin\App::variables()->request['server']) && isset(\MyAdmin\App::variables()->request['ip'])) {
+            $sid = $server_hostnames[\MyAdmin\App::variables()->request['server']];
+            $ipAddress = \MyAdmin\App::variables()->request['ip'];
             $query = "update ips set ips_serverid='{$sid}' where ips_ip='{$ipAddress}'";
             $db->query($query, __LINE__, __FILE__);
         }
@@ -51,7 +51,7 @@ function alt_ip_manager()
         $table->add_row();
         while ($db->next_record()) {
             $table->add_field($db->Record['ips_ip']);
-            if ($GLOBALS['tf']->variables->request['ip'] == $db->Record['ips_ip']) {
+            if (\MyAdmin\App::variables()->request['ip'] == $db->Record['ips_ip']) {
                 $table->add_hidden('ip', $db->Record['ips_ip']);
                 $table->add_hidden('ipblock', $ipblock);
                 $table->add_field(select_server($db->Record['ips_serverid'], 'server', 1));

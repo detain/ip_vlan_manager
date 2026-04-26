@@ -21,7 +21,7 @@ function switch_edit() {
     $my = [];
     $ips = [];
     add_output('<a href="switches" class="btn btn-primary btn-sm">Return to Switches</a><br><br>');
-    $id = intval($GLOBALS['tf']->variables->request['id']);
+    $id = intval(\MyAdmin\App::variables()->request['id']);
     $db->query("select * from switchmanager where id={$id}", __LINE__, __FILE__);
     if ($db->num_rows() == 0) {
         add_output('Invalid Switch<br>');
@@ -35,7 +35,7 @@ function switch_edit() {
     while ($db->next_record(MYSQL_ASSOC)) {
         $portToId[$db->Record['port']] = $db->Record['switchport_id'];
     }
-    if (!isset($GLOBALS['tf']->variables->request['name'])) {
+    if (!isset(\MyAdmin\App::variables()->request['name'])) {
         $table = new TFTable;
         $table->hide_table();
         $table->set_method('GET');
@@ -163,18 +163,18 @@ function switch_edit() {
         $table->add_row();            
         add_output($table->get_table().'<br>');
     } else {
-        $name = $GLOBALS['tf']->variables->request['name'];
-        $ip = $GLOBALS['tf']->variables->request['ip'];
-        $available = $GLOBALS['tf']->variables->request['available'];
-        $asset = $GLOBALS['tf']->variables->request['asset'];
-        $type = !empty($GLOBALS['tf']->variables->request['type']) ? $GLOBALS['tf']->variables->request['type'] : 'cisco';
+        $name = \MyAdmin\App::variables()->request['name'];
+        $ip = \MyAdmin\App::variables()->request['ip'];
+        $available = \MyAdmin\App::variables()->request['available'];
+        $asset = \MyAdmin\App::variables()->request['asset'];
+        $type = !empty(\MyAdmin\App::variables()->request['type']) ? \MyAdmin\App::variables()->request['type'] : 'cisco';
         $typeDir = $type == 'junos' ? 'juniper' : $type;
-        $ver = !empty($GLOBALS['tf']->variables->request['snmp_version']) ? $GLOBALS['tf']->variables->request['snmp_version'] : 'v2c';
-        $community = !empty($GLOBALS['tf']->variables->request['snmp_community']) ? $GLOBALS['tf']->variables->request['snmp_community'] : $defaultCommunity;
+        $ver = !empty(\MyAdmin\App::variables()->request['snmp_version']) ? \MyAdmin\App::variables()->request['snmp_version'] : 'v2c';
+        $community = !empty(\MyAdmin\App::variables()->request['snmp_community']) ? \MyAdmin\App::variables()->request['snmp_community'] : $defaultCommunity;
         $updates = [];
         foreach (['name', 'ip', 'type', 'asset', 'available', 'snmp_version', 'snmp_community'] as $field) {
-            if (!empty($GLOBALS['tf']->variables->request[$field]) && $GLOBALS['tf']->variables->request[$field] != $switchInfo[$field]) {
-                $esc = $db->real_escape($GLOBALS['tf']->variables->request[$field]);
+            if (!empty(\MyAdmin\App::variables()->request[$field]) && \MyAdmin\App::variables()->request[$field] != $switchInfo[$field]) {
+                $esc = $db->real_escape(\MyAdmin\App::variables()->request[$field]);
                 $updates[] = "{$field}='{$esc}'";
             }
         }
@@ -182,8 +182,8 @@ function switch_edit() {
             add_output('Invalid IP Address '.$ip.'<br>');
             return;
         }
-        if (isset($GLOBALS['tf']->variables->request['ports'])) {
-            $ports = $GLOBALS['tf']->variables->request['ports'];
+        if (isset(\MyAdmin\App::variables()->request['ports'])) {
+            $ports = \MyAdmin\App::variables()->request['ports'];
             if (count($ports) != $switchInfo['ports']) {
                 $updates[] = "ports=".count($ports);
             }

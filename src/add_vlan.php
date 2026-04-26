@@ -15,16 +15,16 @@
 function add_vlan()
 {
     function_requirements('has_acl');
-    if ($GLOBALS['tf']->ima != 'admin' || !has_acl('system_config')) {
+    if (\MyAdmin\App::ima() != 'admin' || !has_acl('system_config')) {
         dialog('Not admin', 'Not Admin or you lack the permissions to view this page.');
         return false;
     }
     //_debug_array(get_ips2_newer('68.168.208.0/20',TRUE));
-    $ima = $GLOBALS['tf']->ima;
+    $ima = \MyAdmin\App::ima();
     global $groupinfo;
     $db = get_module_db('default');
     $db2 = $db;
-    if (!isset($GLOBALS['tf']->variables->request['blocksize'])) {
+    if (!isset(\MyAdmin\App::variables()->request['blocksize'])) {
         $table = new \TFTable();
         $table->set_title('Add New VLAN');
         $table->add_field('Enter Desired Block Size (ie /24)', 'l');
@@ -84,9 +84,9 @@ function add_vlan()
 
         add_output($t->get_table());
     } else {
-        $blocksize = str_replace('/', '', $GLOBALS['tf']->variables->request['blocksize']);
+        $blocksize = str_replace('/', '', \MyAdmin\App::variables()->request['blocksize']);
         $blocks = available_ipblocks_new($blocksize);
-        if (!isset($GLOBALS['tf']->variables->request['ipaddress'])) {
+        if (!isset(\MyAdmin\App::variables()->request['ipaddress'])) {
             // ok we have blocksize now need to determine what vlans are possible
             $ipcount = get_ipcount_from_netmask($blocksize);
             $table = new \TFTable();
@@ -131,9 +131,9 @@ function add_vlan()
             }
             add_output($table->get_table());
         } else {
-            $ports = $GLOBALS['tf']->variables->request['ports'];
+            $ports = \MyAdmin\App::variables()->request['ports'];
             if (count($ports) > 0) {
-                $ipaddress = $GLOBALS['tf']->variables->request['ipaddress'];
+                $ipaddress = \MyAdmin\App::variables()->request['ipaddress'];
                 $found = false;
                 for ($x = 0, $x_max = count($blocks); $x < $x_max; $x++) {
                     if ($blocks[$x][0] == $ipaddress) {
@@ -153,7 +153,7 @@ function add_vlan()
                     echo 'I think this vlan already exists';
                     exit;
                 }
-                $comment = $GLOBALS['tf']->variables->request['comment'];
+                $comment = \MyAdmin\App::variables()->request['comment'];
                 $db->query(make_insert_query('vlans', [
                     'vlans_id' => null,
                     'vlans_block' => $block,
@@ -202,7 +202,7 @@ function add_vlan()
                 add_output('VLAN Created');
                 function_requirements('update_switch_ports');
                 update_switch_ports();
-                $GLOBALS['tf']->redirect($GLOBALS['tf']->link('index.php', 'choice=ip.vlan_manager'));
+                \MyAdmin\App::output()->redirect(\MyAdmin\App::link('index.php', 'choice=ip.vlan_manager'));
             } else {
                 add_output('You must select at least one port');
             }
