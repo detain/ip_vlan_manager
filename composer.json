@@ -5,7 +5,22 @@
 	"keywords": [
 		"ip",
 		"vlan",
-		"network"
+		"ipam",
+		"ip-address",
+		"ipv4",
+		"ipv6",
+		"cidr",
+		"subnet",
+		"dhcp",
+		"network",
+		"network-management",
+		"vlan-management",
+		"ip-address-management",
+		"networking",
+		"rest-api",
+		"json-api",
+		"php",
+		"php-library"
 	],
 	"license": "LGPL-2.1-only",
 	"authors": [
