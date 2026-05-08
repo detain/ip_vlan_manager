@@ -42,7 +42,7 @@ function switch_delete() {
                         $problems[] = 'Switch Port '.$db->Record['port'].' tied to VLAN '.str_replace(':','',$db2->Record['vlans_networks']);
                     }
                 }
-                $vlanIds = array_merge($vlanIds, implode(',',$db->Record['vlans']));
+                $vlanIds = array_merge($vlanIds, explode(',', $db->Record['vlans']));
             }
             if (!is_null($db->Record['hostname'])) {
                 $problems[] = 'Switch Port '.$db->Record['port'].' tied to Asset '.$db->Record['asset_id'].' '.$db->Record['hostname'];
