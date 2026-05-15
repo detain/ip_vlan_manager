@@ -77,11 +77,11 @@ function vlan_manager()
                         $db2->query("SELECT * FROM switchports WHERE find_in_set({$db->Record['switchport_id']}, vlans_tag)");
                         if ($db2->num_rows() > 0) {
                             while($db2->next_record(MYSQL_ASSOC)) {
-                                $vlans[$vlanId]['asset_ids'][] = trim($db2->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db2->Record['asset_id'].'" target="_blank">'.$db2->Record['asset_id'].'</a>' : null;
+                                $vlans[$vlanId]['asset_ids'][] = !empty($db2->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db2->Record['asset_id'].'" target="_blank">'.$db2->Record['asset_id'].'</a>' : null;
                             }
                         }
                     } else {
-                        $vlans[$vlanId]['asset_ids'][] = trim($db->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db->Record['asset_id'].'" target="_blank">'.$db->Record['asset_id'].'</a>' : null;
+                        $vlans[$vlanId]['asset_ids'][] = !empty($db->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db->Record['asset_id'].'" target="_blank">'.$db->Record['asset_id'].'</a>' : null;
                     }
                 }
             }
