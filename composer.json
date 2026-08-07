@@ -33,7 +33,8 @@
 		"php": ">=8.2",
 		"pear/net_ipv4": "dev-trunk",
 		"mlocati/ip-lib": "dev-main",
-		"symfony/event-dispatcher": "^5.0|^6.0|^7.0"
+		"symfony/event-dispatcher": "^5.0|^6.0|^7.0",
+		"detain/myadmin-plugin-installer": "dev-master"
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^9.6"
