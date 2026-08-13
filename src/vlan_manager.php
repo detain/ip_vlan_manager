@@ -9,6 +9,67 @@
 */
 
 /**
+* Unlinks a vlan from every switchport that resolves to no asset.
+*
+* Handles the `action=remove_noasset_ports&vlan_id=N` link rendered in the VLAN Manager options
+* column. switchports.vlans is a comma separated list of vlan ids, so removing vlan 5 from
+* "1,2,5,8" leaves "1,2,8", and removing the only entry leaves it blank. The vlans row itself is
+* never deleted - this only drops the port <-> vlan link.
+*
+* @param object $db  database handle used for the port lookup
+* @param object $db2 second handle, used for the tagged-port lookup + updates
+* @param array  $switchNames map of switchmanager.id => display name, for the result message
+* @return void
+*/
+function remove_vlan_from_assetless_ports($db, $db2, array $switchNames)
+{
+    $request = \MyAdmin\App::variables()->request;
+    if (!isset($request['action']) || $request['action'] != 'remove_noasset_ports') {
+        return;
+    }
+    $vlanId = intval($request['vlan_id'] ?? 0);
+    if ($vlanId <= 0) {
+        add_output('<div class="alert alert-danger">Invalid vlan id.</div>');
+        return;
+    }
+    $removed = [];
+    $db->query("select * from switchports where find_in_set('{$vlanId}', vlans) <> 0", __LINE__, __FILE__);
+    $ports = [];
+    while ($db->next_record(MYSQL_ASSOC)) {
+        $ports[] = $db->Record;
+    }
+    foreach ($ports as $port) {
+        $hasAsset = !empty($port['asset_id']);
+        if (!$hasAsset && preg_match('/vlan\d+/i', $port['port'], $matches)) {
+            // Vlan interface: its asset comes from whichever ports tag it.
+            $db2->query("select * from switchports where find_in_set({$port['switchport_id']}, vlans_tag)", __LINE__, __FILE__);
+            while ($db2->next_record(MYSQL_ASSOC)) {
+                if (!empty($db2->Record['asset_id'])) {
+                    $hasAsset = true;
+                }
+            }
+        }
+        if ($hasAsset) {
+            continue;
+        }
+        $vlanIds = array_filter(explode(',', (string)$port['vlans']), 'strlen');
+        if (($key = array_search((string)$vlanId, $vlanIds, true)) === false) {
+            continue;
+        }
+        unset($vlanIds[$key]);
+        $newVlans = implode(',', $vlanIds);
+        $db2->query("update switchports set vlans='{$newVlans}' where switchport_id={$port['switchport_id']}", __LINE__, __FILE__);
+        $removed[] = ($switchNames[$port['switch']] ?? $port['switch']).' '.$port['port'];
+        myadmin_log('myadmin', 'info', "Removed vlan_id({$vlanId}) from switchport({$port['switchport_id']}) leaving vlans - '{$newVlans}'", __LINE__, __FILE__);
+    }
+    if (empty($removed)) {
+        add_output('<div class="alert alert-warning">Vlan '.$vlanId.' is not on any ports without an asset.</div>');
+    } else {
+        add_output('<div class="alert alert-success">Removed vlan '.$vlanId.' from '.htmlspecialchars(implode(', ', $removed)).'</div>');
+    }
+}
+
+/**
 * VLAN Manager
 *
 * @return bool
@@ -59,10 +120,13 @@ function vlan_manager()
     while ($db->next_record(MYSQL_ASSOC)) {
         $ipblocks[$db->Record['ipblocks_id']] = $db->Record;
     }
+    remove_vlan_from_assetless_ports($db, $db2, $switchNames);
     $db->query("select * from vlans order by vlans_networks");
     while ($db->next_record(MYSQL_ASSOC)) {
         $db->Record['ports'] = [];
         $db->Record['portsStr'] = [];
+        $db->Record['asset_ids'] = [];
+        $db->Record['noasset_ports'] = [];
         $vlans[$db->Record['vlans_id']] = $db->Record;
     }
     $db->query("select * from switchports");
@@ -73,19 +137,30 @@ function vlan_manager()
                 if (isset($vlans[$vlanId])) {
                     $vlans[$vlanId]['portsStr'][] = $switchNames[$db->Record['switch']].' '.$db->Record['port'];
                     $vlans[$vlanId]['ports'][] = $db->Record['switchport_id'];
+                    // A port counts as "assetless" when nothing resolves to an asset id through it -
+                    // for a Vlan interface that means none of the ports tagging it have an asset,
+                    // for a physical port it means the port itself has no asset_id.
+                    $hasAsset = false;
                     if (preg_match('/vlan\d+/i', $db->Record['port'], $matches)) {
                         $db2->query("SELECT * FROM switchports WHERE find_in_set({$db->Record['switchport_id']}, vlans_tag)");
                         if ($db2->num_rows() > 0) {
                             while($db2->next_record(MYSQL_ASSOC)) {
-                                $vlans[$vlanId]['asset_ids'][] = !empty($db2->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db2->Record['asset_id'].'" target="_blank">'.$db2->Record['asset_id'].'</a>' : null;
+                                if (!empty($db2->Record['asset_id'])) {
+                                    $vlans[$vlanId]['asset_ids'][] = '<a href="/admin/asset_form?id='.$db2->Record['asset_id'].'" target="_blank">'.$db2->Record['asset_id'].'</a>';
+                                    $hasAsset = true;
+                                }
                             }
                         }
-                    } else {
-                        $vlans[$vlanId]['asset_ids'][] = !empty($db->Record['asset_id']) ? '<a href="/admin/asset_form?id='.$db->Record['asset_id'].'" target="_blank">'.$db->Record['asset_id'].'</a>' : null;
+                    } elseif (!empty($db->Record['asset_id'])) {
+                        $vlans[$vlanId]['asset_ids'][] = '<a href="/admin/asset_form?id='.$db->Record['asset_id'].'" target="_blank">'.$db->Record['asset_id'].'</a>';
+                        $hasAsset = true;
+                    }
+                    if (!$hasAsset) {
+                        $vlans[$vlanId]['noasset_ports'][] = $switchNames[$db->Record['switch']].' '.$db->Record['port'];
                     }
                 }
             }
-            
+
         }
         $switchports[$db->Record['switchport_id']] = $db->Record;
     }
@@ -102,12 +177,22 @@ function vlan_manager()
             $table->add_field(implode(', ', $vlan['asset_ids']));
         else
             $table->add_field('&nbsp;');
-        $table->add_field(
+        $options =
             $table->make_link('choice=ip.ipblock_viewer&amp;ipblock='.$ip_block_t, '<i class="icon-analyze" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-analyze"></use></svg></i>', false, 'title="View"')
             . $table->make_link('choice=ip.add_ips_to_server&amp;ipblock='.$ip_block_t, '<i class="icon-plus" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-plus"></use></svg></i>', false, 'title="Add IPs"')
-            . $table->make_link('choice=ip.delete_vlan&amp;ipblock='.$ip_block_t, '<i class="icon-delete" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-delete"></use></svg></i>', false, 'title="Delete"'),
-            'c'
-        );
+            . $table->make_link('choice=ip.delete_vlan&amp;ipblock='.$ip_block_t, '<i class="icon-delete" style="width: 20px; height: 20px;"><svg><use xlink:href="/images/myadmin/MyAdmin-Icons.min.svg#icon-delete"></use></svg></i>', false, 'title="Delete"');
+        if (!empty($vlan['noasset_ports'])) {
+            // Some of this vlan's ports resolve to no asset at all - offer to unlink the vlan from
+            // just those ports (the vlan row itself is left alone).
+            $options .= $table->make_link(
+                'choice=ip.vlan_manager&amp;action=remove_noasset_ports&amp;vlan_id='.$vlanId,
+                '<i class="fa fa-unlink" style="width: 20px; height: 20px;"></i>',
+                false,
+                'title="'.htmlspecialchars('Remove from port(s) with no asset: '.implode(', ', $vlan['noasset_ports'])).'"'
+                .' onclick="return confirm(\'Remove this vlan from the '.count($vlan['noasset_ports']).' port(s) with no asset attached?\');"'
+            );
+        }
+        $table->add_field($options, 'c');
         $table->add_row();
     }
     add_js('datatables');
