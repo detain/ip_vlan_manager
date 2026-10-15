@@ -93,7 +93,7 @@ while ($db->next_record(MYSQL_ASSOC))
     $out['ipblocks'][4][$db->Record['ipblocks_id']] = $db->Record;
 }
 $db->query("select vlans6.*, accounts.account_id, account_lid as account_email, account_name, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from vlans6 
-left join switchports on vlans6.vlans6_id=switchports.vlans6 
+left join switchports on find_in_set(vlans6.vlans6_id, switchports.vlans6) 
 left join assets on asset_id=id 
 left join servers on servers.server_id=order_id 
 left join accounts on account_id=server_custid
