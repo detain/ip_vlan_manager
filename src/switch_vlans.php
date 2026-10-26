@@ -39,6 +39,15 @@ function actionDeleteDb(&$db, $vlan, $switchId, $portId, $switchData, $portData,
     if ($db->num_rows() > 0) {
         $db->next_record(MYSQL_ASSOC);
         $vlanId = $db->Record['vlans'.$ipvSuffix[$ipv].'_id'];
+        // an IPv6 block isn't unlinked while live VPS / QS ranges are still carved out of it, the guests have to go first
+        $guests = $ipv == 6 ? \MyAdmin\Network\Ipv6Allocator::guestRangesInside($db, $db->Record['vlans6_networks']) : [];
+        if (count($guests) > 0) {
+            $message[] = 'Refusing to remove vlans6 '.$vlanId.' '.$vlan.', '.count($guests).' VPS / QS IPv6 ranges are still in use inside it, delete them first:';
+            foreach ($guests as $guest) {
+                $message[] = $guest['module'].' '.$guest['id'].' '.$guest['range'];
+            }
+            return $message;
+        }
         $query = "select * from switchports where switchport_id={$portData['switchport_id']}";
         $db->query($query, __LINE__, __FILE__);
         if ($db->num_rows() == 0) {
