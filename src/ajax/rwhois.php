@@ -50,6 +50,7 @@ $out = [
 ];
 // gather data: only the columns the feed publishes; a malformed stored
 // network logs and skips its row instead of fatalling the whole feed (B187)
+$v6blocks = [];    // ipblocks6 id => network map, filled below; B094 parentage input
 $db->query("select ipblocks_id, ipblocks_network from ipblocks6", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
 {
@@ -60,6 +61,7 @@ while ($db->next_record(MYSQL_ASSOC))
         error_log("rwhois feed: unparseable ipblocks6 network '{$record['ipblocks_network']}' in row {$record['ipblocks_id']} (skipped)");
         continue;
     }
+    $v6blocks[(int)$record['ipblocks_id']] = (string)$record['ipblocks_network'];
     $out['ipblocks'][6][$record['ipblocks_id']] = \Detain\IpVlanManager\RwhoisFeed::shapeRecord($record);     
 }
 $db->query("select ipblocks.ipblocks_id, ipblocks.ipblocks_network, accounts.account_id, accounts.account_city, accounts.account_state, accounts.account_zip, accounts.account_country from ipblocks
@@ -76,6 +78,11 @@ while ($db->next_record(MYSQL_ASSOC))
     $record = \Detain\IpVlanManager\RwhoisFeed::addContact($record, $out['contacts']);
     $out['ipblocks'][4][$record['ipblocks_id']] = \Detain\IpVlanManager\RwhoisFeed::shapeRecord($record);
 }
+// B094: documented legacy anchor row (the 2604:a00::/32 estate, ipblocks_id 1 by
+// convention since the location_manager migration); a host that moved it may pin
+// IPBLOCKS6_ANCHOR_ID. The anchor is only a fallback - normal parentage comes
+// from containment, see RwhoisV6Parent.
+$anchorId = defined('IPBLOCKS6_ANCHOR_ID') ? (int)constant('IPBLOCKS6_ANCHOR_ID') : 1;
 $db->query("select vlans6.vlans6_id, vlans6.vlans6_networks, accounts.account_id, accounts.account_city, accounts.account_state, accounts.account_zip, accounts.account_country from vlans6 
 left join switchports on find_in_set(vlans6.vlans6_id, switchports.vlans6) 
 left join assets on asset_id=id 
@@ -88,8 +95,17 @@ while ($db->next_record(MYSQL_ASSOC))
         error_log("rwhois feed: unparseable vlans6 network '{$record['vlans6_networks']}' in row {$record['vlans6_id']} (skipped)");
         continue;
     }
+    // B094: publish the VLAN under the ipblocks6 row that actually contains it
+    // (smallest containing range), never under the old hardcoded id-1 bucket
+    // that mis-attributed every carve to the legacy anchor; no phantom bucket
+    // is ever materialized for a missing row.
+    $parent = \Detain\IpVlanManager\RwhoisV6Parent::resolveParentId($v6blocks, (string)$record['vlans6_networks'], $anchorId);
+    if ($parent === null || !isset($out['ipblocks'][6][$parent])) {
+        error_log("rwhois feed: vlans6 row {$record['vlans6_id']} network '{$record['vlans6_networks']}' sits inside no published ipblocks6 row and no anchor fallback (skipped)");
+        continue;
+    }
     $record = \Detain\IpVlanManager\RwhoisFeed::addContact($record, $out['contacts']);
-    $out['ipblocks'][6][1]['vlans'][$record['vlans6_id']] = \Detain\IpVlanManager\RwhoisFeed::shapeRecord($record);
+    $out['ipblocks'][6][$parent]['vlans'][$record['vlans6_id']] = \Detain\IpVlanManager\RwhoisFeed::shapeRecord($record);
 }
 $db->query("select vlans.vlans_id, vlans.vlans_networks, vlans.vlans_block, accounts.account_id, accounts.account_city, accounts.account_state, accounts.account_zip, accounts.account_country from vlans 
 left join switchports on find_in_set(vlans.vlans_id, switchports.vlans) 
