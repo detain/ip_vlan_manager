@@ -9,6 +9,7 @@
 */
 
 use Detain\SshPool\SshPool;
+use Detain\IpVlanManager\SnmpCommandBuilder;
 use SensioLabs\AnsiConverter\AnsiToHtmlConverter;
 
 function switch_add() {
@@ -23,15 +24,32 @@ function switch_add() {
     $my = [];
     $ips = [];
     add_output('<a href="switches" class="btn btn-primary btn-sm">Return to Switches</a><br><br>');
+    // B009: every leg of this page either runs remote commands or writes the
+    // inventory, so both entry legs must arrive POST with the page token -
+    // bookmarkable/cross-site GETs can no longer reach the SNMP probe.
+    if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !verify_csrf('switch_add')) {
+        return;
+    }
     $name = \MyAdmin\App::variables()->request['name'];
     $ip = \MyAdmin\App::variables()->request['ip'];
     $installs = isset(\MyAdmin\App::variables()->request['install']) ? \MyAdmin\App::variables()->request['install'] : [];
     $type = !empty(\MyAdmin\App::variables()->request['type']) ? \MyAdmin\App::variables()->request['type'] : 'cisco';
-    $typeDir = $type == 'junos' ? 'juniper' : $type;
     $ver = !empty(\MyAdmin\App::variables()->request['ver']) ? \MyAdmin\App::variables()->request['ver'] : 'v2c';
     $community = !empty(\MyAdmin\App::variables()->request['community']) ? \MyAdmin\App::variables()->request['community'] : $defaultCommunity;
-    if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-        add_output('Invalid IP Address '.$ip.'<br>');
+    // B009 server-side gates: name, type and version are whitelisted before
+    // anything stores, splices or echoes them; the community has no closed
+    // vocabulary, so it is only ever passed through escapeshellarg (below and
+    // in SnmpCommandBuilder) or the SQL escape builders.
+    if (!SnmpCommandBuilder::validSwitchName($name)) {
+        add_output('Invalid Switch Name<br>');
+        return;
+    }
+    try {
+        SnmpCommandBuilder::ip($ip);
+        SnmpCommandBuilder::versionFlag($ver);
+        SnmpCommandBuilder::mibsDir($type);
+    } catch (\InvalidArgumentException $e) {
+        add_output('Invalid Switch Parameters ' . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '<br>');
         return;
     }
     $sshpool = new SshPool(SNMP_SSH_HOST, SNMP_SSH_PORT, SNMP_SSH_USER, false, $homeDir.'/.ssh/id_rsa.pub', $homeDir.'/.ssh/id_rsa');
@@ -43,7 +61,7 @@ function switch_add() {
         $indexes = [];
         //snmpget -t 2 -v2c -c *********** -Pud -OQUs switch72n.trouble-free.net sysDescr.0
         foreach (['ifEntry' /* , 'ifXEntry' */] as $oid) {
-            $cmd = "/usr/bin/snmpbulkwalk -t 2 -{$ver} -c {$community} -Pud -OQUs -m IF-MIB -M /opt/observium/mibs/rfc:/opt/observium/mibs/net-snmp:/opt/observium/mibs/{$typeDir} {$ip} {$oid}";
+            $cmd = SnmpCommandBuilder::walk($ver, $community, $ip, $oid, $type);
             myadmin_log('myadmin', 'debug', "Running {$cmd}", __LINE__, __FILE__);
             $sshpool->addCommand($cmd, null, null, function($cmd, $conId, $data, $exitStatus, $stdout, $stderr) use ($db3, $oid, $name, $ip, $type, $ver, $community) {
                 global $indexes;
@@ -78,6 +96,8 @@ function switch_add() {
             ksort($interfaces);
             $table = new TFTable();
             $table->hide_table();
+            $table->set_method('POST');
+            $table->csrf('switch_add', false);
             $table->add_hidden('action', 'import');
             $table->add_hidden('name', $name);
             $table->add_hidden('ip', $ip);
@@ -124,7 +144,7 @@ function switch_add() {
                 }*/
                 $checked = in_array($data['Type'], ['ethernetCsmacd']) && preg_match('/^(Ethernet|et-|ge-|xe-)/', $name) ? 'checked="checked"' : '';
                 $table->set_col_options('style="padding: 0 0 0 0; margin: 0 0 0 0;"');
-                $table->add_field('<input type="checkbox" name="ports[]" value="'.$name.'" '.$checked.'>&nbsp;'.$name);
+                $table->add_field('<input type="checkbox" name="ports[]" value="'.\Detain\IpVlanManager\HtmlOut::attr($name).'" '.$checked.'>&nbsp;'.htmlspecialchars($name, ENT_QUOTES));
                 /*
                 $table->add_field($name);
                 foreach ($data as $field => $value) {
@@ -177,20 +197,19 @@ function switch_add() {
         $converter = new AnsiToHtmlConverter();
         if (in_array('cacti', $installs)) {
             $deviceTemplate = $type == 'cisco' ? 5 : 1;
-            $deviceVer = $ver == 'v2c' ? 2 : 1;
-            $cmd = "php /usr/share/cacti/cli/add_device.php --description='{$name}' --ip='{$ip}' --template={$deviceTemplate} --external-id={$switchId} --version={$deviceVer} --community='{$community}'";
+            $cmd = SnmpCommandBuilder::addCactiDevice($name, $ip, $deviceTemplate, $switchId, $ver, $community);
             myadmin_log('myadmin', 'debug', "Running {$cmd}", __LINE__, __FILE__);
             $ret = $sshpool->runCommand($cmd);
             add_output('Added Device to Cacti<br><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">'.$converter->convert($ret['out'])."\n".$converter->convert($ret['err']).'</pre><br>');
-            $db->query("select id from cacti.host where description='{$name}'", __LINE__, __FILE__);
+            $db->query("select id from cacti.host where description='".$db->real_escape($name)."'", __LINE__, __FILE__);
             $db->next_record(MYSQL_ASSOC);
             add_output("Got Cacti Device ID {$db->Record['id']}<br>");
-            $cmd = "php /usr/share/cacti/cli/add_graphs.php --host-id={$db->Record['id']} --graph-type=ds --graph-template-id=2 --snmp-query-id=1 --snmp-query-type-id=24 --snmp-field=ifType --snmp-value=ethernetCsmacd";
+            $cmd = SnmpCommandBuilder::addCactiGraphs((int)$db->Record['id']);
             $ret = $sshpool->runCommand($cmd);
             add_output('Added Graphs to Cacti<br><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">'.$converter->convert($ret['out'])."\n".$converter->convert($ret['err']).'</pre><br>');
         }
         if (in_array('observium', $installs)) {
-            $cmd = "php /opt/observium/add_device.php '{$name}.trouble-free.net' '{$community}' {$ver}";
+            $cmd = SnmpCommandBuilder::addObserviumDevice($name.'.trouble-free.net', $community, $ver);
             myadmin_log('myadmin', 'debug', "Running {$cmd}", __LINE__, __FILE__);
             $ret = $sshpool->runCommand($cmd);
             add_output('Added Device to Observium<br>NOTE: It will take several minutes before the IP shows up properly with Observium<br><pre style="background-color: black; overflow: auto; padding: 10px 15px; font-family: monospace;">'.$converter->convert($ret['out'])."\n".$converter->convert($ret['err']).'</pre><br>');

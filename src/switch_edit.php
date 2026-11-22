@@ -9,6 +9,7 @@
 */
 
 use Detain\SshPool\SshPool;
+use Detain\IpVlanManager\SnmpCommandBuilder;
 use SensioLabs\AnsiConverter\AnsiToHtmlConverter;
 
 function switch_edit() {
@@ -29,7 +30,6 @@ function switch_edit() {
     }
     $db->next_record(MYSQL_ASSOC);
     $switchInfo = $db->Record;
-    $typeDir = $switchInfo['type'] == 'junos' ? 'juniper' : $switchInfo['type'];
     $portToId = [];
     $db->query("select switchport_id, port from switchports where switch={$id}", __LINE__, __FILE__);
     while ($db->next_record(MYSQL_ASSOC)) {
@@ -38,7 +38,8 @@ function switch_edit() {
     if (!isset(\MyAdmin\App::variables()->request['name'])) {
         $table = new TFTable;
         $table->hide_table();
-        $table->set_method('GET');
+        $table->set_method('POST');
+        $table->csrf('switch_edit', false);
         $table->add_hidden('id', $id);
         $table->set_title('Edit Switch');
         $table->add_field('ID');
@@ -75,8 +76,19 @@ function switch_edit() {
         global $indexes;
         $indexes = [];
         //snmpget -t 2 -v2c -c *********** -Pud -OQUs switch72n.trouble-free.net sysDescr.0
-        foreach (['ifEntry' /* , 'ifXEntry' */] as $oid) {
-            $cmd = "/usr/bin/snmpbulkwalk -t 2 -{$switchInfo['snmp_version']} -c {$switchInfo['snmp_community']} -Pud -OQUs -m IF-MIB -M /opt/observium/mibs/rfc:/opt/observium/mibs/net-snmp:/opt/observium/mibs/{$typeDir} {$switchInfo['ip']} {$oid}";
+        // B009: the stored version/community/type must satisfy the same closed
+        // vocabularies the save path enforces; legacy dirty rows surface an
+        // error here instead of splicing the value into a remote command.
+        try {
+            $probeCommands = [];
+            foreach (['ifEntry' /* , 'ifXEntry' */] as $oid) {
+                $probeCommands[] = SnmpCommandBuilder::walk($switchInfo['snmp_version'], $switchInfo['snmp_community'], $switchInfo['ip'], $oid, $switchInfo['type']);
+            }
+        } catch (\InvalidArgumentException $e) {
+            $probeCommands = [];
+            add_output('Stored Switch Parameters Invalid - fix them before probing: ' . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '<br>');
+        }
+        foreach ($probeCommands as $cmd) {
             myadmin_log('myadmin', 'debug', "Running {$cmd}", __LINE__, __FILE__);
             $sshpool->addCommand($cmd, null, null, function($cmd, $conId, $data, $exitStatus, $stdout, $stderr) {
                 global $indexes;
@@ -163,24 +175,41 @@ function switch_edit() {
         $table->add_row();            
         add_output($table->get_table().'<br>');
     } else {
+        // B009: the save leg mutates the inventory -> POST + page token only;
+        // the ip/type/version/name stored here feed the probe commands above
+        // on every later render, so they are whitelisted at the save gate.
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !verify_csrf('switch_edit')) {
+            return;
+        }
         $name = \MyAdmin\App::variables()->request['name'];
         $ip = \MyAdmin\App::variables()->request['ip'];
         $available = \MyAdmin\App::variables()->request['available'];
-        $asset = \MyAdmin\App::variables()->request['asset'];
+        $asset = intval(\MyAdmin\App::variables()->request['asset']);
         $type = !empty(\MyAdmin\App::variables()->request['type']) ? \MyAdmin\App::variables()->request['type'] : 'cisco';
-        $typeDir = $type == 'junos' ? 'juniper' : $type;
         $ver = !empty(\MyAdmin\App::variables()->request['snmp_version']) ? \MyAdmin\App::variables()->request['snmp_version'] : 'v2c';
         $community = !empty(\MyAdmin\App::variables()->request['snmp_community']) ? \MyAdmin\App::variables()->request['snmp_community'] : $defaultCommunity;
+        if (!SnmpCommandBuilder::validSwitchName($name)) {
+            add_output('Invalid Switch Name<br>');
+            return;
+        }
+        try {
+            SnmpCommandBuilder::ip($ip);
+            SnmpCommandBuilder::versionFlag($ver);
+            SnmpCommandBuilder::mibsDir($type);
+        } catch (\InvalidArgumentException $e) {
+            add_output('Invalid Switch Parameters ' . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '<br>');
+            return;
+        }
+        if (!in_array((string)$available, ['0', '1'], true)) {
+            add_output('Invalid Available Flag<br>');
+            return;
+        }
         $updates = [];
         foreach (['name', 'ip', 'type', 'asset', 'available', 'snmp_version', 'snmp_community'] as $field) {
             if (!empty(\MyAdmin\App::variables()->request[$field]) && \MyAdmin\App::variables()->request[$field] != $switchInfo[$field]) {
                 $esc = $db->real_escape(\MyAdmin\App::variables()->request[$field]);
                 $updates[] = "{$field}='{$esc}'";
             }
-        }
-        if (filter_var($ip, FILTER_VALIDATE_IP) === false) {
-            add_output('Invalid IP Address '.$ip.'<br>');
-            return;
         }
         if (isset(\MyAdmin\App::variables()->request['ports'])) {
             $ports = \MyAdmin\App::variables()->request['ports'];
