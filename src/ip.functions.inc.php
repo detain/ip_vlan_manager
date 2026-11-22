@@ -447,7 +447,7 @@ if (!function_exists('parse_vlan_ports')) {
 function get_switch_name($index, $short = false)
 {
     $db = get_module_db('default');
-    $db->query("select * from switchmanager where id='" . (int)$index . "'");
+    $db->query("select * from switchmanager where id='" . (int)$index . "'", __LINE__, __FILE__);
     if ($db->num_rows() > 0) {
         $db->next_record();
         $switch = $db->Record['name'];

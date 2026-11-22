@@ -43,6 +43,16 @@ final class SnmpCommandBuilder
     private const MIB_BASE_DIRS = '/opt/observium/mibs/rfc:/opt/observium/mibs/net-snmp';
 
     /**
+     * Both historical shapes carried the type directory as the FULL path
+     * '/opt/observium/mibs/{cisco|juniper}' as the third -M entry, not the
+     * bare directory name (fa671dc^ src/switch_add.php:46; root 6228043eb1^
+     * scripts/Networking/switch_snmp.php:31). A bare name resolves against
+     * the relay process CWD and fails, so type-dir MIBs silently stop
+     * loading; mibsDir()'s value therefore gets this prefix at assembly.
+     */
+    private const MIB_TYPE_DIR_ROOT = '/opt/observium/mibs/';
+
+    /**
      * @return string the '-v1'/'-v2c' flag for a whitelisted SNMP version
      * @throws InvalidArgumentException on any other version token
      */
@@ -86,7 +96,7 @@ final class SnmpCommandBuilder
     {
         return '/usr/bin/snmpbulkwalk -t 2 ' . self::versionFlag($ver)
             . ' -c ' . escapeshellarg($community)
-            . ' -Pud -OQUs -m IF-MIB -M ' . self::MIB_BASE_DIRS . ':' . self::mibsDir($type)
+            . ' -Pud -OQUs -m IF-MIB -M ' . self::MIB_BASE_DIRS . ':' . self::MIB_TYPE_DIR_ROOT . self::mibsDir($type)
             . ' ' . escapeshellarg(self::ip($ip))
             . ' ' . escapeshellarg($oid);
     }
@@ -109,7 +119,7 @@ final class SnmpCommandBuilder
      */
     public static function bulkwalk(string $ver, string $community, string $ip, string $type): string
     {
-        return 'snmpbulkwalk -M +' . self::MIB_BASE_DIRS . ':' . self::mibsDir($type)
+        return 'snmpbulkwalk -M +' . self::MIB_BASE_DIRS . ':' . self::MIB_TYPE_DIR_ROOT . self::mibsDir($type)
             . ' -Cr10 -r 2 -t 60 ' . self::versionFlag($ver)
             . ' -c ' . escapeshellarg($community)
             . ' ' . escapeshellarg(self::ip($ip));
