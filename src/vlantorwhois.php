@@ -15,9 +15,11 @@
 include_once(__DIR__.'/../../../../include/functions.inc.php');
 include_once(__DIR__.'/ip.functions.inc.php');
 
+use Detain\IpVlanManager\RwhoisRecord;
+use Detain\IpVlanManager\VlanSpec;
+
 $db = \MyAdmin\App::db();
 $privateData = true;
-$cmds = '';
 $total = 0;
 $totalVlans = 0;
 $totalAvailableIps = 0;
@@ -536,10 +538,14 @@ soa-file: etc/rwhoisd/interserver.net/soa
 ---
 ';
 $installDir = '/home/rwhois/bin';
-$cmds .= "cd '{$installDir}/etc/rwhoisd';
-mkdir -p interserver.net/{attribute_defs,data/referral,data/contact,data/host,data/guardian,data/org,data/asn,data/domain};
-";
-$nets = array();
+// B010: the emitted vlantorwhois.sh shell script is gone - customer values
+// used to be interpolated into double-quoted echo -e lines ($(cmd) executed
+// at script run time). The rwhoisd tree is now written directly, the same
+// model setup_rwhois.php already uses, so run this script on the rwhois host.
+$rwhoisBase = $installDir . '/etc/rwhoisd';
+foreach (['interserver.net/attribute_defs', 'interserver.net/data/referral', 'interserver.net/data/contact', 'interserver.net/data/host', 'interserver.net/data/guardian', 'interserver.net/data/org', 'interserver.net/data/asn', 'interserver.net/data/domain'] as $relDir) {
+    RwhoisRecord::ensureDirectory($rwhoisBase . '/' . $relDir);
+}
 $db->query("select * from ipblocks");
 $ipblocks = array();
 $serial = date('YmdHis') . '000';
@@ -547,13 +553,17 @@ $serial = '19961101000000000';
 while ($db->next_record())
 {
     $ipblock = $db->Record['ipblocks_network'];
-    //echo "Generating IP Block {$ipblock}\n";
-    $vlandata = explode('/', $ipblock);
-    $ip = $vlandata[0];
-    $size = $vlandata[1];
-    $nets[] = $ipblock;
+    // B010: only a canonical CIDR spec may name directories or fill record
+    // lines; malformed blocks are skipped, never interpolated.
+    $normalized = VlanSpec::normalize($ipblock);
+    if ($normalized === null) {
+        echo "Skipping invalid IP block {$ipblock}\n";
+        continue;
+    }
+    $ipblock = $normalized;
+    [$ip, $size] = explode('/', $ipblock);
     $network_info = ipcalc($ipblock);
-    $totalAvailableIps += $network_info['hosts'];
+    $totalAvailableIps += is_array($network_info) ? $network_info['hosts'] : 0;
     $rwhoisd_auth_area .= "type: master
 name: {$ipblock}
 data-dir: etc/rwhoisd/net-{$ip}-{$size}/data
@@ -580,33 +590,42 @@ Retry-Interval: 60
 Time-To-Live: 86400
 Primary-Server: rwhois.trouble-free.net:4321
 Hostmaster: hostmaster@trouble-free.net";
-    $cmds .= "mkdir -p net-{$ip}-{$size}/{attribute_defs,data/referral,data/network,data/org};
-echo '{$schema}' > net-{$ip}-{$size}/schema;
-echo '{$soa}' > net-{$ip}-{$size}/soa;
-echo '{$templates['contact']}' > net-{$ip}-{$size}/attribute_defs/contact.tmpl;
-echo '{$templates['guardian']}' > net-{$ip}-{$size}/attribute_defs/guardian.tmpl;
-echo '{$templates['host']}' > net-{$ip}-{$size}/attribute_defs/host.tmpl;
-echo '{$templates['network']}' > net-{$ip}-{$size}/attribute_defs/network.tmpl;
-echo '{$templates['org']}' > net-{$ip}-{$size}/attribute_defs/org.tmpl;
-echo '{$templates['referral']}' > net-{$ip}-{$size}/attribute_defs/referral.tmpl;\n";        
+    // B010: direct writes replace the mkdir/echo shell pipeline; IPv6 block
+    // names keep their ':' (canonical inet6 text is legitimate here).
+    $blockBase = $rwhoisBase . '/net-' . $ip . '-' . $size;
+    foreach (['attribute_defs', 'data/referral', 'data/network', 'data/org'] as $relDir) {
+        RwhoisRecord::ensureDirectory($blockBase . '/' . $relDir);
+    }
+    RwhoisRecord::writeFile($blockBase, 'schema', $schema . "\n");
+    RwhoisRecord::writeFile($blockBase, 'soa', $soa . "\n");
+    foreach (['contact', 'guardian', 'host', 'network', 'org', 'referral'] as $tmplName) {
+        RwhoisRecord::writeFile($blockBase . '/attribute_defs', $tmplName . '.tmpl', $templates[$tmplName] . "\n");
+    }
 }
-$cmds .= "echo '{$rwhoisd_auth_area}' > {$installDir}/rwhoisd.auth_area;\n";
-//$nets = implode(' ', $nets);
-//$cmds .= "echo '$nets' > ipblocks.txt;\n";
+RwhoisRecord::writeFile($installDir, 'rwhoisd.auth_area', $rwhoisd_auth_area . "\n");
 echo "Building VLAN data";
 $db->query("select * from vlans left join ipblocks on vlans_block=ipblocks_id left join switchports on find_in_set(vlans.vlans_id, switchports.vlans) left join assets on asset_id=id left join servers on servers.server_id=order_id left join accounts on account_id=server_custid where account_id is not null", __LINE__, __FILE__);
 echo "\n";
 while ($db->next_record(MYSQL_ASSOC)) {
-    $ipblock = $db->Record['ipblocks_network'];         
+    $ipblock = VlanSpec::normalize($db->Record['ipblocks_network']);
+    if ($ipblock === null) {
+        echo "Skipping VLAN with invalid parent block {$db->Record['ipblocks_network']}\n";
+        continue;
+    }
     list($ipblock_ip, $ipblock_size) = explode('/', $ipblock);
-    $vlan = str_replace(':', '', $db->Record['vlans_networks']);
+    $vlan = VlanSpec::normalize(str_replace(':', '', $db->Record['vlans_networks']));
+    if ($vlan === null) {
+        echo "Skipping VLAN with invalid network spec\n";
+        continue;
+    }
     //echo "Generating VLAN {$vlan}\n";
     list($ipAddress, $size) = explode('/', $vlan);
     $network_info = ipcalc($vlan);
-    $maxip = $network_info['broadcast'];
+    $maxip = is_array($network_info) ? $network_info['broadcast'] : '';
     $totalVlans++;
     
-    $total += $network_info['hosts'];
+    $total += is_array($network_info) ? $network_info['hosts'] : 0;
+    $accountId = intval($db->Record['account_id']);
     if ($privateData) {        
         $org = 'Private Customer';
         $data = [
@@ -619,37 +638,49 @@ while ($db->next_record(MYSQL_ASSOC)) {
             'company' => 'na',
         ];
     } else {
-        $data = \MyAdmin\App::accounts()->read($group);
+        // B010: the flag-flip branch read an undefined $group - account data
+        // must come from the row's own account id.
+        $data = \MyAdmin\App::accounts()->read($accountId);
         $org = !empty($data['company']) ? $data['company'] : 'Account ' . $db->Record['account_id'];
     }
-    $cmds .= 'cd '.$installDir.'/etc/rwhoisd/net-'.$ipblock_ip.'-'.$ipblock_size.';\n'
-        . 'echo -e "ID: NETBLK-INTSRV.'.$ipblock.'\n'
-        . 'Auth-Area: '.$ipblock.'\n'
-        . 'Org-Name: '.trim($org).'\n'
-        . 'Street-Address: '.trim($data['address']).'\n'
-        . 'City: '.$data['city'].'\n'
-        . 'State: '.$data['state'].'\n'
-        . 'Postal-Code: '.$data['zip'].'\n'
-        . 'Country-Code: '.$data['country'].'\n'
-        . 'Phone: '.trim($data['phone']).'\n'
-        . 'Created: '.(is_null($db->Record['server_order_date']) ? '20050101' : date('Ymd', $db->fromTimestamp($db->Record['server_order_date']))) . '\n'
-        . 'Updated: '.date('Ymd').'" > data/org/'.$db->Record['account_id'].'.txt;\n'
-        . 'echo -e "ID: NETBLK-INTSRV.'.$ipblock.'\n'
-        . 'Auth-Area: '.$ipblock.'\n'
-        . 'Network-Name: INTSRV-'.$ipAddress.'\n'
-        . 'IP-Network: '.$ipAddress.'/'.$size.'\n'
-        . 'Org-Name: '.trim($org).'\n'
-        . 'Street-Address: '.$data['address'].'\n'
-        . 'City: '.$data['city'].'\n'
-        . 'State: '.$data['state'].'\n'
-        . 'Postal-Code: '.$data['zip'].'\n'
-        . 'Country-Code: '.$data['country'].'\n'
-        . 'Created: 20050101\n'
-        . 'Updated: '.date('Ymd').'\n'
-        . 'Updated-By: abuse@interserver.net" > data/network/'.$ipAddress.'-'.$size.'.txt;\n';
+    // B010: record lines assembled in PHP; every free-text field is collapsed
+    // to one line of rwhois display charset, so no value can add lines or
+    // feed a shell (the old echo -e "..." pipeline executed $(cmd) payloads).
+    $blockBase = $rwhoisBase . '/net-' . $ipblock_ip . '-' . $ipblock_size;
+    $created = is_null($db->Record['server_order_date']) ? '20050101' : date('Ymd', $db->fromTimestamp($db->Record['server_order_date']));
+    $updated = date('Ymd');
+    $orgLines = [
+        'ID: NETBLK-INTSRV.' . RwhoisRecord::rwhoisField($ipblock),
+        'Auth-Area: ' . RwhoisRecord::rwhoisField($ipblock),
+        'Org-Name: ' . RwhoisRecord::rwhoisField(trim($org)),
+        'Street-Address: ' . RwhoisRecord::rwhoisField(trim($data['address'])),
+        'City: ' . RwhoisRecord::rwhoisField($data['city']),
+        'State: ' . RwhoisRecord::rwhoisField($data['state']),
+        'Postal-Code: ' . RwhoisRecord::rwhoisField($data['zip']),
+        'Country-Code: ' . RwhoisRecord::rwhoisField($data['country']),
+        'Phone: ' . RwhoisRecord::rwhoisField(trim($data['phone'])),
+        'Created: ' . $created,
+        'Updated: ' . $updated,
+    ];
+    RwhoisRecord::writeRecordFile($blockBase . '/data/org', $accountId . '.txt', $orgLines);
+    $networkLines = [
+        'ID: NETBLK-INTSRV.' . RwhoisRecord::rwhoisField($ipblock),
+        'Auth-Area: ' . RwhoisRecord::rwhoisField($ipblock),
+        'Network-Name: INTSRV-' . RwhoisRecord::rwhoisField($ipAddress),
+        'IP-Network: ' . RwhoisRecord::rwhoisField($ipAddress) . '/' . RwhoisRecord::rwhoisField((string)$size),
+        'Org-Name: ' . RwhoisRecord::rwhoisField(trim($org)),
+        'Street-Address: ' . RwhoisRecord::rwhoisField($data['address']),
+        'City: ' . RwhoisRecord::rwhoisField($data['city']),
+        'State: ' . RwhoisRecord::rwhoisField($data['state']),
+        'Postal-Code: ' . RwhoisRecord::rwhoisField($data['zip']),
+        'Country-Code: ' . RwhoisRecord::rwhoisField($data['country']),
+        'Created: 20050101',
+        'Updated: ' . $updated,
+        'Updated-By: abuse@interserver.net',
+    ];
+    RwhoisRecord::writeRecordFile($blockBase . '/data/network', $ipAddress . '-' . $size . '.txt', $networkLines);
 }
-file_put_contents('vlantorwhois.sh', str_replace('\n', "\n", $cmds));
-echo "wrote vlantorwhois.sh
+echo "Wrote rwhoisd data files directly under {$rwhoisBase}
 
 Totals:
 VLANs: {$totalVlans}
