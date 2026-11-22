@@ -30,7 +30,7 @@ function vlan_edit_port()
     $ipblock = \MyAdmin\App::variables()->request['ipblock'];
     $table->add_hidden('ipblock', $ipblock);
     $table->add_field('IP Block');
-    $table->add_field($ipblock);
+    $table->add_field(htmlspecialchars((string)$ipblock, ENT_QUOTES));
     $table->add_row();
     $server_id = null;
     if (isset(\MyAdmin\App::variables()->request['pop_order_id'])) {
@@ -44,7 +44,9 @@ function vlan_edit_port()
         $table->add_field($table->make_checkbox('update_server', 1, true));
         $table->add_row();
     }
-    $db->query("select * from vlans, switchports where vlans_networks like '%:{$ipblock}:%' and find_in_set(vlans_id, vlans)");
+    // B012-c convention: request ipblock escaped at the LIKE boundary (the
+    // value still round-trips raw in the form so legitimate specs survive).
+    $db->query("select * from vlans, switchports where vlans_networks like '%:" . $db->real_escape((string)$ipblock) . ":%' and find_in_set(vlans_id, vlans)");
     $ports = [];
     while ($db->next_record(MYSQL_ASSOC)) {
         $vlanInfo = $db->Record;
@@ -97,7 +99,8 @@ function vlan_edit_port()
         }
         foreach ($ports as $switchport) {
             [$switch, $port, $blade, $justport] = parse_vlan_ports($switchport);
-            $db2->query("select * from switchports where switch='{$switch}' and port='{$port}'", __LINE__, __FILE__);
+            // B012-c convention: request-sourced port names escaped at the SQL boundary.
+            $db2->query("select * from switchports where switch='" . $db2->real_escape((string)$switch) . "' and port='" . $db2->real_escape((string)$port) . "'", __LINE__, __FILE__);
             if ($db2->num_rows() > 0) {
                 $db2->next_record(MYSQL_ASSOC);
                 $orig_switchports[$db2->Record['switchport_id']] = $db2->Record;

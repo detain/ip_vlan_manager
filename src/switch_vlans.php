@@ -32,9 +32,14 @@
 * @todo update switch config data
 */
 
+use Detain\IpVlanManager\HtmlOut;
+use Detain\IpVlanManager\VlanSpec;
+
 function actionDeleteDb(&$db, $vlan, $switchId, $portId, $switchData, $portData, $range, $ipv, $ipvSuffix, $strip) {
     // remove the vlans assignment in the switchports table entry
-    $db->query("select * from vlans{$ipvSuffix[$ipv]} where vlans{$ipvSuffix[$ipv]}_networks='{$strip[$ipv]}{$vlan}{$strip[$ipv]}'", __LINE__, __FILE__);
+    // B012: spec escaped at the SQL boundary; switch_vlans() validates to the
+    // canonical CIDR grammar before these helpers are reached.
+    $db->query("select * from vlans{$ipvSuffix[$ipv]} where vlans{$ipvSuffix[$ipv]}_networks='{$strip[$ipv]}" . $db->real_escape((string)$vlan) . "{$strip[$ipv]}'", __LINE__, __FILE__);
     $message = [];
     if ($db->num_rows() > 0) {
         $db->next_record(MYSQL_ASSOC);
@@ -82,7 +87,7 @@ function actionDeleteDb(&$db, $vlan, $switchId, $portId, $switchData, $portData,
 function actionAddDb(&$db, $vlan, $switchId, $portId, $switchData, $portData, $range, $ipv, $ipvSuffix, $strip, $ipblocks) {
     // create the vlans table entry and add it to the switchports entry
     $message = [];
-    $query = "select * from vlans{$ipvSuffix[$ipv]} where vlans{$ipvSuffix[$ipv]}_networks='{$strip[$ipv]}{$vlan}{$strip[$ipv]}'";
+    $query = "select * from vlans{$ipvSuffix[$ipv]} where vlans{$ipvSuffix[$ipv]}_networks='{$strip[$ipv]}" . $db->real_escape((string)$vlan) . "{$strip[$ipv]}'";
     $db->query($query, __LINE__, __FILE__);
     if ($db->num_rows() > 0) {
         $db->next_record(MYSQL_ASSOC);
@@ -460,7 +465,7 @@ xe (10-Gigabit Ethernet)  Interfaces for 10Gbps Ethernet connections.  Purpose: 
     //\Tracy\Debugger::barDump($switches, 'Switch Config Blocks');
     //\Tracy\Debugger::barDump($lines, 'Parsed Switch Backup Lines');
     if ($new === true) {
-        return $llinesNew;
+        return $linesNew;
     } else {
         return $lines;
     }
@@ -607,9 +612,22 @@ function switch_vlans()
         }
     }
     if (isset($_REQUEST['action']) && isset($_REQUEST['vlan'])) {
-        $vlan = $_REQUEST['vlan'];
-        $switchId = $_REQUEST['switch'];
-        $portId = $_REQUEST['port'];
+        // B142: these branches write the vlans/switchports tables and used to
+        // fire on plain GET clicks (and any forged GET an admin's browser was
+        // talked into). POST with the page token only, now.
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST' || !verify_csrf('switch_vlans')) {
+            return;
+        }
+        // B012: the spec must satisfy the canonical CIDR grammar before any
+        // parse/lookup; the crash-to-null of parseString is no longer the
+        // validation gate.
+        $vlan = VlanSpec::normalize($_REQUEST['vlan']);
+        if ($vlan === null) {
+            add_output('<div class="container alert alert-danger">Invalid VLAN Specification</div>');
+            return;
+        }
+        $switchId = intval($_REQUEST['switch']);
+        $portId = intval($_REQUEST['port']);
         $switchData = $switches[$switchId];
         $portData = $switches[$switchId]['ports'][$portIdToName[$portId]];
         $range = \IPLib\Range\Subnet::parseString($vlan);
@@ -630,8 +648,18 @@ function switch_vlans()
         } elseif ($_REQUEST['action'] == 'delete_both') {
 
         }
-        \MyAdmin\App::output()->redirect(\MyAdmin\App::link('index.php', 'choice=none.switch_vlans&message='.urlencode(implode('<br>', $message))));
+        // B141: results travel in a session flash read-once at render, not in
+        // a reflected ?message= URL (strip_tags '<br>' allowed attribute
+        // injection like <br onanimationstart=...>).
+        \MyAdmin\App::session()->appsession('switch_vlans_flash', implode("\n", $message));
+        \MyAdmin\App::output()->redirect(\MyAdmin\App::link('index.php', 'choice=none.switch_vlans'));
     }
+    // B142: bulk mode mutates the DB for every displayed problem (up to
+    // $maxFixed=300 inserts) - POST + token, computed once for the loop and
+    // the summary.
+    $bulkMode = ($_SERVER['REQUEST_METHOD'] ?? '') === 'POST'
+        && isset($_POST['action']) && $_POST['action'] === 'bulk'
+        && verify_csrf('switch_vlans');
     $table = new TFTable();
     $table->set_title('Switch VLANs');
     $table->add_field('Switch');
@@ -707,7 +735,7 @@ function switch_vlans()
                                 }
                                 $links = [];
                                 if (isset($portData['src'][$vlan])) {
-                                    $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig('."'".$vlan."', '".$switchData['orig_name']."', ['".$port.(count($portData['src'][$vlan]) > 0 ? "', '".implode("', '", $portData['src'][$vlan]) : '')."']".');"></a>';
+                                    $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], count($portData['src'][$vlan]) > 0 ? $portData['src'][$vlan] : [])) . ');"></a>';
                                 }
                                 if (!is_null($portData['id'])) {
                                     $links[] = $table->make_link('choice=asset_form&id='.$portData['id'], '', false, 'class="asset-btn btn btn-sm btn-info" target="_blank"');
@@ -717,16 +745,16 @@ function switch_vlans()
                                     $table->add_field($port);
                                     $table->add_field($vlan);
                                     if ($problem) {
-                                        $links[] = $table->make_link('choice=none.switch_vlans&action=delete_switch&switch='.$switchId.'&port='.$portData['switchport_id'].'&vlan='.urlencode($vlan), '', false, 'class="del-sw-btn btn btn-sm btn-secondary"');
+                                        $links[] = HtmlOut::postButton('switch_vlans', ['action' => 'delete_switch', 'switch' => $switchId, 'port' => $portData['switchport_id'], 'vlan' => $vlan], '', 'del-sw-btn btn btn-sm btn-secondary');
                                         $links[] = 'or';
-                                        $links[] = $table->make_link('choice=none.switch_vlans&action=add_db&switch='.$switchId.'&port='.$portData['switchport_id'].'&vlan='.urlencode($vlan), '', false, 'class="add-db-btn btn btn-sm btn-secondary"');
-                                        if (isset($_GET['action']) && $_GET['action'] == 'bulk' && $fixed < $maxFixed) {
+                                        $links[] = HtmlOut::postButton('switch_vlans', ['action' => 'add_db', 'switch' => $switchId, 'port' => $portData['switchport_id'], 'vlan' => $vlan], '', 'add-db-btn btn btn-sm btn-secondary');
+                                        if ($bulkMode && $fixed < $maxFixed) {
                                             $fixed++;
                                             $range = \IPLib\Range\Subnet::parseString($vlan);
                                             $messages = array_merge($messages, actionAddDb($db, $vlan, $switchId, $portData['switchport_id'], $switchData, $portData, $range, $range->getAddressType(), $ipvSuffix, $strip, $ipblocks));
                                         }
                                     } else {
-                                        $links[] = $table->make_link('choice=none.switch_vlans&action=delete_both&switch='.$switchId.'&port='.$portData['switchport_id'].'&vlan='.urlencode($vlan), '', false, 'class="del-both-btn btn btn-sm btn-danger"');
+                                        $links[] = HtmlOut::postButton('switch_vlans', ['action' => 'delete_both', 'switch' => $switchId, 'port' => $portData['switchport_id'], 'vlan' => $vlan], '', 'del-both-btn btn btn-sm btn-danger');
                                     }
                                     $table->add_field(is_null($portData['id']) ? '&nbsp;' : ((empty($portData['hostname']) ? '#'.$portData['id'] : $portData['hostname']).' ('.$portData['status'].')'));
                                     $table->add_field($text);
@@ -761,7 +789,7 @@ function switch_vlans()
                                     }
                                     $links = [];
                                     if (isset($portData['src'][$vlan])) {
-                                        $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig('."'".$vlan."', '".$switchData['orig_name']."', ['".$port.(count($portData['src'][$vlan]) > 0 ? "', '".implode("', '", $portData['src'][$vlan]) : '')."']".');"></a>';
+                                        $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], count($portData['src'][$vlan]) > 0 ? $portData['src'][$vlan] : [])) . ');"></a>';
                                     } else {
                                         $srcs = [];
                                         foreach ($portData['src'] as $tmpVlan => $src) {
@@ -769,9 +797,9 @@ function switch_vlans()
                                         }
                                         $srcs = array_unique($srcs);
                                         if (count($srcs) > 0) {
-                                            $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig('."'".$vlan."', '".$switchData['orig_name']."', ['".$port.(count($srcs) > 0 ? "', '".implode("', '", $srcs) : '')."']".');"></a>';
+                                            $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], $srcs)) . ');"></a>';
                                         } elseif (isset($switchConfigs[$switchData['orig_name']][$port])) {
-                                            $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig('."'".$vlan."', '".$switchData['orig_name']."', ['".$port."']".');"></a>';
+                                            $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray([$port]) . ');"></a>';
                                         } else {
                                             $text = 'This port no longer exists on the switch. '.$text;
                                         }
@@ -783,9 +811,9 @@ function switch_vlans()
                                         $table->add_field($switchData['name']);
                                         $table->add_field($port);
                                         $table->add_field($vlan);
-                                        $links[] = $table->make_link('choice=none.switch_vlans&action=delete_db&switch='.$switchId.'&port='.$portData['switchport_id'].'&vlan='.urlencode($vlan), '', false, 'class="del-db-btn btn btn-sm btn-secondary"');
+                                        $links[] = HtmlOut::postButton('switch_vlans', ['action' => 'delete_db', 'switch' => $switchId, 'port' => $portData['switchport_id'], 'vlan' => $vlan], '', 'del-db-btn btn btn-sm btn-secondary');
                                         $links[] = 'or';
-                                        $links[] = $table->make_link('choice=none.switch_vlans&action=add_switch&switch='.$switchId.'&port='.$portData['switchport_id'].'&vlan='.urlencode($vlan), '', false, 'class="add-sw-btn btn btn-sm btn-secondary"');
+                                        $links[] = HtmlOut::postButton('switch_vlans', ['action' => 'add_switch', 'switch' => $switchId, 'port' => $portData['switchport_id'], 'vlan' => $vlan], '', 'add-sw-btn btn btn-sm btn-secondary');
                                         $table->add_field(is_null($portData['id']) ? '&nbsp;' : ((empty($portData['hostname']) ? '#'.$portData['id'] : $portData['hostname']).' ('.$portData['status'].')'));
                                         $table->add_field($text);
                                         $table->add_field(implode('&nbsp;', $links));
@@ -799,8 +827,9 @@ function switch_vlans()
             }
         }
     }
-    if (isset($_GET['action']) && $_GET['action'] == 'bulk') {
-        add_output(implode('<br>', $messages).'<br>');
+    if ($bulkMode) {
+        // B141-class: bulk result lines contain DB/config text - render escaped.
+        add_output(implode('<br>', array_map(fn($m) => htmlspecialchars((string)$m, ENT_QUOTES), $messages)).'<br>');
     }
     $table2 = new TFTable();
     $table2->hide_title();
@@ -851,10 +880,19 @@ function switch_vlans()
     .del-both-btn::after { content: "- Switch & DB"; }
 }
 </style>');
-    if (isset($_REQUEST['message'])) {
-        add_output('<div class="alert alert-info" style="width: 700px;">'.strip_tags($_REQUEST['message'], '<br>').'</div>');
+    // B141: results render from a session flash stored by the mutation leg
+    // and consumed once. The old ?message= URL reflection through
+    // strip_tags('<br>') accepted attribute payloads (br onanimationstart=...).
+    $flash = \MyAdmin\App::session()->appsession('switch_vlans_flash');
+    if (!is_null($flash) && $flash !== '') {
+        \MyAdmin\App::session()->delappsession('switch_vlans_flash');
+        add_output('<div class="alert alert-info" style="width: 700px;">'.nl2br(htmlspecialchars((string)$flash, ENT_QUOTES)).'</div>');
     }
     add_output($table2->get_table());
+    // B142: bulk runs up to 300 DB inserts - launch it from an explicit POST
+    // form carrying the page token and the current filter limits, never a
+    // bare ?action=bulk link.
+    add_output(HtmlOut::postButton('switch_vlans', ['action' => 'bulk', 'l_vendor' => $limits['vendor'], 'l_switch' => $limits['switch'], 'l_ipv' => $limits['ipv'], 'l_status' => $limits['status']], 'Bulk Add Missing to DB', 'btn btn-sm btn-primary') . '<br>');
     add_output('<div class="vlans-div">');
     add_output($table->get_table());
     add_output('</div>');

@@ -142,7 +142,9 @@ function add_vlan()
                     }
                 }
                 $ips = get_ips_newer($ipaddress.'/'.$blocksize, true);
-                $db->query("select * from ips left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ips) . "') and vlans_id is not NULL");
+                // B012-c convention: escape list members before IN(...) even when generated.
+                $ipsSql = array_map(fn($ip) => $db->real_escape((string)$ip), $ips);
+                $db->query("select * from ips left join vlans on ips_vlan=vlans_id where ips_ip in ('" . implode("', '", $ipsSql) . "') and vlans_id is not NULL");
                 if ($db->num_rows() > 0) {
                     $found = false;
                     while ($db->next_record()) {
@@ -163,7 +165,8 @@ function add_vlan()
                 foreach ($ports as $port) {
                     $switch = substr($port, 0, strpos($port, '/'));
                     $port = substr($port, strpos($port, '/') + 1);
-                    $db->query("select * from switchports where switch='{$switch}' and port='{$port}'", __LINE__, __FILE__);
+                    // B012-c convention: request-sourced port names escaped at the SQL boundary.
+                    $db->query("select * from switchports where switch='" . $db->real_escape((string)$switch) . "' and port='" . $db->real_escape((string)$port) . "'", __LINE__, __FILE__);
                     if ($db->num_rows() > 0) {
                         $db->next_record(MYSQL_ASSOC);
                         if (trim($db->Record['ports']) == '') {
@@ -174,7 +177,7 @@ function add_vlan()
                     }
                 }
                 $ports = ':'.implode(':', $ports).':';
-                $query = "select ips_ip from ips where ips_ip in ('" . implode("', '", $ips) . "')";
+                $query = "select ips_ip from ips where ips_ip in ('" . implode("', '", $ipsSql) . "')";
                 $db->query($query, __LINE__, __FILE__);
                 $ips2 = [];
                 while ($db->next_record()) {

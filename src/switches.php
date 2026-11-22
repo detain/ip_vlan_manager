@@ -11,30 +11,8 @@
 */
 
 use Detain\SshPool\SshPool;
+use Detain\IpVlanManager\HtmlOut;
 use SensioLabs\AnsiConverter\AnsiToHtmlConverter;
-
-if (!function_exists('ip_vlan_post_button')) {
-    /**
-     * B009/B142: render a state-changing action as a one-button POST form
-     * carrying the page CSRF token, replacing raw GET links so mutations can
-     * never be triggered by bookmark/cross-site navigation. Values are
-     * attribute-escaped; null/false fields are skipped (conditional params).
-     */
-    function ip_vlan_post_button($choice, array $fields, $label, $class) {
-        $html = '<form method="post" action="' . htmlspecialchars(\MyAdmin\App::link('index.php', 'choice=none.' . $choice), ENT_QUOTES) . '" style="display:inline">';
-        $html .= '<input type="hidden" name="choice" value="none.' . htmlspecialchars($choice, ENT_QUOTES) . '">';
-        foreach ($fields as $name => $value) {
-            if ($value === null || $value === false || $value === '') {
-                continue;
-            }
-            $html .= '<input type="hidden" name="' . htmlspecialchars($name, ENT_QUOTES) . '" value="' . htmlspecialchars((string)$value, ENT_QUOTES) . '">';
-        }
-        $html .= '<input type="hidden" name="csrf_token" value="' . htmlspecialchars(get_csrf($choice), ENT_QUOTES) . '">';
-        $html .= '<button type="submit" class="' . htmlspecialchars($class, ENT_QUOTES) . '">' . htmlspecialchars($label, ENT_QUOTES) . '</button>';
-        $html .= '</form>';
-        return $html;
-    }
-}
 
 function switches() {
     page_title('Switches');
@@ -157,10 +135,10 @@ function switches() {
                 }
                 if ($ip != '') {
                     if (!isset($ips[$ip]['observium'])) {
-                        $notes[] = ip_vlan_post_button('switch_install', ['install[]' => 'observium', 'id' => $id], 'Add to Observium', 'btn btn-primary btn-sm');
+                        $notes[] = HtmlOut::postButton('switch_install', ['install[]' => 'observium', 'id' => $id], 'Add to Observium', 'btn btn-primary btn-sm');
                     }
                     if (!isset($ips[$ip]['cacti'])) {
-                        $notes[] = ip_vlan_post_button('switch_install', ['install[]' => 'cacti', 'id' => $id], 'Add to Cacti', 'btn btn-primary btn-sm');
+                        $notes[] = HtmlOut::postButton('switch_install', ['install[]' => 'cacti', 'id' => $id], 'Add to Cacti', 'btn btn-primary btn-sm');
                     }
                 } else {
                     $notes[] = 'Blank IP.';
@@ -193,7 +171,7 @@ function switches() {
                     }
                 } else {
                     if (!filter_var($observium[$id]['hostname'], FILTER_VALIDATE_IP)) {
-                        $notes[] = ip_vlan_post_button('switch_add', ['name' => str_replace('.trouble-free.net', '', $observium[$id]['hostname']), 'ip' => $observium[$id]['ip'], 'type' => $observium[$id]['type'], 'ver' => $observium[$id]['snmp_version'], 'community' => $observium[$id]['snmp_community'], 'install[]' => (!isset($ips[$ip]['cacti']) ? 'cacti' : null)], 'Import from Observium', 'btn btn-primary btn-sm');
+                        $notes[] = HtmlOut::postButton('switch_add', ['name' => str_replace('.trouble-free.net', '', $observium[$id]['hostname']), 'ip' => $observium[$id]['ip'], 'type' => $observium[$id]['type'], 'ver' => $observium[$id]['snmp_version'], 'community' => $observium[$id]['snmp_community'], 'install[]' => (!isset($ips[$ip]['cacti']) ? 'cacti' : null)], 'Import from Observium', 'btn btn-primary btn-sm');
                     } else {
                         $notes[] = 'Observium Devices should use Hostnames.';
                     }
@@ -230,7 +208,7 @@ function switches() {
                     }
                 } else {
                     if ($cacti[$id]['type'] != 'unknown') {
-                        $notes[] = ip_vlan_post_button('switch_add', ['name' => $cacti[$id]['description'], 'ip' => $cacti[$id]['ip'], 'type' => ($cacti[$id]['type'] != 'unknown' ? $cacti[$id]['type'] : null), 'ver' => $cactiVers[$cacti[$id]['snmp_version']], 'community' => $cacti[$id]['snmp_community'], 'install[]' => (!isset($ips[$ip]['observium']) ? 'observium' : null)], 'Import from Cacti', 'btn btn-primary btn-sm');
+                        $notes[] = HtmlOut::postButton('switch_add', ['name' => $cacti[$id]['description'], 'ip' => $cacti[$id]['ip'], 'type' => ($cacti[$id]['type'] != 'unknown' ? $cacti[$id]['type'] : null), 'ver' => $cactiVers[$cacti[$id]['snmp_version']], 'community' => $cacti[$id]['snmp_community'], 'install[]' => (!isset($ips[$ip]['observium']) ? 'observium' : null)], 'Import from Cacti', 'btn btn-primary btn-sm');
                     }
                 }
                 $links['cacti'] = '<a href="https://nms.is.cc/cacti/host.php?action=edit&id='.$id.'" target="_blank" title="View '.$cacti[$id]['description'].' in Cacti"><img src="https://nms.is.cc/cacti/include/themes/classic/images/cacti_logo.gif" style="height: 24px;" alt="Cact"></a>';
