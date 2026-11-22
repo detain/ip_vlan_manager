@@ -735,7 +735,7 @@ function switch_vlans()
                                 }
                                 $links = [];
                                 if (isset($portData['src'][$vlan])) {
-                                    $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], count($portData['src'][$vlan]) > 0 ? $portData['src'][$vlan] : [])) . ');"></a>';
+                                    $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick=\'showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], count($portData['src'][$vlan]) > 0 ? $portData['src'][$vlan] : [])) . ');\'></a>';
                                 }
                                 if (!is_null($portData['id'])) {
                                     $links[] = $table->make_link('choice=asset_form&id='.$portData['id'], '', false, 'class="asset-btn btn btn-sm btn-info" target="_blank"');
@@ -789,7 +789,7 @@ function switch_vlans()
                                     }
                                     $links = [];
                                     if (isset($portData['src'][$vlan])) {
-                                        $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], count($portData['src'][$vlan]) > 0 ? $portData['src'][$vlan] : [])) . ');"></a>';
+                                        $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick=\'showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], count($portData['src'][$vlan]) > 0 ? $portData['src'][$vlan] : [])) . ');\'></a>';
                                     } else {
                                         $srcs = [];
                                         foreach ($portData['src'] as $tmpVlan => $src) {
@@ -797,9 +797,9 @@ function switch_vlans()
                                         }
                                         $srcs = array_unique($srcs);
                                         if (count($srcs) > 0) {
-                                            $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], $srcs)) . ');"></a>';
+                                            $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick=\'showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray(array_merge([$port], $srcs)) . ');\'></a>';
                                         } elseif (isset($switchConfigs[$switchData['orig_name']][$port])) {
-                                            $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick="showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray([$port]) . ');"></a>';
+                                            $links[] = '<a class="config-btn btn btn-sm btn-primary" onClick=\'showConfig(' . HtmlOut::jsArgs([$vlan, (string)$switchData['orig_name']]) . ', ' . HtmlOut::jsArray([$port]) . ');\'></a>';
                                         } else {
                                             $text = 'This port no longer exists on the switch. '.$text;
                                         }

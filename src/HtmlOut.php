@@ -22,6 +22,8 @@
 
 namespace Detain\IpVlanManager;
 
+use RuntimeException;
+
 final class HtmlOut
 {
     /**
