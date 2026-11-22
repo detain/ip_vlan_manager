@@ -101,7 +101,15 @@ function actionAddDb(&$db, $vlan, $switchId, $portId, $switchData, $portData, $r
                 }
             }
         } else {
-            $newVlan['vlans6_block'] = explode(':', $vlan)[2];
+            // vlans6_block holds the ipblocks6 id of the containing /40 (0 for a legacy row with no mintable
+            // parent), never a hextet carved out of the address itself - a hextet collides with real ipblocks6
+            // ids (B148) and re-checks nothing (B080): refuse blocks outside the delegated estate
+            $parentId = \MyAdmin\Network\Ipv6Allocator::vlan6MintParent($db, $range->toString());
+            if ($parentId === null) {
+                $message[] = 'Refused: ' . $range->toString() . ' is not inside a delegated IPv6 block (ipblocks6 / ipv6_roots6) or covers one without sitting inside it';
+                return $message;
+            }
+            $newVlan['vlans6_block'] = $parentId;
         }
         $query = make_insert_query('vlans'.$ipvSuffix[$ipv], $newVlan);
         $db->query($query, __LINE__, __FILE__);
@@ -474,7 +482,19 @@ function switch_vlans()
     while ($db->next_record(MYSQL_ASSOC)) {
         $ipblocks[$db->Record['ipblocks_id']] = \IPLib\Factory::parseRangeString($db->Record['ipblocks_network']);
     }
-    $ipblocks[0] = \IPLib\Factory::parseRangeString('2604:a00::/32');
+    // the local IPv6 estate is the delegated data, not a hardcoded /32: every ipblocks6 row (anchors, legacy
+    // groups, /40s) plus every ipv6_roots6 root.  Keyed separately from $ipblocks so v6 ids never shadow
+    // v4 parent ids in actionAddDb().
+    $estate6 = [];
+    foreach (['select ipblocks_network as network from ipblocks6', 'select root_network as network from ipv6_roots6'] as $query) {
+        $db->query($query, __LINE__, __FILE__);
+        while ($db->next_record(MYSQL_ASSOC)) {
+            $block = \IPLib\Factory::parseRangeString($db->Record['network']);
+            if (!is_null($block)) {
+                $estate6[] = $block;
+            }
+        }
+    }
     $switchConfigs = [];
     $switches = [];
     $vlans = [4 => [], 6 => []];
@@ -571,7 +591,7 @@ function switch_vlans()
             $range = \IPLib\Range\Subnet::parseString($block);
             if (!is_null($range)) {
                 if ($range->getRangeType() == \IPLib\Range\Type::T_PUBLIC) {
-                    if (blockIsLocal($range, $ipblocks)) {
+                    if (blockIsLocal($range, $range->getAddressType() == 4 ? $ipblocks : $estate6)) {
                         $switches[$switch]['ports'][$port][$range->getAddressType() == 4 ? 'switchvlans' : 'switchvlans6'][] = $range->toString();
                         $switches[$switch]['ports'][$port]['description'] = $description;
                         $switches[$switch]['ports'][$port]['src'][$range->toString()] = $src;
