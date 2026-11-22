@@ -13,7 +13,16 @@
 if (file_exists('rwhoisd.json')) {
     $json = file_get_contents('rwhoisd.json');    
 } else {
-    $json = file_get_contents('https://mynew.interserver.net/ajax/rwhois.php');
+    // B187: the feed endpoint 404s callers that do not present a configured
+    // token; send it when this host has one (define or env). Header name must
+    // match RwhoisFeed::TOKEN_HEADER, kept literal here so this file stays a
+    // standalone CLI with no composer dependency.
+    $feedToken = defined('RWHOIS_FEED_TOKEN') ? trim((string)RWHOIS_FEED_TOKEN) : trim((string)getenv('RWHOIS_FEED_TOKEN'));
+    $feedContext = null;
+    if ($feedToken !== '') {
+        $feedContext = stream_context_create(['http' => ['header' => 'X-Rwhois-Token: ' . $feedToken]]);
+    }
+    $json = file_get_contents('https://mynew.interserver.net/ajax/rwhois.php', false, $feedContext);
     file_put_contents('rwhoisd.json', $json);
 }  
 $json = json_decode($json, true);

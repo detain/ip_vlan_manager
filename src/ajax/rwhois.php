@@ -1,54 +1,30 @@
 <?php
 /**
 * VLAN to rWhois Generator
-* 
+*
+* Publishes the rwhoisd feed: network blocks, their VLAN sub-ranges and the
+* four public geo fields per account. B187: customer PII (login email, name,
+* street address, phone, company) and the free-text comment/port columns are
+* neither fetched nor published - the SELECTs carry only the network columns
+* plus the account id and the geo fields, and every record is additionally
+* reduced to the RwhoisFeed allowlist at the sink. When RWHOIS_FEED_TOKEN is
+* defined (config.settings.php, owner-side rollout to all hosts) callers that
+* do not present it in the X-Rwhois-Token header get a 404; setup_rwhois.php
+* sends the header when it has the token too.
+*
 * @todo
 * * use real or private contact info for each user based on account setting
 * if you want i could add vps network definitions as well
 */
 
-function add_contact(&$data, &$contacts) {
-    $fields = ['city', 'state', 'zip', 'country'];
-    $privateFields = ['name', 'email', 'address', 'phone', 'company'];
-    $privateData = true;
-    if (!is_null($data['account_id'])) {
-        $contact = [];
-        if ($privateData == false) {
-            foreach ($privateFields as $field) {
-                if (isset($data['account_'.$field]) && !empty($data['account_'.$field])) {
-                    $contact[$field] = $data['account_'.$field];
-                }
-            }
-        }
-        foreach ($fields as $field) {
-            if (isset($data['account_'.$field]) && !empty($data['account_'.$field])) {
-                $contact[$field] = $data['account_'.$field];
-            }
-        }
-        $contacts[(int)$data['account_id']] = $contact;        
-    }
-    foreach ($fields as $field) {
-        unset($data['account_'.$field]);
-    }
-}
-
-function add_range($ipblock, &$data) {
-    $range = \IPLib\Range\Subnet::parseString($ipblock);
-    //$data['size'] = number_format($range->getSize(), 0, '.', '');       // 64                   79228162514264337593543950336
-    $data['size'] = $range->getSize();                                  // 64                   79228162514264337593543950336
-    if ($data['size'] > 1) {
-        $data['gateway'] = $range->getAddressAtOffset(1)->toString();   // 69.10.61.65          2604:a00::1
-    }
-    $data['prefix'] = $range->getNetworkPrefix();                       // 26                   32
-    if ($range->getAddressType() == 4) { 
-        $data['subnet'] = $range->getSubnetMask()->toString();          // 255.255.255.192
-    }   
-    $data['start'] = $range->getStartAddress()->toString();             // 69.10.61.64          2604:a00::
-    $data['end'] = $range->getEndAddress()->toString();                 // 69.10.61.127         2604:a00:ffff:ffff:ffff:ffff:ffff:ffff  */
-}
-
 include_once(__DIR__.'/../../../../../include/functions.inc.php');
 include_once(__DIR__.'/../ip.functions.inc.php');
+
+// gate the endpoint before touching the database (B187 fix step 2)
+if (!\Detain\IpVlanManager\RwhoisFeed::isAuthorized($_SERVER, defined('RWHOIS_FEED_TOKEN') ? RWHOIS_FEED_TOKEN : '')) {
+	http_response_code(404);
+	exit;
+}
 
 // initialize variables
 $db = \MyAdmin\App::db();
@@ -72,51 +48,64 @@ $out = [
         ],
     ],
 ];
-// gather data
-$db->query("select * from ipblocks6", __LINE__, __FILE__);
+// gather data: only the columns the feed publishes; a malformed stored
+// network logs and skips its row instead of fatalling the whole feed (B187)
+$db->query("select ipblocks_id, ipblocks_network from ipblocks6", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
 {
-    $db->Record['vlans'] = [];
-    $db->Record['referral'] = [];
-    add_range($db->Record['ipblocks_network'], $db->Record);
-    $out['ipblocks'][6][$db->Record['ipblocks_id']] = $db->Record;     
+    $record = $db->Record;
+    $record['vlans'] = [];
+    $record['referral'] = [];
+    if (!\Detain\IpVlanManager\RwhoisFeed::addRange($record['ipblocks_network'], $record)) {
+        error_log("rwhois feed: unparseable ipblocks6 network '{$record['ipblocks_network']}' in row {$record['ipblocks_id']} (skipped)");
+        continue;
+    }
+    $out['ipblocks'][6][$record['ipblocks_id']] = \Detain\IpVlanManager\RwhoisFeed::shapeRecord($record);     
 }
-$db->query("select ipblocks.*, accounts.account_id, account_lid as account_email, account_name, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from ipblocks
-left join accounts on account_id=ipblocks_custid
-left join accounts_ext on accounts.account_id=accounts_ext.account_id and account_key='company'", __LINE__, __FILE__);
+$db->query("select ipblocks.ipblocks_id, ipblocks.ipblocks_network, accounts.account_id, accounts.account_city, accounts.account_state, accounts.account_zip, accounts.account_country from ipblocks
+left join accounts on account_id=ipblocks_custid", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
 {
-    $db->Record['vlans'] = [];
-    $db->Record['referral'] = [];
-    add_range($db->Record['ipblocks_network'], $db->Record);
-    add_contact($db->Record, $out['contacts']);
-    $out['ipblocks'][4][$db->Record['ipblocks_id']] = $db->Record;
+    $record = $db->Record;
+    $record['vlans'] = [];
+    $record['referral'] = [];
+    if (!\Detain\IpVlanManager\RwhoisFeed::addRange($record['ipblocks_network'], $record)) {
+        error_log("rwhois feed: unparseable ipblocks network '{$record['ipblocks_network']}' in row {$record['ipblocks_id']} (skipped)");
+        continue;
+    }
+    $record = \Detain\IpVlanManager\RwhoisFeed::addContact($record, $out['contacts']);
+    $out['ipblocks'][4][$record['ipblocks_id']] = \Detain\IpVlanManager\RwhoisFeed::shapeRecord($record);
 }
-$db->query("select vlans6.*, accounts.account_id, account_lid as account_email, account_name, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from vlans6 
+$db->query("select vlans6.vlans6_id, vlans6.vlans6_networks, accounts.account_id, accounts.account_city, accounts.account_state, accounts.account_zip, accounts.account_country from vlans6 
 left join switchports on find_in_set(vlans6.vlans6_id, switchports.vlans6) 
 left join assets on asset_id=id 
 left join servers on servers.server_id=order_id 
-left join accounts on account_id=server_custid
-left join accounts_ext on accounts.account_id=accounts_ext.account_id and account_key='company'", __LINE__, __FILE__);
+left join accounts on account_id=server_custid", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
 {
-    add_range($db->Record['vlans6_networks'], $db->Record);
-    add_contact($db->Record, $out['contacts']);
-    $out['ipblocks'][6][1]['vlans'][$db->Record['vlans6_id']] = $db->Record;
+    $record = $db->Record;
+    if (!\Detain\IpVlanManager\RwhoisFeed::addRange($record['vlans6_networks'], $record)) {
+        error_log("rwhois feed: unparseable vlans6 network '{$record['vlans6_networks']}' in row {$record['vlans6_id']} (skipped)");
+        continue;
+    }
+    $record = \Detain\IpVlanManager\RwhoisFeed::addContact($record, $out['contacts']);
+    $out['ipblocks'][6][1]['vlans'][$record['vlans6_id']] = \Detain\IpVlanManager\RwhoisFeed::shapeRecord($record);
 }
-$db->query("select vlans.*, accounts.account_id, account_lid as account_email, account_name, account_address, account_city, account_state, account_zip, account_country, account_phone, account_value as account_company from vlans 
+$db->query("select vlans.vlans_id, vlans.vlans_networks, vlans.vlans_block, accounts.account_id, accounts.account_city, accounts.account_state, accounts.account_zip, accounts.account_country from vlans 
 left join switchports on find_in_set(vlans.vlans_id, switchports.vlans) 
 left join assets on asset_id=id 
 left join servers on servers.server_id=order_id 
-left join accounts on account_id=server_custid
-left join accounts_ext on accounts.account_id=accounts_ext.account_id and account_key='company'", __LINE__, __FILE__);
+left join accounts on account_id=server_custid", __LINE__, __FILE__);
 while ($db->next_record(MYSQL_ASSOC))
 {
-    $db->Record['vlans_networks'] = str_replace(':', '', $db->Record['vlans_networks']);
-    add_range($db->Record['vlans_networks'], $db->Record);
-    add_contact($db->Record, $out['contacts']);
-    $out['ipblocks'][4][$db->Record['vlans_block']]['vlans'][$db->Record['vlans_id']] = $db->Record;     
+    $record = $db->Record;
+    $record['vlans_networks'] = str_replace(':', '', $record['vlans_networks']);
+    if (!\Detain\IpVlanManager\RwhoisFeed::addRange($record['vlans_networks'], $record)) {
+        error_log("rwhois feed: unparseable vlans network '{$record['vlans_networks']}' in row {$record['vlans_id']} (skipped)");
+        continue;
+    }
+    $record = \Detain\IpVlanManager\RwhoisFeed::addContact($record, $out['contacts']);
+    $out['ipblocks'][4][$record['vlans_block']]['vlans'][$record['vlans_id']] = \Detain\IpVlanManager\RwhoisFeed::shapeRecord($record);     
 }
 header('Content-type: application/json; charset=UTF-8');
 echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
