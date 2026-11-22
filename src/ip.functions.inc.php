@@ -440,7 +440,7 @@ function parse_vlan_ports($data)
 function get_switch_name($index, $short = false)
 {
     $db = get_module_db('default');
-    $db->query("select * from switchmanager where id='{$index}'");
+    $db->query("select * from switchmanager where id='" . (int)$index . "'");
     if ($db->num_rows() > 0) {
         $db->next_record();
         $switch = $db->Record['name'];
@@ -525,16 +525,27 @@ function ipcalc($network, $method = IPCALC_IPLIB)
         return false;
     }
     $parts = explode('/', $network);
+    // B011: a spec is exactly address/mask - anything with a third segment
+    // (1.2.3.4/24/$(id)) is hostile or malformed and never reaches an engine.
+    if (count($parts) > 2) {
+        return false;
+    }
     if (count($parts) > 1) {
         [$block, $bitmask] = $parts;
     } else {
         $block = $parts[0];
         $bitmask = '32';
-        $network = $block.'/'.$bitmask;
     }
-    if (!validIp($block, false) || !is_numeric($bitmask)) {
+    // validIp($ip, false) keeps the historic IPv4-only acceptance here; the
+    // mask ceiling is the IPv4 32 (validIp's third argument cannot answer
+    // family - it returns true for IPv4 with its 128 cap, see §0.6).
+    if (!validIp($block, false) || !is_numeric($bitmask) || (int)$bitmask < 0 || (int)$bitmask > 32) {
         return false;
     }
+    // dispatch on the canonical rebuild, never the raw caller string, so
+    // every engine (including the ipcalc binary sheller) sees address/mask
+    // only.
+    $network = $block . '/' . (int)$bitmask;
     if (preg_match('/^(.*)\/32$/', $network, $matches)) {
         $info = [
             'network' => $matches[1],
@@ -654,6 +665,12 @@ function ipcalcIPTools($network) {
 * @return bool|array false on error or returns an array containing the network info
 */
 function ipcalcBinary($network) {
+    // B011 self-defense: this engine interpolates $network into a shell
+    // pipeline; only a canonical, grammar-clean CIDR spec is ever executed,
+    // whatever a caller (or future dispatcher change) hands us.
+    if (\Detain\IpVlanManager\VlanSpec::normalize($network) !== $network) {
+        return false;
+    }
     $result = trim(`LANG=C ipcalc -nb {$network} | grep : | sed s#" "#""#g | cut -d= -f1 | cut -d: -f2 | cut -d\( -f1 | cut -dC -f1`);
     $lines = explode("\n", $result);
     $netparts = explode('/', $lines[3]);
