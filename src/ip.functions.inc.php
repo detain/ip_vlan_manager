@@ -417,19 +417,26 @@ function get_ips2_newer($network, $include_unusable = false)
 * @param string $data vlan ports like 171/4 or 171/Ethernet1/7 etc..
 * @return array array of switch / port information
 */
-function parse_vlan_ports($data)
-{
-    $parts2 = explode('/', $data);
-    $switch = $parts2[0];
-    $port = mb_substr($data, mb_strlen($switch) + 1);
-    if (mb_strpos($port, '/') > 0) {
-        $blade = mb_substr($port, 0, mb_strrpos($port, '/'));
-        $justport = mb_substr($port, mb_strlen($blade) + 1);
-    } else {
-        $blade = '';
-        $justport = $port;
+// B011 test-encountered hazard: this file is a flat bundle of globals that
+// other callers may preload stub copies of (unit/Servers/VlanPageTest ships a
+// guarded shape-identical copy). A redeclare here is fatal regardless of
+// load order, so the declaration itself is guarded - same convention every
+// test-adjacent copy already follows.
+if (!function_exists('parse_vlan_ports')) {
+    function parse_vlan_ports($data)
+    {
+        $parts2 = explode('/', $data);
+        $switch = $parts2[0];
+        $port = mb_substr($data, mb_strlen($switch) + 1);
+        if (mb_strpos($port, '/') > 0) {
+            $blade = mb_substr($port, 0, mb_strrpos($port, '/'));
+            $justport = mb_substr($port, mb_strlen($blade) + 1);
+        } else {
+            $blade = '';
+            $justport = $port;
+        }
+        return [$switch, $port, $blade, $justport];
     }
-    return [$switch, $port, $blade, $justport];
 }
 
 /**
