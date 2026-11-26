@@ -20,6 +20,9 @@
 include_once(__DIR__.'/../../../../../include/functions.inc.php');
 include_once(__DIR__.'/../ip.functions.inc.php');
 
+exit;
+
+
 // gate the endpoint before touching the database (B187 fix step 2)
 if (!\Detain\IpVlanManager\RwhoisFeed::isAuthorized($_SERVER, defined('RWHOIS_FEED_TOKEN') ? RWHOIS_FEED_TOKEN : '')) {
 	http_response_code(404);
